@@ -10,6 +10,8 @@ import Foundation
 
 class SearchManager: ListCollectionVCRequestDelegate {
     
+    //static let shared = Lis
+    
     var listVC: ListCollectionVC!
     var searchString: String?
     var correctedSearchString: String? {

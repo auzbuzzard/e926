@@ -104,8 +104,8 @@
         listVC.delegate = self
         listVC.isFirstListVC = false
         
-        print(searchString)
-        print(correctedSearchString)
+        //print(searchString)
+        //print(correctedSearchString)
         
         navigationController?.pushViewController(listVC, animated: true)
         

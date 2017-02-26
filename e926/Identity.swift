@@ -13,6 +13,8 @@ class Identity {
     static let main = Identity()
     private init() { }
     
+    var apiKey: String?
+    
     var isLoggedIn: Bool {
         get {
             return user != nil
@@ -20,5 +22,9 @@ class Identity {
     }
     
     var user: UserResult?
+    
+    func signIn(email: String, password: String) {
+        
+    }
     
 }
