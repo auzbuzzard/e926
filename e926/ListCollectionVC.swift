@@ -133,15 +133,16 @@ class ListCollectionVC: UICollectionViewController {
         print("tapped")
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        // Define cell
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ListCollectionVCMainCell
-
+        
+        // Setup gesture recognizer
         let singleTap = UITapGestureRecognizer(target: self, action: #selector(ListCollectionVC.segueTapRecognizerIsTapped(sender:)))
         singleTap.numberOfTapsRequired = 1
         cell.mainImage.addGestureRecognizer(singleTap)
         
-        cell.mainImage?.image = nil
-        cell.titleImage.image = nil
-        
+        // Add Corners
         if let windowWidth = view.window?.bounds.size.width {
             if cell.bounds.size.width < windowWidth  {
                 cell.layer.cornerRadius = 5
@@ -150,62 +151,57 @@ class ListCollectionVC: UICollectionViewController {
             }
         }
         
-        if indexPath.row < results.results.count {
-            let item = results.results[indexPath.row]
-            let artists = item.metadata.artist?.joined(separator: ", ")
-            cell.titleLabel.text = artists != "" ? artists : "(no artist)"
-            cell.titleSubheading.text = item.metadata.author
-            
-            cell.footerFavLabel.text = "\(item.metadata.fav_count)"
-            cell.footerScoreLabel.text = "\(item.metadata.score)"
-            
-            _ = item.getImage(ofSize: .sample, callback: { image, error in
-                if error == nil {
-                    DispatchQueue.main.async {
-                        cell.mainImage.image = image
-                        //self.collectionView?.reloadItems(at: [indexPath])
-                    }
-                } else {
-                    print("load image error")
-                }
-            })
-            
-            DispatchQueue.global().async {
-                let user_id = item.metadata.creator_id
-                _ = UserRequester().get(userOfId: user_id) { result in
-                    if let avatar_id = result.metadata.avatar_id {
-                        _ = ImageRequester().get(imageOfId: avatar_id) { result in
-                            if result.metadata.rating == ImageResult.Metadata.Rating.s.rawValue || UserDefaults.standard.bool(forKey: Preferences.useE621Mode.rawValue) {
-                                _ = result.getImage(ofSize: .preview, callback: { image, error in
-                                    if error == nil {
-                                        DispatchQueue.main.async {
-                                            cell.titleImage.image = image
-                                            //self.collectionView?.reloadItems(at: [indexPath])
-                                        }
-                                    } else {
-                                        print("load image error")
-                                    }
-                                })
-                            }
-                        }
-                    }
+        // Safeguard if there's enough cell
+        guard indexPath.row < results.results.count else { return cell }
+        
+        // Define Item
+        let item = results.results[indexPath.row]
+        
+        // Setting the cell
+        let artists = item.metadata.artist?.joined(separator: ", ")
+        cell.titleLabel.text = artists != "" ? artists : "(no artist)"
+        cell.titleSubheading.text = item.metadata.author
+        
+        cell.footerFavLabel.text = "\(item.metadata.fav_count)"
+        cell.footerScoreLabel.text = "\(item.metadata.score)"
+        
+        cell.mainImage.image = item.image(ofSize: .sample, fallBackSize: .preview, fallback: { success in
+            if success {
+                DispatchQueue.main.async {
+                    collectionView.reloadItems(at: [indexPath])
                 }
             }
-            
-            let rating = item.metadata.rating
-            var color = UIColor()
-            if rating == "s" {
-                color = Theme.colors().background_safe
-            } else if rating == "q" {
-                color = Theme.colors().background_questionable
-            } else if rating == "e" {
-                color = Theme.colors().background_explicit
-            } else { color = Theme.colors().background }
-            
-            cell.titleView.backgroundColor = color
-            cell.footerView.backgroundColor = color
-            
+        })
+        
+        // Getting the Avatar
+        let user_id = item.metadata.creator_id
+        if let user = UserRequester().get(userWithId: user_id, fallback: { success in
+            if success {
+                DispatchQueue.main.async {
+                    collectionView.reloadItems(at: [indexPath])
+                }
+            }
+        }) {
+            user.getAvatar(completion: {image, isSafe in
+                if isSafe {
+                    
+                }
+            })
         }
+        
+        // Setting the Footer
+        let rating = item.metadata.rating
+        var color = UIColor()
+        if rating == "s" {
+            color = Theme.colors().background_safe
+        } else if rating == "q" {
+            color = Theme.colors().background_questionable
+        } else if rating == "e" {
+            color = Theme.colors().background_explicit
+        } else { color = Theme.colors().background }
+        
+        cell.titleView.backgroundColor = color
+        cell.footerView.backgroundColor = color
         
         return cell
     }

@@ -31,7 +31,7 @@ class ImageResult: Result {
     
     var metadata: Metadata {
         didSet {
-            _ = getImage(ofSize: .sample, callback: { _ in })
+            _ = getImage(ofSize: .sample, completion: { _ in })
         }
     }
     
@@ -98,44 +98,52 @@ class ImageResult: Result {
         }
     }
     
-    func hasImageInCache(ofSize size: Metadata.ImageSize) -> Bool {
-        if let _ = try? Cache.shared.getImage(size: size, id: self.id) {
-            return true
+    func image(ofSize size: Metadata.ImageSize, fallBackSize: Metadata.ImageSize, fallback: @escaping (Bool) -> Void) -> UIImage? {
+        if let image = imageFromCache(size: size) {
+            return image
+        } else if let image = imageFromCache(size: fallBackSize) {
+            DispatchQueue.global().async {
+                self.getImage(ofSize: size, completion: { image in
+                    image != nil ? fallback(true) : fallback(false)
+                })
+            }
+            return image
         } else {
-            return false
+            DispatchQueue.global().async {
+                self.getImage(ofSize: size, completion: { image in
+                    image != nil ? fallback(true) : fallback(false)
+                })
+            }
+            return nil
         }
     }
     
-    func getImage(ofSize size: Metadata.ImageSize, callback: ((_ image: UIImage?, ImageResultError?) -> Void)?) -> UIImage? {
-        if let image = try? Cache.shared.getImage(size: size, id: self.id) {
-            callback?(image, nil)
-            return image
+    func imageFromCache(size: Metadata.ImageSize) -> UIImage? {
+        return try? Cache.shared.getImage(withId: self.id, size: size)
+    }
+    
+    func getImage(ofSize size: Metadata.ImageSize, completion: @escaping (UIImage?) -> Void) {
+        if let image = imageFromCache(size: size) {
+            completion(image)
         } else {
-            if let callback = callback {
-                var url = ""
-                switch size {
-                case .file: url = metadata.file_url
-                case .sample: url = metadata.sample_url!
-                case .preview: url = metadata.preview_url
-                }
-                do {
-                    try Network.get(url: url, completion: { data in
-                        if let image = UIImage(data: data) {
-                            do {
-                                try Cache.shared.setImage(size: size, image: image, forID: self.id)
-                                callback(image, nil)
-                            } catch {
-                                print("store error")
-                            }
-                        } else {
-                            callback(nil, ImageResultError.ImageDownloadError(id: self.id, url: url))
-                        }
-                    })
-                } catch {
-                    print("getImage error")
-                }
+            var url = ""
+            switch size {
+            case .file: url = metadata.file_url
+            case .sample: url = metadata.sample_url!
+            case .preview: url = metadata.preview_url
             }
-            return nil
+            do {
+                try Network.get(url: url, completion: { data in
+                    if let image = UIImage(data: data) {
+                        try? Cache.shared.setImage(image, id: self.id, size: size)
+                        completion(image)
+                    } else {
+                        completion(nil)
+                    }
+                })
+            } catch {
+                print("getImage error")
+            }
         }
     }
     
@@ -148,8 +156,7 @@ class ImageResult: Result {
     }
     
     enum ImageResultError: Error {
-        case ImageDownloadError(id: Int, url: String)
-        case ImageNotInCache(id: Int)
+        case downloadFailed(id: Int, url: String)
     }
 }
 
@@ -168,6 +175,23 @@ class UserResult: Result {
     
     init(metadata: Metadata) {
         self.metadata = metadata
+    }
+    
+    func getAvatar(completion: @escaping (UIImage?, _ isSafe: Bool) -> Void) {
+        guard let avatar_id = metadata.avatar_id else { completion(nil, true); return }
+        ImageRequester().get(imageResultWithId: avatar_id, completion: { imageResult in
+            if imageResult.metadata.rating != ImageResult.Metadata.Rating.s.rawValue {
+                completion(nil, false)
+            }
+            
+            if let image = imageResult.imageFromCache(size: .preview) {
+                completion(image, true)
+            } else {
+                imageResult.getImage(ofSize: .preview, completion: { image in
+                    completion(image, true)
+                })
+            }
+        })
     }
     
 }

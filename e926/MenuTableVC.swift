@@ -53,15 +53,11 @@ class MenuTableVC: UITableViewController {
                 let user = Identity.main.user!
                 cell.profileLabel.text = user.metadata.name
                 if let avatar_id = user.metadata.avatar_id {
-                    _ = ImageRequester().get(imageOfId: avatar_id) { result in
-                        _ = result.getImage(ofSize: .preview, callback: { image, error in
-                            if error == nil {
-                                DispatchQueue.main.async {
+                    _ = ImageRequester().get(imageResultWithId: avatar_id) { result in
+                        result.getImage(ofSize: .preview, completion: { image in
+                            DispatchQueue.main.async {
                                     cell.profileImageView.image = image
                                     self.tableView.reloadRows(at: [indexPath], with: .none)
-                                }
-                            } else {
-                                print("load image error")
                             }
                         })
                     }

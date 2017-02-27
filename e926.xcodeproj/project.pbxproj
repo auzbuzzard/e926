@@ -17,6 +17,7 @@
 		D9224A5C1E0ACADA002DFAA1 /* e926-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */; };
 		D959BE671DAC40CA00FE59CE /* ImageDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D959BE661DAC40CA00FE59CE /* ImageDetailVC.swift */; };
 		D959BE691DAC77C200FE59CE /* SearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D959BE681DAC77C200FE59CE /* SearchManager.swift */; };
+		D9A5EB9B1E638B8800850851 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5EB9A1E638B8800850851 /* Utils.swift */; };
 		D9B080B41DA9C06000BDC28C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B080B31DA9C06000BDC28C /* AppDelegate.swift */; };
 		D9B080BD1DA9C06000BDC28C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9B080BC1DA9C06000BDC28C /* Assets.xcassets */; };
 		D9B080CB1DA9C06000BDC28C /* e926Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B080CA1DA9C06000BDC28C /* e926Tests.swift */; };
@@ -112,6 +113,7 @@
 		D9224A591E0ACADA002DFAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D959BE661DAC40CA00FE59CE /* ImageDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDetailVC.swift; sourceTree = "<group>"; };
 		D959BE681DAC77C200FE59CE /* SearchManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchManager.swift; sourceTree = "<group>"; };
+		D9A5EB9A1E638B8800850851 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		D9B080B01DA9C06000BDC28C /* e926.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = e926.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B080B31DA9C06000BDC28C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D9B080BC1DA9C06000BDC28C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -298,6 +300,7 @@
 				D9B080F91DA9C11D00BDC28C /* Preferences.swift */,
 				D9B081041DA9C14400BDC28C /* Theme.swift */,
 				D959BE681DAC77C200FE59CE /* SearchManager.swift */,
+				D9A5EB9A1E638B8800850851 /* Utils.swift */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -570,6 +573,7 @@
 				D9EB65A61DAA5FAE0079AF8B /* SearchSuggestionsVC.swift in Sources */,
 				D9B0810A1DA9C16200BDC28C /* UIScrollView+InfiniteScroll.m in Sources */,
 				D9B081021DA9C13600BDC28C /* SettingsTableVC.swift in Sources */,
+				D9A5EB9B1E638B8800850851 /* Utils.swift in Sources */,
 				D9EB65A21DAA587A0079AF8B /* SearchResultVC.swift in Sources */,
 				D9B080FE1DA9C12C00BDC28C /* Result.swift in Sources */,
 				D9B081051DA9C14400BDC28C /* Theme.swift in Sources */,
@@ -895,6 +899,7 @@
 				D9224A601E0ACADA002DFAA1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D9224A631E0ACADA002DFAA1 /* Build configuration list for PBXNativeTarget "e926-watch" */ = {
 			isa = XCConfigurationList;
@@ -903,6 +908,7 @@
 				D9224A5E1E0ACADA002DFAA1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D9B080AB1DA9C06000BDC28C /* Build configuration list for PBXProject "e926" */ = {
 			isa = XCConfigurationList;

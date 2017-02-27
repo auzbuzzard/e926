@@ -40,7 +40,7 @@ class ImageZoomVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if let image = imageResult.getImage(ofSize: .file, callback: { image, error in
+        if let image = imageResult.getImage(ofSize: .file, completion: { image in
             DispatchQueue.main.async {
                 self.isFileImage = true
                 //self.setImageView(image: image)
@@ -53,7 +53,7 @@ class ImageZoomVC: UIViewController {
                 //self.mainImageView.image = image
             }
         } else {
-            if let image = imageResult.getImage(ofSize: .sample, callback: { image, error in
+            if let image = imageResult.getImage(ofSize: .sample, completion: { image in
                 if !self.isFileImage {
                     DispatchQueue.main.async {
                         //self.setImageView(image: image)

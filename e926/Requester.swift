@@ -75,7 +75,7 @@ class ImageRequester: Requester {
     
     static var image_url: String { get { return base_url + "/post/show" } }
     
-    func get(imageOfId id: Int, completion: @escaping completion) {
+    func get(imageResultWithId id: Int, completion: @escaping completion) {
         let url = ImageRequester.image_url + "/\(id).json"
         do {
             try Network.get(url: url) { data in
@@ -101,31 +101,34 @@ class UserRequester: Requester {
     static let user_url = base_url + "/user/index"
     static let user_show_url = base_url + "/user/show"
     
-    func get(userOfId id: Int, completion: @escaping completion) {
-        let url = UserRequester.user_show_url + "/\(id).json"
-        do {
-            try Network.get(url: url) { data in
-                DispatchQueue.global().async {
-                    do {
-                        let result = try UserParser.parse(data: data)
-                        completion(result)
-                    } catch {
-                        print("UserRequester get error: \(data) of url: \(url)")
+    func get(userWithId id: Int, fallback: @escaping (Bool) -> Void) -> UserResult? {
+        if let user = try? Cache.shared.getUser(withId: id) {
+            return user
+        } else {
+            let url = UserRequester.user_show_url + "/\(id).json"
+            do {
+                try Network.get(url: url) { data in
+                    DispatchQueue.global().async {
+                        do {
+                            let result = try UserParser.parse(data: data)
+                            do {
+                                try Cache.shared.setUser(result)
+                                fallback(true)
+                            } catch {
+                                fallback(false)
+                            }
+                        } catch {
+                            print("UserRequester get error: \(data) of url: \(url)")
+                            fallback(false)
+                        }
                     }
                 }
+            } catch {
+                print("UserRequester Error")
+                fallback(false)
             }
-        } catch {
-            print("UserRequester Error")
+            return nil
         }
-    }
-    
-    func get(userOfId id: Int, searchCache: Bool, completion: @escaping completion) {
-        if searchCache, let user = try? Cache.shared.getUser(id: id) {
-            completion(user)
-            return
-        }
-        
-        get(userOfId: id, completion: completion)
         
     }
     

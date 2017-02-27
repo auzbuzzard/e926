@@ -9,6 +9,7 @@
 import Foundation
 
 enum NetworkError: Error {
+    
     case InvalidURL(url: String)
     
     func string() -> String {
