@@ -8,13 +8,14 @@
 //
 
 import UIKit
+import PromiseKit
 
 class SearchResultVC: UIViewController {
     
     var listVC: ListCollectionVC!
     
     var searchString: String?
-    var correctedSearchString: String? {
+    var searchStringCorrected: String? {
         get {
             return searchString?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
         }
@@ -89,13 +90,12 @@ class SearchResultVC: UIViewController {
 }
 
 extension SearchResultVC: ListCollectionVCRequestDelegate {
+    internal func getResult(last_before_id: Int?) -> Promise<ListResult> {
+        return ListRequester().downloadList(OfType: .post, tags: searchStringCorrected, last_before_id: last_before_id)
+    }
+
     internal func vcShouldLoadImmediately() -> Bool {
         return true
-    }
-    
-    func getResult(results: ListResult?, completion: @escaping (ListResult) -> Void) {
-        let requester = ListRequester()
-        requester.get(listOfType: .post, tags: correctedSearchString, result: results, completion: completion)
     }
 }
 

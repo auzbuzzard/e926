@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 class Result {
     
@@ -15,25 +16,34 @@ class Result {
 class ListResult: Result {
     
     lazy var results = [ImageResult]()
-    
     var last_before_id: Int?
     
-    func add(results newResults: [ImageResult]) {
-        results.append(contentsOf: newResults)
+    convenience init(result: [ImageResult]) {
+        self.init()
+        add(result)
+    }
+    
+    func add(_ result: [ImageResult]) {
+        results.append(contentsOf: result)
         last_before_id = results.last?.id
+    }
+    func add(_ result: ListResult) {
+        add(result.results)
     }
     
 }
 
 class ImageResult: Result {
     
-    var id: Int { get { return metadata.id } }
+    var id: Int { return metadata.id }
     
     var metadata: Metadata {
         didSet {
-            _ = getImage(ofSize: .sample, completion: { _ in })
+            downloadImage(ofSize: .preview).catch { error in }
         }
     }
+    
+    var creator: UserResult?
     
     struct Metadata {
         let id: Int
@@ -54,6 +64,14 @@ class ImageResult: Result {
         let fav_count: Int
         
         let rating: String
+        var rating_enum: Rating? {
+            switch rating {
+            case "s": return Rating.s
+            case "q": return Rating.q
+            case "e": return Rating.e
+            default: return nil
+            }
+        }
         
         let creator_id: Int
         
@@ -98,73 +116,58 @@ class ImageResult: Result {
         }
     }
     
-    func image(ofSize size: Metadata.ImageSize, fallBackSize: Metadata.ImageSize, fallback: @escaping (Bool) -> Void) -> UIImage? {
-        if let image = imageFromCache(size: size) {
-            return image
-        } else if let image = imageFromCache(size: fallBackSize) {
-            DispatchQueue.global().async {
-                self.getImage(ofSize: size, completion: { image in
-                    image != nil ? fallback(true) : fallback(false)
-                })
-            }
-            return image
-        } else {
-            DispatchQueue.global().async {
-                self.getImage(ofSize: size, completion: { image in
-                    image != nil ? fallback(true) : fallback(false)
-                })
-            }
-            return nil
-        }
-    }
-    
-    func imageFromCache(size: Metadata.ImageSize) -> UIImage? {
-        return try? Cache.shared.getImage(withId: self.id, size: size)
-    }
-    
-    func getImage(ofSize size: Metadata.ImageSize, completion: @escaping (UIImage?) -> Void) {
-        if let image = imageFromCache(size: size) {
-            completion(image)
-        } else {
-            var url = ""
-            switch size {
-            case .file: url = metadata.file_url
-            case .sample: url = metadata.sample_url!
-            case .preview: url = metadata.preview_url
-            }
-            do {
-                try Network.get(url: url, completion: { data in
-                    if let image = UIImage(data: data) {
-                        try? Cache.shared.setImage(image, id: self.id, size: size)
-                        completion(image)
-                    } else {
-                        completion(nil)
-                    }
-                })
-            } catch {
-                print("getImage error")
-            }
-        }
-    }
-    
-    func setImage(ofSize size: Metadata.ImageSize, image: UIImage) {
-        
-    }
-    
     init(metadata: Metadata) {
         self.metadata = metadata
     }
     
+    func image(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
+        return imageFromCache(size: size)
+            .recover { error -> Promise<UIImage> in
+                if case Cache.CacheError.noImageInStore(_) = error {
+                    return self.downloadImage(ofSize: size)
+                } else {
+                    throw error
+                }
+            }
+    }
+    
+    func imageFromCache(size: Metadata.ImageSize) -> Promise<UIImage> {
+        return Cache.shared.getImage(withId: self.id, size: size)
+    }
+    
+    func downloadImage(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
+        var url = ""
+        switch size {
+        case .file: url = metadata.file_url
+        case .sample: url = metadata.sample_url!
+        case .preview: url = metadata.preview_url
+        }
+        
+        return Network.get(url: url)
+            .then { data -> Promise<UIImage> in
+                return Promise { fulfill, reject in
+                    if let image = UIImage(data: data) {
+                        _ = Cache.shared.setImage(image, id: self.id, size: size)
+                        fulfill(image)
+                    } else {
+                        reject(ImageResultError.dataIsNotUIImage(id: self.id, data: data))
+                    }
+                }
+        }
+    }
+    
     enum ImageResultError: Error {
         case downloadFailed(id: Int, url: String)
+        case dataIsNotUIImage(id: Int, data: Data)
     }
 }
 
 class UserResult: Result {
     
-    var id: Int { get { return metadata.id } }
+    var id: Int { return metadata.id }
     
     var metadata: Metadata
+    var avatarImageResult: ImageResult?
     
     struct Metadata {
         let name: String
@@ -177,21 +180,37 @@ class UserResult: Result {
         self.metadata = metadata
     }
     
-    func getAvatar(completion: @escaping (UIImage?, _ isSafe: Bool) -> Void) {
-        guard let avatar_id = metadata.avatar_id else { completion(nil, true); return }
-        ImageRequester().get(imageResultWithId: avatar_id, completion: { imageResult in
-            if imageResult.metadata.rating != ImageResult.Metadata.Rating.s.rawValue {
-                completion(nil, false)
+    func getAvatar() -> Promise<UIImage> {
+        if let imageResult = avatarImageResult {
+            return imageResult.image(ofSize: .preview)
+        } else {
+            return downloadAvatarResult().then { result -> Promise<UIImage> in
+                return result.image(ofSize: .preview)
             }
-            
-            if let image = imageResult.imageFromCache(size: .preview) {
-                completion(image, true)
-            } else {
-                imageResult.getImage(ofSize: .preview, completion: { image in
-                    completion(image, true)
-                })
+        }
+    }
+    
+    func avatarFromCache() -> Promise<UIImage> {
+        if let imageResult = avatarImageResult {
+            return imageResult.imageFromCache(size: .preview)
+        } else {
+            return downloadAvatarResult().then { result in
+                return result.imageFromCache(size: .preview)
             }
-        })
+        }
+    }
+    
+    private func downloadAvatarResult() -> Promise<ImageResult> {
+        guard let avatar_id = metadata.avatar_id else { return Promise<ImageResult>(error: UserResultError.noAvatarId(userId: metadata.id)) }
+        return ImageRequester().downloadImageResult(withId: avatar_id).then { result -> ImageResult in
+            self.avatarImageResult = result
+            return result
+        }
+    }
+    
+    enum UserResultError: Error {
+        case noAvatarId(userId: Int)
+        case avatarIsNotSafe(userId: Int)
     }
     
 }

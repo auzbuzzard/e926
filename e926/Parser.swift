@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import PromiseKit
 
 class Parser {
-    
     enum ParserError: Error {
         case JsonDataCorrupted(data: Data)
         case CannotCastJsonIntoNSDictionary(data: Data)
@@ -17,41 +17,48 @@ class Parser {
 }
 
 class ListParser: Parser {
-    static func parse(data: Data, toResult result: ListResult) throws {
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
-                
-                var tempResult = [ImageResult]()
-                
-                for item in json {
-                    try? tempResult.append(ImageParser.parseDictionary(item: item))
+    static func parse(data: Data) -> Promise<ListResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
+                    
+                    var results = [ImageResult]()
+                    
+                    for item in json {
+                        ImageParser.parse(dictionary: item).then { result -> Void in
+                            results.append(result)
+                            }.catch { error in
+                        }
+                    }
+                    
+                    fulfill(ListResult(result: results))
                 }
-                
-                result.add(results: tempResult)
-                
+            } catch {
+                reject(error)
             }
-        } catch {
-            throw error
         }
-        
     }
 }
 
 class ImageParser: Parser {
     
-    static func parse(data: Data) throws -> ImageResult {
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
-                return try parseDictionary(item: json)
-            } else {
-                throw ParserError.CannotCastJsonIntoNSDictionary(data: data)
+    static func parse(data: Data) -> Promise<ImageResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
+                    parse(dictionary: json).then { result -> Void in
+                        fulfill(result)
+                        }.catch { error in
+                        reject(error)
+                    }
+                } else {
+                    reject(ParserError.CannotCastJsonIntoNSDictionary(data: data))
+                }
             }
-        } catch {
-            throw error
         }
     }
     
-    static func parseDictionary(item: NSDictionary) throws -> ImageResult {
+    static func parse(dictionary item: NSDictionary) -> Promise<ImageResult> {
         let id = item["id"] as? Int ?? 0
         let author = item["author"] as? String ?? ""
         
@@ -91,32 +98,36 @@ class ImageParser: Parser {
         }
         
         let metadata: ImageResult.Metadata = ImageResult.Metadata(id: id, author: author, tags: tags, status: status, file_url: file_url, file_ext: file_ext, file_size: file_size, width: width, height: height, score: score, fav_count: fav_count, rating: rating, creator_id: creator_id, sample_width: sample_width, sample_height: sample_height, preview_width: preview_width, preview_height: preview_height, sample_url: sample_url, preview_url: preview_url, artist: artist)
-        return ImageResult(metadata: metadata)
+        return Promise { fulfill, _ in
+            fulfill(ImageResult(metadata: metadata))
+        }
     }
     
 }
 
 class UserParser: Parser {
     
-    static func parse(data: Data) throws -> UserResult {
-        do {
-            if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
-                
-                let name = json["name"] as? String ?? ""
-                let id = json["id"] as? Int ?? 0
-                let level = json["level"] as? Int ?? 0
-                
-                let avatar_id = json["avatar_id"] as? Int
-                
-                let metadata = UserResult.Metadata(name: name, id: id, level: level, avatar_id: avatar_id)
-                
-                return UserResult(metadata: metadata)
-                
-            } else {
-                throw ParserError.CannotCastJsonIntoNSDictionary(data: data)
+    static func parse(data: Data) -> Promise<UserResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
+                    
+                    let name = json["name"] as? String ?? ""
+                    let id = json["id"] as? Int ?? 0
+                    let level = json["level"] as? Int ?? 0
+                    
+                    let avatar_id = json["avatar_id"] as? Int
+                    
+                    let metadata = UserResult.Metadata(name: name, id: id, level: level, avatar_id: avatar_id)
+                    
+                    fulfill(UserResult(metadata: metadata))
+                    
+                } else {
+                    reject(ParserError.CannotCastJsonIntoNSDictionary(data: data))
+                }
+            } catch {
+                reject(error)
             }
-        } catch {
-            throw error
         }
     }
 }

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 class Cache {
     
@@ -16,28 +17,38 @@ class Cache {
     lazy var images = Dictionary<String, UIImage>()
     lazy var users = Dictionary<String, UserResult>()
     
-    func getImage(withId id: Int, size: ImageResult.Metadata.ImageSize) throws -> UIImage {
-        if let image = images["\(size.rawValue)_\(id)"] {
-            return image
-        } else {
-            throw CacheError.noImageInStore(id: id)
+    func getImage(withId id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<UIImage> {
+        return Promise { fulfill, reject in
+            if let image = images["\(size.rawValue)_\(id)"] {
+                fulfill(image)
+            } else {
+                reject(CacheError.noImageInStore(id: id))
+            }
         }
     }
     
-    func setImage(_ image: UIImage, id: Int, size: ImageResult.Metadata.ImageSize) throws {
-        images.updateValue(image, forKey: "\(size.rawValue)_\(id)")
-    }
-    
-    func getUser(withId id: Int) throws -> UserResult {
-        if let user = users["\(id)"] {
-            return user
-        } else {
-            throw CacheError.noImageInStore(id: id)
+    func setImage(_ image: UIImage, id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<Void> {
+        return Promise { fulfill, reject in
+            images.updateValue(image, forKey: "\(size.rawValue)_\(id)")
+            fulfill()
         }
     }
     
-    func setUser(_ user: UserResult) throws {
-        users.updateValue(user, forKey: "\(user.id)")
+    func getUser(withId id: Int) -> Promise<UserResult> {
+        return Promise { fulfill, reject in
+            if let user = users["\(id)"] {
+                fulfill(user)
+            } else {
+                reject(CacheError.noImageInStore(id: id))
+            }
+        }
+    }
+    
+    func setUser(_ user: UserResult) -> Promise<Void> {
+        return Promise { fulfill, reject in
+            users.updateValue(user, forKey: "\(user.id)")
+            fulfill()
+        }
     }
     
     enum CacheError: Error {

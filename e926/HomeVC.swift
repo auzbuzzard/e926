@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 class HomeVC: UINavigationController {
     
@@ -61,9 +62,8 @@ extension HomeVC: ListCollectionVCRequestDelegate {
     internal func vcShouldLoadImmediately() -> Bool {
         return true
     }
-
-    func getResult(results: ListResult?, completion: @escaping (ListResult) -> Void) {
-        let requester = ListRequester()
-        requester.get(listOfType: .post, tags: nil, result: results, completion: completion)
+    
+    func getResult(last_before_id: Int?) -> Promise<ListResult> {
+        return ListRequester().downloadList(OfType: .post, tags: nil, last_before_id: last_before_id)
     }
 }

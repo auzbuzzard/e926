@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 
 class ImageZoomVC: UIViewController {
 
@@ -40,34 +41,28 @@ class ImageZoomVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if let image = imageResult.getImage(ofSize: .file, completion: { image in
-            DispatchQueue.main.async {
-                self.isFileImage = true
-                //self.setImageView(image: image)
-                self.mainImageView.image = image
-            }
-        }) {
-            DispatchQueue.main.async {
+        imageResult.imageFromCache(size: .file)
+            .then { image -> Void in
                 self.isFileImage = true
                 self.setImageView(image: image)
-                //self.mainImageView.image = image
-            }
-        } else {
-            if let image = imageResult.getImage(ofSize: .sample, completion: { image in
-                if !self.isFileImage {
-                    DispatchQueue.main.async {
-                        //self.setImageView(image: image)
-                        self.mainImageView.image = image
+            }.catch { error in
+                if case Cache.CacheError.noImageInStore(id: _) = error {
+                    self.imageResult.imageFromCache(size: .sample)
+                        .recover { error -> Promise<UIImage> in
+                            return self.imageResult.imageFromCache(size: .preview)
+                        }.then { image in
+                            self.setImageView(image: image)
+                        }.then { _ -> Promise<UIImage> in
+                            return self.imageResult.downloadImage(ofSize: .file)
+                        }.then { image -> Void in
+                            print("downloaded .file")
+                            self.setImageView(image: image)
+                        }.catch { error in
+                            if case ImageResult.ImageResultError.downloadFailed(id: _, url: _) = error {
+                                print("Error (ImageZoomVC): Cannot download full image")
+                            }
                     }
                 }
-                
-            }) {
-                DispatchQueue.main.async {
-                    self.setImageView(image: image)
-                    //self.mainImageView.image = image
-                }
-            }
-            
         }
     }
 

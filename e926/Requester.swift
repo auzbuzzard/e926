@@ -7,23 +7,20 @@
 //
 
 import Foundation
+import PromiseKit
 
 class Requester {
     static var base_url: String {
-        get {
-            if UserDefaults.standard.bool(forKey: Preferences.useE621Mode.rawValue) {
-                return "https://e621.net"
-            } else {
-                return "https://e926.net"
-            }
+        if UserDefaults.standard.bool(forKey: Preferences.useE621Mode.rawValue) {
+            return "https://e621.net"
+        } else {
+            return "https://e926.net"
         }
-        
     }
 }
 
+
 class ListRequester: Requester {
-    typealias completion = (ListResult) -> Void
-    
     enum ListType {
         case post, user
     }
@@ -31,7 +28,7 @@ class ListRequester: Requester {
     static var list_post_url: String { get { return base_url + "/post/index.json" } }
     static var list_user_url: String { get { return base_url + "/user/index.json" } }
     
-    func get(listOfType listType: ListType, tags: String?, result: ListResult?, completion: @escaping completion) {
+    func downloadList(OfType listType: ListType, tags: String?, last_before_id: Int?) -> Promise<ListResult> {
         var url = ""
         switch listType {
         case.post: url.append(ListRequester.list_post_url)
@@ -40,7 +37,7 @@ class ListRequester: Requester {
         
         var params = [String]()
         
-        if let last_before_id = result?.last_before_id {
+        if let last_before_id = last_before_id {
             params.append("before_id=\(last_before_id)")
         }
         if let tags = tags {
@@ -50,88 +47,53 @@ class ListRequester: Requester {
         url.append("?\(params.joined(separator: "&"))")
         
         print(url)
-        do {
-            try Network.get(url: url) {
-                data in
-                DispatchQueue.global().async {
-                    do {
-                        let r = result ?? ListResult()
-                        try ListParser.parse(data: data, toResult: r)
-                        completion(r)
-                    } catch {
-                        print(error)
-                    }
-                }
-            }
-        } catch {
-            print("ListRequester Error \(error)")
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ListResult> in
+            return ListParser.parse(data: data)
         }
     }
     
 }
 
 class ImageRequester: Requester {
-    typealias completion = (ImageResult) -> Void
-    
     static var image_url: String { get { return base_url + "/post/show" } }
     
-    func get(imageResultWithId id: Int, completion: @escaping completion) {
+    func downloadImageResult(withId id: Int) -> Promise<ImageResult> {
         let url = ImageRequester.image_url + "/\(id).json"
-        do {
-            try Network.get(url: url) { data in
-                DispatchQueue.global().async {
-                    do {
-                        let result = try ImageParser.parse(data: data)
-                        completion(result)
-                    } catch {
-                        print("ImageRequester get error")
-                    }
-                }
-            }
-        } catch {
-            print("ImageRequester Error")
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ImageResult> in
+            return ImageParser.parse(data: data)
         }
     }
-    
 }
 
 class UserRequester: Requester {
-    typealias completion = (UserResult) -> Void
-    
     static let user_url = base_url + "/user/index"
     static let user_show_url = base_url + "/user/show"
     
-    func get(userWithId id: Int, fallback: @escaping (Bool) -> Void) -> UserResult? {
-        if let user = try? Cache.shared.getUser(withId: id) {
-            return user
-        } else {
-            let url = UserRequester.user_show_url + "/\(id).json"
-            do {
-                try Network.get(url: url) { data in
-                    DispatchQueue.global().async {
-                        do {
-                            let result = try UserParser.parse(data: data)
-                            do {
-                                try Cache.shared.setUser(result)
-                                fallback(true)
-                            } catch {
-                                fallback(false)
-                            }
-                        } catch {
-                            print("UserRequester get error: \(data) of url: \(url)")
-                            fallback(false)
-                        }
-                    }
+    func getUser(WithId id: Int) -> Promise<UserResult> {
+        return userFromCache(id: id)
+            .recover { error -> Promise<UserResult> in
+                if case Cache.CacheError.noUserInStore(_) = error {
+                    return self.downloadUser(withId: id)
+                } else {
+                    throw error
                 }
-            } catch {
-                print("UserRequester Error")
-                fallback(false)
-            }
-            return nil
         }
-        
     }
     
+    func userFromCache(id: Int) -> Promise<UserResult> {
+        return Cache.shared.getUser(withId: id)
+    }
+    
+    func downloadUser(withId id: Int) -> Promise<UserResult> {
+        let url = UserRequester.user_show_url + "/\(id).json"
+        return Network.get(url: url)
+            .then(on: .global(qos: .userInitiated)) { data -> Promise<UserResult> in
+                return UserParser.parse(data: data)
+            }.then(on: .global(qos: .userInitiated)) { result -> UserResult in
+                _ = Cache.shared.setUser(result)
+                return result
+        }
+    }
 }
 
 class PoolRequester: Requester {

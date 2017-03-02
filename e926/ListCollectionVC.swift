@@ -7,11 +7,12 @@
 //
 
 import UIKit
+import PromiseKit
 
 private let reuseIdentifier = "mainCell"
 
 protocol ListCollectionVCRequestDelegate {
-    func getResult(results: ListResult?, completion: @escaping (ListResult) -> Void)
+    func getResult(last_before_id: Int?) -> Promise<ListResult>
     func vcShouldLoadImmediately() -> Bool
 }
 
@@ -35,7 +36,9 @@ class ListCollectionVC: UICollectionViewController {
         results = ListResult()
         
         if let delegate = delegate, delegate.vcShouldLoadImmediately(), !isLoading {
-            getResult() { self.isLoading = false }
+            getResult {
+                self.isLoading = false
+            }
         }
         
         collectionView?.backgroundColor = Theme.colors().background
@@ -85,7 +88,6 @@ class ListCollectionVC: UICollectionViewController {
     
     func getNewResult() {
         results = ListResult()
-        //print(isLoading)
         if !isLoading {
             getResult() {
                 DispatchQueue.main.async {
@@ -95,15 +97,18 @@ class ListCollectionVC: UICollectionViewController {
         }
     }
     
-    func getResult(callback: @escaping () -> Void) {
+    func getResult(completion: @escaping () -> Void) {
         isLoading = true
-        delegate?.getResult(results: results, completion: { _ in
+        delegate?.getResult(last_before_id: results.last_before_id).then { result -> Void in
+            self.results.add(result)
             DispatchQueue.main.async {
                 self.collectionView?.reloadData()
                 self.isLoading = false
-                callback()
+                completion()
             }
-        })
+        }.catch { error in
+                
+        }
     }
     
      // MARK: - Navigation
@@ -165,28 +170,46 @@ class ListCollectionVC: UICollectionViewController {
         cell.footerFavLabel.text = "\(item.metadata.fav_count)"
         cell.footerScoreLabel.text = "\(item.metadata.score)"
         
-        cell.mainImage.image = item.image(ofSize: .sample, fallBackSize: .preview, fallback: { success in
-            if success {
-                DispatchQueue.main.async {
-                    collectionView.reloadItems(at: [indexPath])
-                }
-            }
-        })
-        
-        // Getting the Avatar
-        let user_id = item.metadata.creator_id
-        if let user = UserRequester().get(userWithId: user_id, fallback: { success in
-            if success {
-                DispatchQueue.main.async {
-                    collectionView.reloadItems(at: [indexPath])
-                }
-            }
-        }) {
-            user.getAvatar(completion: {image, isSafe in
-                if isSafe {
+        item.imageFromCache(size: .sample)
+            .recover { error -> Promise<UIImage> in
+                return item.imageFromCache(size: .preview)
+            }.then { image -> Void in
+                cell.mainImage.image = image
+            }.catch { error in
+                if case Cache.CacheError.noImageInStore(_) = error {
+                    item.downloadImage(ofSize: .sample)
+                        .then { _ in
+                            collectionView.reloadItems(at: [indexPath])
+                        }.catch { error in
+                    }
+                } else {
                     
                 }
-            })
+        }
+        
+        // Getting the Avatar
+        if let creator = item.creator {
+            creator.avatarFromCache()
+                .then { image in
+                    cell.titleImage.image = image
+                }.catch { error in
+                    if case Cache.CacheError.noImageInStore(_) = error {
+                        creator.getAvatar()
+                            .then { _ in
+                                collectionView.reloadItems(at: [indexPath])
+                            }.catch { error in
+                        }
+                    }
+            }
+        } else {
+            let user_id = item.metadata.creator_id
+            UserRequester().getUser(WithId: user_id)
+                .then { user -> Void in
+                    item.creator = user
+                    collectionView.reloadItems(at: [indexPath])
+                }.catch { error in
+                    
+            }
         }
         
         // Setting the Footer
@@ -315,7 +338,5 @@ class ListCollectionVCMainCell: UICollectionViewCell {
     @IBOutlet weak var footerScoreLabel: UILabel!
     @IBOutlet weak var footerFavLabel: UILabel!
     @IBOutlet weak var footerCommentLabel: UILabel!
-    
-    
     
 }

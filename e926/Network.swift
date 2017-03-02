@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PromiseKit
 
 enum NetworkError: Error {
     
@@ -22,49 +23,29 @@ enum NetworkError: Error {
 
 class Network {
     
-    typealias completionData = (Data) -> Void
-    
-    static func get(url: String, completion: @escaping completionData) throws {
-        do {
-            try post(url: url, params: nil, completion: completion)
-        } catch let error {
-            throw error
-        }
+    static func get(url: String) -> Promise<Data> {
+        return post(url: url, params: nil)
     }
     
-    static func post(url: String, params: [String]?, completion: @escaping (Data) -> Void) throws {
-        guard let u = URL(string: url) else { throw NetworkError.InvalidURL(url: url) }
-        let session = URLSession.shared
-        
-        let request = NSMutableURLRequest(url: u)
-        if params == nil {
-            request.httpMethod = "GET"
-        } else {
-            request.httpMethod = "POST"
-            
-            let paramString = "data=Hello"
-            request.httpBody = paramString.data(using: String.Encoding.utf8)
-        }
-        //request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringCacheData
-        
-        
-        
-        let task = session.dataTask(with: request as URLRequest, completionHandler: {
-            (
-            data, response, error) in
-            
-            guard let _:Data = data, let _:URLResponse = response  , error == nil else {
-                print("error")
-                return
+    static func post(url: String, params: [String]?) -> Promise<Data> {
+        return Promise { fulfill, reject in
+            guard let u = URL(string: url) else { reject(NetworkError.InvalidURL(url: url)); return }
+            let session = URLSession.shared
+
+            let request = NSMutableURLRequest(url: u)
+            if params == nil {
+                request.httpMethod = "GET"
+            } else {
+                request.httpMethod = "POST"
+                
+                let paramString = "data=Hello"
+                request.httpBody = paramString.data(using: String.Encoding.utf8)
             }
             
-//            let dataString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-//            print(dataString)
-            
-            completion(data!)
-            
-        })
-        
-        task.resume()
+            let dataPromise: URLDataPromise = session.dataTask(with: request as URLRequest)
+            dataPromise.asDataAndResponse().then { (data, respone) -> Void in
+                fulfill(data)
+                }.catch(execute: reject)
+        }
     }
 }
