@@ -8,6 +8,7 @@
 
 import UIKit
 import PromiseKit
+import UIScrollView_InfiniteScroll
 
 private let reuseIdentifier = "mainCell"
 

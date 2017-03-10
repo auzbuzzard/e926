@@ -19,6 +19,7 @@
 		D9224A561E0ACADA002DFAA1 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A551E0ACADA002DFAA1 /* NotificationController.swift */; };
 		D9224A581E0ACADA002DFAA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9224A571E0ACADA002DFAA1 /* Assets.xcassets */; };
 		D9224A5C1E0ACADA002DFAA1 /* e926-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */; };
+		D93298AB1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93298AA1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework */; };
 		D959BE671DAC40CA00FE59CE /* ImageDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D959BE661DAC40CA00FE59CE /* ImageDetailVC.swift */; };
 		D959BE691DAC77C200FE59CE /* SearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D959BE681DAC77C200FE59CE /* SearchManager.swift */; };
 		D9A5EB9B1E638B8800850851 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5EB9A1E638B8800850851 /* Utils.swift */; };
@@ -43,7 +44,6 @@
 		D9B081001DA9C13100BDC28C /* SearchVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B080FF1DA9C13100BDC28C /* SearchVC.swift */; };
 		D9B081021DA9C13600BDC28C /* SettingsTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B081011DA9C13600BDC28C /* SettingsTableVC.swift */; };
 		D9B081051DA9C14400BDC28C /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B081041DA9C14400BDC28C /* Theme.swift */; };
-		D9B0810A1DA9C16200BDC28C /* UIScrollView+InfiniteScroll.m in Sources */ = {isa = PBXBuildFile; fileRef = D9B081091DA9C16200BDC28C /* UIScrollView+InfiniteScroll.m */; };
 		D9DD6D801DAADE200016A9C6 /* ImageZoomVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9DD6D7F1DAADE200016A9C6 /* ImageZoomVC.swift */; };
 		D9EB65A21DAA587A0079AF8B /* SearchResultVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EB65A11DAA587A0079AF8B /* SearchResultVC.swift */; };
 		D9EB65A61DAA5FAE0079AF8B /* SearchSuggestionsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EB65A51DAA5FAE0079AF8B /* SearchSuggestionsVC.swift */; };
@@ -128,6 +128,7 @@
 		D9224A551E0ACADA002DFAA1 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		D9224A571E0ACADA002DFAA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9224A591E0ACADA002DFAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D93298AA1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIScrollView_InfiniteScroll.framework; path = "../../../../Developer/Xcode/DerivedData/e926-ebwztszlvsffnpaetixrfjlqaqej/Build/Products/Debug-iphoneos/UIScrollView-InfiniteScroll/UIScrollView_InfiniteScroll.framework"; sourceTree = "<group>"; };
 		D959BE661DAC40CA00FE59CE /* ImageDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDetailVC.swift; sourceTree = "<group>"; };
 		D959BE681DAC77C200FE59CE /* SearchManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchManager.swift; sourceTree = "<group>"; };
 		D9A5EB9A1E638B8800850851 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
@@ -158,9 +159,6 @@
 		D9B080FF1DA9C13100BDC28C /* SearchVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchVC.swift; sourceTree = "<group>"; };
 		D9B081011DA9C13600BDC28C /* SettingsTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableVC.swift; sourceTree = "<group>"; };
 		D9B081041DA9C14400BDC28C /* Theme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
-		D9B081071DA9C16200BDC28C /* e926-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "e926-Bridging-Header.h"; sourceTree = "<group>"; };
-		D9B081081DA9C16200BDC28C /* UIScrollView+InfiniteScroll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+InfiniteScroll.h"; sourceTree = "<group>"; };
-		D9B081091DA9C16200BDC28C /* UIScrollView+InfiniteScroll.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+InfiniteScroll.m"; sourceTree = "<group>"; };
 		D9DD6D7F1DAADE200016A9C6 /* ImageZoomVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageZoomVC.swift; sourceTree = "<group>"; };
 		D9EB65A11DAA587A0079AF8B /* SearchResultVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResultVC.swift; sourceTree = "<group>"; };
 		D9EB65A51DAA5FAE0079AF8B /* SearchSuggestionsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchSuggestionsVC.swift; sourceTree = "<group>"; };
@@ -184,6 +182,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D93298AB1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework in Frameworks */,
 				D9A5EB9D1E63B98800850851 /* PromiseKit.framework in Frameworks */,
 				701D65E3D5ABB9EFBDEACA4B /* Pods_e926.framework in Frameworks */,
 			);
@@ -237,6 +236,7 @@
 		A394754A6BC2D90B5AEFA33B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D93298AA1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework */,
 				D9A5EB9E1E63B99100850851 /* PromiseKit.framework */,
 				D9A5EB9C1E63B98800850851 /* PromiseKit.framework */,
 				AC80BB0028B3425D6805B8F8 /* Pods_e926.framework */,
@@ -313,7 +313,6 @@
 				D9B080E31DA9C0AD00BDC28C /* LaunchScreen.storyboard */,
 				D9B080E41DA9C0AD00BDC28C /* Main.storyboard */,
 				D9B080C11DA9C06000BDC28C /* Info.plist */,
-				D9B081061DA9C14A00BDC28C /* Obj-C */,
 				D9B080E91DA9C0CD00BDC28C /* Utils */,
 				D9B080E81DA9C0BA00BDC28C /* Server */,
 				D9B080E71DA9C0B200BDC28C /* UI */,
@@ -392,17 +391,6 @@
 				D9B081011DA9C13600BDC28C /* SettingsTableVC.swift */,
 			);
 			name = Menu;
-			sourceTree = "<group>";
-		};
-		D9B081061DA9C14A00BDC28C /* Obj-C */ = {
-			isa = PBXGroup;
-			children = (
-				D9B081081DA9C16200BDC28C /* UIScrollView+InfiniteScroll.h */,
-				D9B081091DA9C16200BDC28C /* UIScrollView+InfiniteScroll.m */,
-				D9B081071DA9C16200BDC28C /* e926-Bridging-Header.h */,
-			);
-			name = "Obj-C";
-			path = ..;
 			sourceTree = "<group>";
 		};
 		D9EB65A31DAA58820079AF8B /* Search */ = {
@@ -870,7 +858,6 @@
 				D9B080FC1DA9C12400BDC28C /* Requester.swift in Sources */,
 				D9B080FA1DA9C11D00BDC28C /* Preferences.swift in Sources */,
 				D9EB65A61DAA5FAE0079AF8B /* SearchSuggestionsVC.swift in Sources */,
-				D9B0810A1DA9C16200BDC28C /* UIScrollView+InfiniteScroll.m in Sources */,
 				D9B081021DA9C13600BDC28C /* SettingsTableVC.swift in Sources */,
 				D9A5EB9B1E638B8800850851 /* Utils.swift in Sources */,
 				D9EB65A21DAA587A0079AF8B /* SearchResultVC.swift in Sources */,
@@ -1114,7 +1101,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "e926-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -1131,7 +1117,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "e926-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
