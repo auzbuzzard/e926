@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch38" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -16,7 +16,7 @@
                     <items>
                         <table alignment="left" id="uGf-Sq-smO">
                             <items>
-                                <tableRow id="CiR-ZY-dQ7" customClass="feedTableController" customModule="e926_watch_Extension">
+                                <tableRow identifier="feedTableRow" id="CiR-ZY-dQ7" customClass="feedTableController" customModule="e926_watch_Extension">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="YcU-CC-aB7">
                                         <items>
                                             <imageView height="128" alignment="center" id="Xg4-jQ-wBs"/>

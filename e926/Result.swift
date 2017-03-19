@@ -55,6 +55,9 @@ class ImageResult: Result {
         
         let file_url: String
         var file_ext: String?
+        var file_ext_enum: File_Ext? {
+            return file_ext != nil ? File_Ext(rawValue: file_ext!) : nil
+        }
         var file_size: Int?
         
         let width: Int
@@ -65,12 +68,7 @@ class ImageResult: Result {
         
         let rating: String
         var rating_enum: Rating? {
-            switch rating {
-            case "s": return Rating.s
-            case "q": return Rating.q
-            case "e": return Rating.e
-            default: return nil
-            }
+            return Rating(rawValue: rating)
         }
         
         let creator_id: Int
@@ -90,13 +88,13 @@ class ImageResult: Result {
             case active, flagged, pending, deleted
         }
         enum File_Ext: String {
-            case jpg, png, gif, swf, webm
+            case jpg = "jpg", png = "png", gif = "gif", swf = "swf", webm = "webm"
         }
         enum ImageSize: String {
             case file, sample, preview
         }
         enum Rating: String {
-            case s, q, e
+            case s = "s", q = "q", e = "e"
         }
         
         func width(ofSize size: ImageSize) -> Int? {
@@ -146,11 +144,20 @@ class ImageResult: Result {
         return Network.get(url: url)
             .then { data -> Promise<UIImage> in
                 return Promise { fulfill, reject in
-                    if let image = UIImage(data: data) {
-                        _ = Cache.shared.setImage(image, id: self.id, size: size)
-                        fulfill(image)
+                    if self.metadata.file_ext_enum == .gif {
+                        if let image = UIImage.gif(data: data) {
+                            _ = Cache.shared.setImage(image, id: self.id, size: size)
+                            fulfill(image)
+                        } else {
+                            reject(ImageResultError.dataIsNotUIImage(id: self.id, data: data))
+                        }
                     } else {
-                        reject(ImageResultError.dataIsNotUIImage(id: self.id, data: data))
+                        if let image = UIImage(data: data) {
+                            _ = Cache.shared.setImage(image, id: self.id, size: size)
+                            fulfill(image)
+                        } else {
+                            reject(ImageResultError.dataIsNotUIImage(id: self.id, data: data))
+                        }
                     }
                 }
         }

@@ -9,6 +9,7 @@
 import UIKit
 import PromiseKit
 import UIScrollView_InfiniteScroll
+import SwiftGifOrigin
 
 private let reuseIdentifier = "mainCell"
 
@@ -171,6 +172,8 @@ class ListCollectionVC: UICollectionViewController {
         cell.footerFavLabel.text = "\(item.metadata.fav_count)"
         cell.footerScoreLabel.text = "\(item.metadata.score)"
         
+        cell.mainImage.image = nil
+        
         item.imageFromCache(size: .sample)
             .recover { error -> Promise<UIImage> in
                 return item.imageFromCache(size: .preview)
@@ -179,9 +182,9 @@ class ListCollectionVC: UICollectionViewController {
             }.catch { error in
                 if case Cache.CacheError.noImageInStore(_) = error {
                     item.downloadImage(ofSize: .sample)
-                        .then { _ in
+                        .then { _ -> Void in
                             collectionView.reloadItems(at: [indexPath])
-                        }.catch { error in
+                        }.catch { error -> Void in
                     }
                 } else {
                     
