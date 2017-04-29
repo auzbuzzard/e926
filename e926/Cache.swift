@@ -12,14 +12,17 @@ import PromiseKit
 class Cache {
     
     static let shared = Cache()
-    private init() { }
+    private init() {
+        images.totalCostLimit = 750 * 1024 * 1024 // 750MB
+    }
     
-    lazy var images = Dictionary<String, UIImage>()
+    lazy var images = NSCache<NSString, UIImage>()
+    private lazy var imagesOrder = Dictionary<Int, String>()
     lazy var users = Dictionary<String, UserResult>()
     
     func getImage(withId id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<UIImage> {
         return Promise { fulfill, reject in
-            if let image = images["\(size.rawValue)_\(id)"] {
+            if let image = images.object(forKey: "\(id)_\(size.rawValue)" as NSString) {
                 fulfill(image)
             } else {
                 reject(CacheError.noImageInStore(id: id))
@@ -29,7 +32,8 @@ class Cache {
     
     func setImage(_ image: UIImage, id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<Void> {
         return Promise { fulfill, reject in
-            images.updateValue(image, forKey: "\(size.rawValue)_\(id)")
+            let cost = UIImageJPEGRepresentation(image, 1.0)?.count
+            images.setObject(image, forKey: "\(id)_\(size.rawValue)" as NSString, cost: cost ?? 0)
             fulfill()
         }
     }
@@ -55,4 +59,26 @@ class Cache {
         case noImageInStore(id: Int)
         case noUserInStore(id: Int)
     }
+    
 }
+
+fileprivate class CacheObject<T> {
+    var object:T
+    var timestamp: Date
+    var name: String
+    
+    init(name: String, object:T) {
+        self.name = name
+        self.object = object
+        timestamp = Date()
+    }
+}
+
+
+
+
+
+
+
+
+
