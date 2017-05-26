@@ -46,7 +46,7 @@ class ImageZoomVC: UIViewController {
                 self.isFileImage = true
                 self.setImageView(image: image)
             }.catch { error in
-                if case Cache.CacheError.noImageInStore(id: _) = error {
+                if case ImageCache.CacheError.noImageInStore(id: _) = error {
                     self.imageResult.imageFromCache(size: .sample)
                         .recover { error -> Promise<UIImage> in
                             return self.imageResult.imageFromCache(size: .preview)

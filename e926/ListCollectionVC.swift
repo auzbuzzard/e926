@@ -180,7 +180,7 @@ class ListCollectionVC: UICollectionViewController {
             }.then { image -> Void in
                 cell.mainImage.image = image
             }.catch { error in
-                if case Cache.CacheError.noImageInStore(_) = error {
+                if case ImageCache.CacheError.noImageInStore(_) = error {
                     item.downloadImage(ofSize: .sample)
                         .then { _ -> Void in
                             collectionView.reloadItems(at: [indexPath])

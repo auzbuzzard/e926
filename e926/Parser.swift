@@ -9,11 +9,19 @@
 import Foundation
 import PromiseKit
 
-class Parser {
-    enum ParserError: Error {
-        case JsonDataCorrupted(data: Data)
-        case CannotCastJsonIntoNSDictionary(data: Data)
-    }
+protocol Parser {
+    associatedtype ParseResult: Result
+    static func parse(data: Data) -> Promise<ParseResult>
+}
+
+protocol ParserForItem: Parser {
+    associatedtype Result: ResultItem
+    static func parse(dictionary item: NSDictionary) -> Promise<Result>
+}
+
+enum ParserError: Error {
+    case JsonDataCorrupted(data: Data)
+    case CannotCastJsonIntoNSDictionary(data: Data)
 }
 
 class ListParser: Parser {
@@ -40,7 +48,7 @@ class ListParser: Parser {
     }
 }
 
-class ImageParser: Parser {
+class ImageParser: ParserForItem {
     
     static func parse(data: Data) -> Promise<ImageResult> {
         return Promise { fulfill, reject in

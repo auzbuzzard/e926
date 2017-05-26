@@ -64,6 +64,6 @@ extension HomeVC: ListCollectionVCRequestDelegate {
     }
     
     func getResult(last_before_id: Int?) -> Promise<ListResult> {
-        return ListRequester().downloadList(OfType: .post, tags: nil, last_before_id: last_before_id)
+        return ListRequester().downloadList(ofType: .post, tags: nil, last_before_id: last_before_id)
     }
 }

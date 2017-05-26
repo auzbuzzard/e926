@@ -9,16 +9,37 @@
 import UIKit
 import PromiseKit
 
-class Cache {
+// Mark: Protocols
+// For External Class Conformance
+
+protocol UsingImageCache {
+    var imageCache: ImageCache { get }
+}
+extension UsingImageCache {
+    var imageCache: ImageCache { return ImageCache.shared }
+}
+protocol UsingUserCache {
+    var userCache: UserCache { get }
+}
+extension UsingUserCache {
+    var userCache: UserCache { return UserCache.shared }
+}
+protocol UsingImageResultCache {
+    var imageResultCache: ImageResultCache { get }
+}
+extension UsingImageResultCache {
+    var imageResultCache: ImageResultCache { return ImageResultCache.shared }
+}
+
+// For internal class conformance
+protocol CacheClass { }
+//extension CacheClass { }
+
+class ImageCache: CacheClass {
+    fileprivate static let shared = ImageCache()
+    private init() { images.totalCostLimit = 750 * 1024 * 1024 /* 750MB */ }
     
-    static let shared = Cache()
-    private init() {
-        images.totalCostLimit = 750 * 1024 * 1024 // 750MB
-    }
-    
-    lazy var images = NSCache<NSString, UIImage>()
-    private lazy var imagesOrder = Dictionary<Int, String>()
-    lazy var users = Dictionary<String, UserResult>()
+    private lazy var images = NSCache<NSString, UIImage>()
     
     func getImage(withId id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<UIImage> {
         return Promise { fulfill, reject in
@@ -38,12 +59,50 @@ class Cache {
         }
     }
     
+    enum CacheError: Error {
+        case noImageInStore(id: Int)
+    }
+}
+
+class ImageResultCache: CacheClass {
+    fileprivate static let shared = ImageResultCache()
+    private init() { }
+    
+    private lazy var results = Dictionary<Int, ImageResult>()
+    
+    func getImageResult(withId id: Int) -> Promise<ImageResult> {
+        return Promise { fulfill, reject in
+            if let image = results[id] {
+                fulfill(image)
+            } else {
+                reject(CacheError.noImageResultInStore(id: id))
+            }
+        }
+    }
+    
+    func setImageResult(_ result: ImageResult) -> Promise<Void> {
+        return Promise { fulfill, reject in
+            results.updateValue(result, forKey: result.id)
+            fulfill()
+        }
+    }
+    
+    enum CacheError: Error {
+        case noImageResultInStore(id: Int)
+    }
+}
+
+class UserCache: CacheClass {
+    fileprivate static let shared = UserCache()
+    private init() { }
+    lazy var users = Dictionary<String, UserResult>()
+    
     func getUser(withId id: Int) -> Promise<UserResult> {
         return Promise { fulfill, reject in
             if let user = users["\(id)"] {
                 fulfill(user)
             } else {
-                reject(CacheError.noImageInStore(id: id))
+                reject(CacheError.noUserInStore(id: id))
             }
         }
     }
@@ -56,10 +115,8 @@ class Cache {
     }
     
     enum CacheError: Error {
-        case noImageInStore(id: Int)
         case noUserInStore(id: Int)
     }
-    
 }
 
 fileprivate class CacheObject<T> {
