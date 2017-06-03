@@ -39,7 +39,7 @@ protocol ResultItemMetadata { }
 
 struct ListResult: ResultListable {
     var results: [ImageResult]
-    var last_before_id: Int? = nil
+    var last_before_id: Int? { return results.last?.id }
     
     init() {
         results = [ImageResult]()
@@ -51,7 +51,6 @@ struct ListResult: ResultListable {
     
     mutating func add(_ result: [ImageResult]) {
         results.append(contentsOf: result)
-        last_before_id = results.last?.id
     }
     mutating func add(_ result: ListResult) {
         add(result.results)
@@ -84,8 +83,8 @@ struct ImageResult: ResultItem, UsingImageCache {
         let fav_count: Int
         
         let rating: String
-        var rating_enum: Rating? {
-            return Rating(rawValue: rating)
+        var rating_enum: Rating {
+            return Rating(rawValue: rating) ?? .e //if can't parse, choose e for worst case scenario
         }
         
         let creator_id: Int

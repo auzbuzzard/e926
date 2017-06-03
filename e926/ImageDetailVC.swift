@@ -157,8 +157,6 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         searchDelegate = SearchManager()
         searchDelegate?.searchString = tag
         let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
-        listVC.delegate = searchDelegate
-        listVC.isFirstListVC = false
         listVC.title = tag
         navigationController?.pushViewController(listVC, animated: true)
         

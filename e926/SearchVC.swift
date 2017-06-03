@@ -11,6 +11,8 @@
  
  class SearchVC: UIViewController {
     
+    var vm: ListCollectionVM!
+    
     var searchController: UISearchController!
     var searchBar: UISearchBar { get { return searchController.searchBar } }
     var searchSuggestionsVC: SearchSuggestionsVC!
@@ -24,12 +26,57 @@
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        vm = ListCollectionVM()
         view.backgroundColor = Theme.colors().background
-        
         navigationController?.delegate = self
-        
         searchSuggestionsVC = storyboard?.instantiateViewController(withIdentifier: "searchSuggestionsVC") as! SearchSuggestionsVC
+        setupSearchBar()
+        NotificationCenter.default.addObserver(self, selector: #selector(SearchVC.useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        searchController.searchBar.sizeToFit()
+        searchController.searchBar.frame.size.width = self.view.frame.size.width
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showSearchResultVC" {
+            if let vc = segue.destination as? SearchResultVC, let sender = sender as? UISearchBar  {
+                vc.searchString = sender.text
+            }
+        }
+    }
+    
+    //Mark: Results
+    
+    var listVC: ListCollectionVC!
+    
+    func showResults() {
+        
+        listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
+        listVC.vm = vm
+        
+        navigationController?.pushViewController(listVC, animated: true)
+        listVC.title = vm.tags?.joined(separator: ", ")
+        
+        //listVC.collectionView?.collectionViewLayout.invalidateLayout()
+        vm.getResults(asNew: true, withTags: vm.tags, onComplete: {
+            self.listVC.collectionView?.reloadData()
+        })
+    }
+    
+    // Mark: SearchBar
+    
+    func setupSearchBar() {
         searchController = UISearchController(searchResultsController: searchSuggestionsVC)
         
         let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as? UITextField
@@ -47,90 +94,12 @@
         searchBar.returnKeyType = .search
         
         definesPresentationContext = false
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(SearchVC.useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        searchController.searchBar.sizeToFit()
-        searchController.searchBar.frame.size.width = self.view.frame.size.width
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    
-    // MARK: - Navigation
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showSearchResultVC" {
-            if let vc = segue.destination as? SearchResultVC, let sender = sender as? UISearchBar  {
-                vc.searchString = sender.text
-            }
-            
-        }
-    }
-    
-    
-    
-    //    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-    //        searchController.searchBar.sizeToFit()
-    //        searchController.searchBar.frame.size.width = size.width
-    //    }
-    //
-    
-    
-    //Mark: Results
-    
-    var listVC: ListCollectionVC!
-    var searchString: String?
-    var searchStringCorrected: String? {
-        get {
-            return searchString?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
-        }
-    }
-    
-    func showResults() {
-        
-        listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
-        listVC.delegate = self
-        listVC.isFirstListVC = false
-        
-        //print(searchString)
-        //print(correctedSearchString)
-        
-        navigationController?.pushViewController(listVC, animated: true)
-        
-        listVC.title = searchString
-        
-        listVC.collectionView?.collectionViewLayout.invalidateLayout()
-        
     }
     
     func useE621ModeDidChange() {
-        listVC.getNewResult()
+        vm.getResults(asNew: true, withTags: vm.tags, onComplete: { })
     }
  }
- 
- extension SearchVC: ListCollectionVCRequestDelegate {
-    internal func getResult(last_before_id: Int?) -> Promise<ListResult> {
-        return ListRequester().downloadList(ofType: .post, tags: searchStringCorrected, last_before_id: last_before_id)
-    }
-
-    internal func vcShouldLoadImmediately() -> Bool {
-        return true
-    }
- }
-
  
  extension SearchVC: UISearchControllerDelegate {
     
@@ -156,11 +125,8 @@
  extension SearchVC: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchController.dismiss(animated: true, completion: {
-            
-        })
-        //UserDefaults.standard.set(searchBar.text, forKey: Store.searchHistory.rawValue)
-        searchString = searchBar.text
+        searchController.dismiss(animated: true, completion: { })
+        vm.setTags(searchBar.text ?? "")
         showResults()
     }
     

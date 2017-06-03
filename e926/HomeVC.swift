@@ -12,18 +12,16 @@ import PromiseKit
 class HomeVC: UINavigationController {
     
     var listVC: ListCollectionVC!
-
+    var vm: ListCollectionVM!
+    
+    // Mark: View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        vm = ListCollectionVM()
         
         NotificationCenter.default.addObserver(self, selector: #selector(HomeVC.useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
         
         instantiateVC()
-        
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
         
     }
     
@@ -33,31 +31,28 @@ class HomeVC: UINavigationController {
     
     func instantiateVC() {
         listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
+        #if DEBUG
+            print("HomeVC: Instantiating listVC: \(listVC)")
+        #endif
         
-        listVC.delegate = self
+        listVC.vm = vm
         
         setViewControllers([listVC], animated: false)
         
         listVC.collectionView?.collectionViewLayout.invalidateLayout()
+        
+        vm.getResults(asNew: true, withTags: nil, onComplete: {
+            self.listVC.collectionView?.reloadData()
+        })
     }
     
     func useE621ModeDidChange() {
-        listVC.getNewResult()
+        vm.getResults(asNew: true, withTags: nil, onComplete: { })
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 
+/*
 extension HomeVC: ListCollectionVCRequestDelegate {
     internal func vcShouldLoadImmediately() -> Bool {
         return true
@@ -67,3 +62,4 @@ extension HomeVC: ListCollectionVCRequestDelegate {
         return ListRequester().downloadList(ofType: .post, tags: nil, last_before_id: last_before_id)
     }
 }
+*/

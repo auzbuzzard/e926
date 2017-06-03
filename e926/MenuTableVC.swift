@@ -53,21 +53,11 @@ class MenuTableVC: UITableViewController {
                 let user = Identity.main.user!
                 cell.profileLabel.text = user.metadata.name
                 
-                if let _ = user.metadata.avatar_id {
-                    user.avatarFromCache()
-                        .then { image in
-                            cell.profileImageView.image = image
-                        }.catch { error in
-                            if case Cache.CacheError.noImageInStore(_) = error {
-                                user.getAvatar()
-                                    .then { _ in
-                                        tableView.reloadRows(at: [indexPath], with: .none)
-                                    }.catch { error in
-                                }
-                            }
+                _ = user.getAvatar()
+                    .then { image -> Void in
+                        cell.profileImageView.image = image
+                        tableView.reloadRows(at: [indexPath], with: .none)
                     }
-                    
-                }
             } else {
                 cell.profileLabel.text = "Not logged in"
             }

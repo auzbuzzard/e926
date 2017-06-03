@@ -20,7 +20,7 @@ class ListRequester: Requester {
     static var list_post_url: String { return base_url + "/post/index.json" }
     static var list_user_url: String { return base_url + "/user/index.json" }
     
-    func downloadList(ofType listType: ListType, tags: String?, last_before_id: Int?) -> Promise<ListResult> {
+    func downloadList(ofType listType: ListType, formattedTags tags: String?, last_before_id: Int?) -> Promise<ListResult> {
         var params = [String]()
         
         if let last_before_id = last_before_id {
@@ -29,6 +29,9 @@ class ListRequester: Requester {
         if let tags = tags {
             params.append("tags=\(tags)")
         }
+        #if DEBUG
+            params.append("limit=10")
+        #endif
         
         let url: String = {
             switch listType {

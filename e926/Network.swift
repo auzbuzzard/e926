@@ -8,6 +8,7 @@
 
 import Foundation
 import PromiseKit
+import Alamofire
 
 enum NetworkError: Error {
     
@@ -31,7 +32,7 @@ class Network {
         return Promise { fulfill, reject in
             guard let u = URL(string: url) else { reject(NetworkError.InvalidURL(url: url)); return }
             let session = URLSession.shared
-
+            
             let request = NSMutableURLRequest(url: u)
             if params == nil {
                 request.httpMethod = "GET"
@@ -41,7 +42,9 @@ class Network {
                 let paramString = "data=Hello"
                 request.httpBody = paramString.data(using: String.Encoding.utf8)
             }
-            
+            #if DEBUG
+                print(u)
+            #endif
             let dataPromise: URLDataPromise = session.dataTask(with: request as URLRequest)
             dataPromise.asDataAndResponse().then { (data, respone) -> Void in
                 fulfill(data)

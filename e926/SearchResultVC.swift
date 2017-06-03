@@ -16,9 +16,7 @@ class SearchResultVC: UIViewController {
     
     var searchString: String?
     var searchStringCorrected: String? {
-        get {
-            return searchString?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
-        }
+        return searchString?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
     }
 
     override func viewDidLoad() {
@@ -65,13 +63,12 @@ class SearchResultVC: UIViewController {
     }
     
     func setupVC(vc: ListCollectionVC) {
-        vc.delegate = self
+        //vdeletete = self
         //vc.collectionView?.contentInset = UIEdgeInsetsMake(64, 0, 40, 0)
         
     }
     
     func useE621ModeDidChange() {
-        listVC.results = ListResult()
         _ = navigationController?.popToViewController(listVC, animated: false)
         listVC.removeFromParentViewController()
         instantiateVC()
@@ -91,7 +88,7 @@ class SearchResultVC: UIViewController {
 
 extension SearchResultVC: ListCollectionVCRequestDelegate {
     internal func getResult(last_before_id: Int?) -> Promise<ListResult> {
-        return ListRequester().downloadList(ofType: .post, tags: searchStringCorrected, last_before_id: last_before_id)
+        return ListRequester().downloadList(ofType: .post, formattedTags: searchStringCorrected, last_before_id: last_before_id)
     }
 
     internal func vcShouldLoadImmediately() -> Bool {

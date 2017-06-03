@@ -22,20 +22,8 @@ class ImageZoomVC: UIViewController {
         super.viewDidLoad()
         
         mainImageView = UIImageView(frame: CGRect.zero)
-        
-        
-        mainScrollView.decelerationRate = UIScrollViewDecelerationRateFast
-        
-        mainScrollView.delegate = self
-        
-        mainScrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        mainScrollView.addSubview(mainImageView)
-        //print(mainScrollView.contentInset)
-        
+        setupScrollView()
         setupGestureRecognizer()
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -44,19 +32,19 @@ class ImageZoomVC: UIViewController {
         imageResult.imageFromCache(size: .file)
             .then { image -> Void in
                 self.isFileImage = true
-                self.setImageView(image: image)
+                self.setImageView(image: image, withZoom: true)
             }.catch { error in
                 if case ImageCache.CacheError.noImageInStore(id: _) = error {
                     self.imageResult.imageFromCache(size: .sample)
                         .recover { error -> Promise<UIImage> in
                             return self.imageResult.imageFromCache(size: .preview)
                         }.then { image in
-                            self.setImageView(image: image)
+                            self.setImageView(image: image, withZoom: true)
                         }.then { _ -> Promise<UIImage> in
                             return self.imageResult.downloadImage(ofSize: .file)
                         }.then { image -> Void in
                             print("downloaded .file")
-                            self.setImageView(image: image)
+                            self.setImageView(image: image, withZoom: false)
                         }.catch { error in
                             if case ImageResult.ImageResultError.downloadFailed(id: _, url: _) = error {
                                 print("Error (ImageZoomVC): Cannot download full image")
@@ -65,10 +53,12 @@ class ImageZoomVC: UIViewController {
                 }
         }
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func setupScrollView() {
+        mainScrollView.decelerationRate = UIScrollViewDecelerationRateFast
+        mainScrollView.delegate = self
+        mainScrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mainScrollView.addSubview(mainImageView)
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -92,13 +82,19 @@ class ImageZoomVC: UIViewController {
         //print(mainScrollView.contentInset)
     }
     
-    func setImageView(image: UIImage?) {
+    func setImageView(image: UIImage?, withZoom: Bool) {
         mainImageView.image = image
-        mainImageView.sizeToFit()
-        mainScrollView.contentSize = mainImageView.bounds.size
-        
-        setZoomScale()
-        //adjustPadding()
+
+        if withZoom {
+            mainImageView.sizeToFit()
+            mainScrollView.contentSize = mainImageView.bounds.size
+            setZoomScale()
+        } else {
+            //adjustPadding()
+            //mainScrollView.contentSize = mainImageView.bounds.size
+        }
+        print("ContentSize: \(mainScrollView.contentSize)")
+        print("ContentInset: \(mainScrollView.contentInset)")
     }
     
     func setZoomScale() {
@@ -112,8 +108,8 @@ class ImageZoomVC: UIViewController {
         
         if minimumZoomScale != CGFloat.infinity && maximumZoomScale != CGFloat.infinity {
         mainScrollView.minimumZoomScale = minimumZoomScale
-        //print(minimumZoomScale, maximumZoomScale)
-        //print(mainScrollView.maximumZoomScale)
+        print(minimumZoomScale, maximumZoomScale)
+        print(mainScrollView.maximumZoomScale)
         mainScrollView.maximumZoomScale = maximumZoomScale
             mainScrollView.zoomScale = minimumZoomScale
         }
@@ -165,6 +161,7 @@ class ImageZoomVC: UIViewController {
                 self.navigationController?.navigationBar.alpha = 1
                 self.tabBarController?.tabBar.alpha = 1
                 self.view.backgroundColor = UIColor.white
+                UIApplication.shared.isStatusBarHidden = false
             }, completion: { success in
                 if success {
                     self.isFullScreen = !self.isFullScreen
@@ -172,6 +169,7 @@ class ImageZoomVC: UIViewController {
             })
         } else {
             UIView.animate(withDuration: duration, animations: {
+                UIApplication.shared.isStatusBarHidden = true
                 self.navigationController?.navigationBar.alpha = 0
                 self.tabBarController?.tabBar.alpha = 0
                 self.view.backgroundColor = UIColor.black
