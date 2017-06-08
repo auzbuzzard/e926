@@ -9,23 +9,19 @@
 import Foundation
 import PromiseKit
 
-class SearchManager: ListCollectionVCRequestDelegate {
+class SearchManager {
     
     //static let shared = Lis
     
     var listVC: ListCollectionVC!
     var searchString: String?
-    var searchStringCorrected: String? {
-        get {
-            return searchString?.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
-        }
-    }
+    var tags: [String]? { return searchString?.components(separatedBy: " ") }
     
     internal func vcShouldLoadImmediately() -> Bool {
         return true
     }
     
     func getResult(last_before_id: Int?) -> Promise<ListResult> {
-        return ListRequester().downloadList(ofType: .post, formattedTags: searchStringCorrected, last_before_id: last_before_id)
+        return ListRequester().downloadList(ofType: .post, tags: tags, last_before_id: last_before_id)
     }
 }

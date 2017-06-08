@@ -20,17 +20,17 @@ class ListRequester: Requester {
     static var list_post_url: String { return base_url + "/post/index.json" }
     static var list_user_url: String { return base_url + "/user/index.json" }
     
-    func downloadList(ofType listType: ListType, formattedTags tags: String?, last_before_id: Int?) -> Promise<ListResult> {
+    func downloadList(ofType listType: ListType, tags: [String]?, last_before_id: Int?) -> Promise<ListResult> {
         var params = [String]()
         
         if let last_before_id = last_before_id {
             params.append("before_id=\(last_before_id)")
         }
         if let tags = tags {
-            params.append("tags=\(tags)")
+            params.append("tags=\(tags.joined(separator: " ").addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)!)")
         }
         #if DEBUG
-            params.append("limit=10")
+            //params.append("limit=10")
         #endif
         
         let url: String = {
@@ -39,7 +39,9 @@ class ListRequester: Requester {
             case.user: return ListRequester.list_user_url + "?\(params.joined(separator: "&"))"
             }
         }()
-        
+        #if DEBUG
+            print(url)
+        #endif
         return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ListResult> in
             return ListParser.parse(data: data)
         }
@@ -85,6 +87,27 @@ class UserRequester: Requester, UsingUserCache {
             }.then(on: .global(qos: .userInitiated)) { result -> UserResult in
                 _ = self.userCache.setUser(result)
                 return result
+        }
+    }
+}
+
+class CommentRequester: Requester {
+    static let list_url = base_url + "/comment"
+    enum ReturnStatus: String { case hidden = "hidden", active = "active", any = "any" }
+    
+    func getComments(for post_id: Int, page: Int?, status: ReturnStatus?) -> Promise<ListCommentResult> {
+        
+        var params = [String]()
+        params.append("post_id=\(post_id)")
+        if let page = page {
+            params.append("page=\(page)")
+        }
+        if let status = status {
+            params.append("tags=\(status.rawValue)")
+        }
+        let url = CommentRequester.list_url + "/index.json?" + params.joined(separator: "&")
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ListCommentResult> in
+            return ListCommentParser.parse(data: data)
         }
     }
 }

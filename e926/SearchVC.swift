@@ -11,7 +11,7 @@
  
  class SearchVC: UIViewController {
     
-    var vm: ListCollectionVM!
+    var dataSource: ListCollectionVM!
     
     var searchController: UISearchController!
     var searchBar: UISearchBar { get { return searchController.searchBar } }
@@ -26,7 +26,7 @@
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        vm = ListCollectionVM()
+        dataSource = ListCollectionVM()
         view.backgroundColor = Theme.colors().background
         navigationController?.delegate = self
         searchSuggestionsVC = storyboard?.instantiateViewController(withIdentifier: "searchSuggestionsVC") as! SearchSuggestionsVC
@@ -60,16 +60,18 @@
     
     var listVC: ListCollectionVC!
     
-    func showResults() {
+    func showResults(with stringTag: String?) {
         
         listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
-        listVC.vm = vm
+        listVC.dataSource = dataSource
+        listVC.listCategory = "Results"
+        dataSource.tags = dataSource.tags(from: stringTag ?? "")
         
         navigationController?.pushViewController(listVC, animated: true)
-        listVC.title = vm.tags?.joined(separator: ", ")
+        listVC.title = dataSource.tags?.joined(separator: ", ")
         
         //listVC.collectionView?.collectionViewLayout.invalidateLayout()
-        vm.getResults(asNew: true, withTags: vm.tags, onComplete: {
+        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
             self.listVC.collectionView?.reloadData()
         })
     }
@@ -97,7 +99,7 @@
     }
     
     func useE621ModeDidChange() {
-        vm.getResults(asNew: true, withTags: vm.tags, onComplete: { })
+        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: { })
     }
  }
  
@@ -126,8 +128,7 @@
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchController.dismiss(animated: true, completion: { })
-        vm.setTags(searchBar.text ?? "")
-        showResults()
+        showResults(with: searchBar.text)
     }
     
     

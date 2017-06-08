@@ -85,7 +85,7 @@ class SearchResultVC: UIViewController {
     */
 
 }
-
+/*
 extension SearchResultVC: ListCollectionVCRequestDelegate {
     internal func getResult(last_before_id: Int?) -> Promise<ListResult> {
         return ListRequester().downloadList(ofType: .post, formattedTags: searchStringCorrected, last_before_id: last_before_id)
@@ -95,4 +95,4 @@ extension SearchResultVC: ListCollectionVCRequestDelegate {
         return true
     }
 }
-
+*/

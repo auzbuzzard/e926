@@ -16,3 +16,7 @@ enum Store: String {
     case searchHistory
     
 }
+
+class SettingsStore {
+    
+}

@@ -14,7 +14,7 @@ protocol Parser {
     static func parse(data: Data) -> Promise<ParseResult>
 }
 
-protocol ParserForItem: Parser {
+protocol ParserForItem {
     associatedtype Result: ResultItem
     static func parse(dictionary item: NSDictionary) -> Promise<Result>
 }
@@ -140,9 +140,46 @@ class UserParser: Parser {
     }
 }
 
+class ListCommentParser: Parser {
+    static func parse(data: Data) -> Promise<ListCommentResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
+                    
+                    var results = [CommentResult]()
+                    
+                    for item in json {
+                        CommentParser.parse(dictionary: item).then { result -> Void in
+                            results.append(result)
+                            }.catch { error in
+                        }
+                    }
+                    fulfill(ListCommentResult(result: results))
+                }
+            } catch {
+                reject(error)
+            }
+        }
+    }
+}
 
-
-
+class CommentParser: ParserForItem {    
+    static func parse(dictionary: NSDictionary) -> Promise<CommentResult> {
+        return Promise { fulfill, _ in
+            let id = dictionary["id"] as? Int ?? 0
+            let created_at = dictionary["created_at"] as? String ?? ""
+            let post_id = dictionary["post_id"] as? Int ?? 0
+            let creator = dictionary["creator"] as? String ?? ""
+            let creator_id = dictionary["creator_id"] as? Int ?? 0
+            let body = dictionary["body"] as? String ?? ""
+            let score = dictionary["score"] as? Int ?? 0
+            
+            let metadata = CommentResult.Metadata(id: id, created_at: created_at, post_id: post_id, creator: creator, creator_id: creator_id, body: body, score: score)
+            
+            fulfill(CommentResult(metadata: metadata))
+        }
+    }
+}
 
 
 

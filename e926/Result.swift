@@ -211,7 +211,32 @@ struct UserResult: ResultItem, UsingUserCache, UsingImageResultCache {
 
 }
 
+struct ListCommentResult: ResultListable {
+    var results: [CommentResult]
+    
+    init() {
+        results = [CommentResult]()
+    }
+    init(result: [CommentResult]) {
+        self.init()
+        add(result)
+    }
+}
 
+struct CommentResult: ResultItem {
+    var id: Int { return metadata.id }
+    var metadata: Metadata
+    
+    struct Metadata: ResultItemMetadata {
+        let id: Int
+        let created_at: String
+        let post_id: Int
+        let creator: String
+        let creator_id: Int
+        let body: String
+        let score: Int
+    }
+}
 
 
 

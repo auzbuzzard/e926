@@ -9,8 +9,10 @@
 import UIKit
 import PromiseKit
 
+/// Class that control the fullscreen image viewer view
 class ImageZoomVC: UIViewController {
 
+    // Mark: - Properties
     var mainImageView: UIImageView!
     @IBOutlet weak var mainScrollView: UIScrollView!
     
@@ -18,17 +20,34 @@ class ImageZoomVC: UIViewController {
     var isFileImage = false
     var isFullScreen = false
     
+    // Mark: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mainImageView = UIImageView(frame: CGRect.zero)
         setupScrollView()
         setupGestureRecognizer()
+        
+        loadImage()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        adjustPadding()
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.notifyWhenInteractionEnds({ context in
+            self.mainScrollView.contentSize = self.mainImageView.frame.size
+        })
+    }
+    
+    override func viewWillLayoutSubviews() {
+        setZoomScale()
+    }
+    
+    // Mark: - Data Loading
+    
+    func loadImage() {
         imageResult.imageFromCache(size: .file)
             .then { image -> Void in
                 self.isFileImage = true
@@ -43,7 +62,6 @@ class ImageZoomVC: UIViewController {
                         }.then { _ -> Promise<UIImage> in
                             return self.imageResult.downloadImage(ofSize: .file)
                         }.then { image -> Void in
-                            print("downloaded .file")
                             self.setImageView(image: image, withZoom: false)
                         }.catch { error in
                             if case ImageResult.ImageResultError.downloadFailed(id: _, url: _) = error {
@@ -54,23 +72,15 @@ class ImageZoomVC: UIViewController {
         }
     }
     
+    // Mark: - Scroll View and ImageView Constraints
+    
     func setupScrollView() {
         mainScrollView.decelerationRate = UIScrollViewDecelerationRateFast
         mainScrollView.delegate = self
         mainScrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         mainScrollView.addSubview(mainImageView)
     }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        adjustPadding()
-    }
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        coordinator.notifyWhenInteractionEnds({ context in
-            self.mainScrollView.contentSize = self.mainImageView.frame.size
-        })
-    }
-    
+
     func adjustPadding() {
         let imageViewSize = mainImageView.frame.size
         let scrollViewSize = mainScrollView.bounds.size
@@ -79,7 +89,6 @@ class ImageZoomVC: UIViewController {
         let horizontalPadding = imageViewSize.width < scrollViewSize.width ? (scrollViewSize.width - imageViewSize.width) / 2 : 0
         
         mainScrollView.contentInset = UIEdgeInsets(top: verticalPadding, left: horizontalPadding, bottom: verticalPadding, right: horizontalPadding)
-        //print(mainScrollView.contentInset)
     }
     
     func setImageView(image: UIImage?, withZoom: Bool) {
@@ -89,12 +98,7 @@ class ImageZoomVC: UIViewController {
             mainImageView.sizeToFit()
             mainScrollView.contentSize = mainImageView.bounds.size
             setZoomScale()
-        } else {
-            //adjustPadding()
-            //mainScrollView.contentSize = mainImageView.bounds.size
         }
-        print("ContentSize: \(mainScrollView.contentSize)")
-        print("ContentInset: \(mainScrollView.contentInset)")
     }
     
     func setZoomScale() {
@@ -108,16 +112,12 @@ class ImageZoomVC: UIViewController {
         
         if minimumZoomScale != CGFloat.infinity && maximumZoomScale != CGFloat.infinity {
         mainScrollView.minimumZoomScale = minimumZoomScale
-        print(minimumZoomScale, maximumZoomScale)
-        print(mainScrollView.maximumZoomScale)
         mainScrollView.maximumZoomScale = maximumZoomScale
             mainScrollView.zoomScale = minimumZoomScale
         }
     }
     
-    override func viewWillLayoutSubviews() {
-        setZoomScale()
-    }
+    // Mark: - Gesture Recognizers
     
     func setupGestureRecognizer() {
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(ImageZoomVC.handleDoubleTap(recognizer:)))
@@ -133,68 +133,69 @@ class ImageZoomVC: UIViewController {
     }
     
     func handleDoubleTap(recognizer: UITapGestureRecognizer) {
-        
         if (mainScrollView.zoomScale > mainScrollView.minimumZoomScale) {
             mainScrollView.setZoomScale(mainScrollView.minimumZoomScale, animated: true)
         } else {
-            mainScrollView.setZoomScale(mainScrollView.maximumZoomScale * 0.4, animated: true)
-//            if let bool = navigationController?.isNavigationBarHidden {
-//                navigationController?.setNavigationBarHidden(!bool, animated: true)
-//            }
-//            if let bool = tabBarController?.isTabBarVisible() {
-//                tabBarController?.setTabBarVisible(visible: !bool, animated: true)
-//            }
+            switchTo(fullScreen: true, animated: true, withExtraAnimation: {
+                self.mainScrollView.setZoomScale(self.mainScrollView.maximumZoomScale * 0.4, animated: true)
+            }, completion: { })
         }
         adjustPadding()
     }
     
     func handleSingleTap(recognizer: UITapGestureRecognizer) {
-        
-        switchBetweenFullScreen(animated: true)
-        
+        switchBetweenFullScreen(animated: true, withExtraAnimation: { }, completion: { })
     }
     
-    func switchBetweenFullScreen(animated: Bool) {
+    // Mark: - Fullscreen aka Hiding the Bars
+    
+    func switchBetweenFullScreen(animated: Bool, withExtraAnimation: @escaping () -> Void, completion: @escaping () -> Void) {
+        switchTo(fullScreen: !isFullScreen, animated: animated, withExtraAnimation: withExtraAnimation, completion: completion)
+    }
+    
+    func switchTo(fullScreen switchToFullScreen: Bool, animated: Bool, withExtraAnimation: @escaping () -> Void, completion: @escaping () -> Void) {
         let duration = animated ? 0.3 : 0.1
-        if isFullScreen {
-            UIView.animate(withDuration: duration, animations: {
-                self.navigationController?.navigationBar.alpha = 1
-                self.tabBarController?.tabBar.alpha = 1
-                self.view.backgroundColor = UIColor.white
-                UIApplication.shared.isStatusBarHidden = false
-            }, completion: { success in
-                if success {
-                    self.isFullScreen = !self.isFullScreen
-                }
-            })
-        } else {
+        if switchToFullScreen {
             UIView.animate(withDuration: duration, animations: {
                 UIApplication.shared.isStatusBarHidden = true
                 self.navigationController?.navigationBar.alpha = 0
                 self.tabBarController?.tabBar.alpha = 0
                 self.view.backgroundColor = UIColor.black
+                withExtraAnimation()
             }, completion: { success in
                 if success {
-                    self.isFullScreen = !self.isFullScreen
+                    self.isFullScreen = true
+                    completion()
+                }
+            })
+        } else {
+            UIView.animate(withDuration: duration, animations: {
+                self.navigationController?.navigationBar.alpha = 1
+                self.tabBarController?.tabBar.alpha = 1
+                self.view.backgroundColor = UIColor.white
+                UIApplication.shared.isStatusBarHidden = false
+                withExtraAnimation()
+            }, completion: { success in
+                if success {
+                    self.isFullScreen = false
+                    completion()
                 }
             })
         }
     }
-
     
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    // Mark: - Segues
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showImageDetailVC" {
             let vc = segue.destination as! ImageDetailVC
             vc.imageResult = imageResult
         }
     }
-    
-
 }
 
+
+// MARK: - Mandatory UIScrollViewDelegate to enable zooming
 extension ImageZoomVC: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return mainImageView

@@ -12,7 +12,6 @@
 		701D65E3D5ABB9EFBDEACA4B /* Pods_e926.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC80BB0028B3425D6805B8F8 /* Pods_e926.framework */; };
 		97C86E542CC6F345AE56BB95 /* Pods_e926_watch_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC38D6FF42F10A2ACD6463B /* Pods_e926_watch_Extension.framework */; };
 		D9224A421E0ACADA002DFAA1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9224A401E0ACADA002DFAA1 /* Interface.storyboard */; };
-		D9224A441E0ACADA002DFAA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9224A431E0ACADA002DFAA1 /* Assets.xcassets */; };
 		D9224A4B1E0ACADA002DFAA1 /* e926-watch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D9224A4A1E0ACADA002DFAA1 /* e926-watch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D9224A521E0ACADA002DFAA1 /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A511E0ACADA002DFAA1 /* InterfaceController.swift */; };
 		D9224A541E0ACADA002DFAA1 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A531E0ACADA002DFAA1 /* ExtensionDelegate.swift */; };
@@ -20,12 +19,20 @@
 		D9224A581E0ACADA002DFAA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9224A571E0ACADA002DFAA1 /* Assets.xcassets */; };
 		D9224A5C1E0ACADA002DFAA1 /* e926-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */; };
 		D93298AB1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93298AA1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework */; };
+		D932F7971EE76B4A002C6E46 /* WatchSettingTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D932F7961EE76B4A002C6E46 /* WatchSettingTableVC.swift */; };
 		D959BE671DAC40CA00FE59CE /* ImageDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D959BE661DAC40CA00FE59CE /* ImageDetailVC.swift */; };
 		D959BE691DAC77C200FE59CE /* SearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D959BE681DAC77C200FE59CE /* SearchManager.swift */; };
 		D97880FE1E7F099E0037B0D4 /* SwiftGifOrigin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D97880FD1E7F099E0037B0D4 /* SwiftGifOrigin.framework */; };
+		D98A90AD1EE79B1200ED3966 /* SearchViewIC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99639B11EE78F6200F08B09 /* SearchViewIC.swift */; };
+		D98A90B01EE79C2400ED3966 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98A90AF1EE79C2400ED3966 /* ViewModel.swift */; };
+		D98A90B11EE79C2400ED3966 /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98A90AF1EE79C2400ED3966 /* ViewModel.swift */; };
+		D98A90B21EE79C5800ED3966 /* SearchViewIC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99639B11EE78F6200F08B09 /* SearchViewIC.swift */; };
+		D98A90B81EE7A57400ED3966 /* SharedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98A90B71EE7A57400ED3966 /* SharedSession.swift */; };
+		D98A90B91EE7A57400ED3966 /* SharedSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D98A90B71EE7A57400ED3966 /* SharedSession.swift */; };
 		D9A5EB9B1E638B8800850851 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9A5EB9A1E638B8800850851 /* Utils.swift */; };
 		D9A5EB9D1E63B98800850851 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9A5EB9C1E63B98800850851 /* PromiseKit.framework */; };
 		D9A5EB9F1E63B99100850851 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9A5EB9E1E63B99100850851 /* PromiseKit.framework */; };
+		D9ABFF031EE4BC0800FE7BD3 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9ABFF021EE4BC0800FE7BD3 /* Alamofire.framework */; };
 		D9B080B41DA9C06000BDC28C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B080B31DA9C06000BDC28C /* AppDelegate.swift */; };
 		D9B080BD1DA9C06000BDC28C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9B080BC1DA9C06000BDC28C /* Assets.xcassets */; };
 		D9B080CB1DA9C06000BDC28C /* e926Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B080CA1DA9C06000BDC28C /* e926Tests.swift */; };
@@ -49,7 +56,6 @@
 		D9E0B7C61ED8034A00E9F1BB /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E0B7C51ED8034A00E9F1BB /* Data.swift */; };
 		D9E0B7C81ED966CF00E9F1BB /* ListCollectionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E0B7C71ED966CF00E9F1BB /* ListCollectionVM.swift */; };
 		D9E0B7CB1ED9699E00E9F1BB /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E0B7CA1ED9699E00E9F1BB /* Model.swift */; };
-		D9E8F2D81EE2A650003C5A98 /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9E8F2D71EE2A650003C5A98 /* Alamofire.framework */; };
 		D9EB65A21DAA587A0079AF8B /* SearchResultVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EB65A11DAA587A0079AF8B /* SearchResultVC.swift */; };
 		D9EB65A61DAA5FAE0079AF8B /* SearchSuggestionsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9EB65A51DAA5FAE0079AF8B /* SearchSuggestionsVC.swift */; };
 		E26BC97B30CF1F78A22C004D /* Pods_e926Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE4FAC861FC544572C489011 /* Pods_e926Tests.framework */; };
@@ -124,7 +130,6 @@
 		D86CBB37A057A82F09DB0AA2 /* Pods-e926Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-e926Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests.release.xcconfig"; sourceTree = "<group>"; };
 		D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "e926-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9224A411E0ACADA002DFAA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
-		D9224A431E0ACADA002DFAA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9224A451E0ACADA002DFAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D9224A4A1E0ACADA002DFAA1 /* e926-watch Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "e926-watch Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9224A501E0ACADA002DFAA1 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
@@ -134,13 +139,22 @@
 		D9224A571E0ACADA002DFAA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D9224A591E0ACADA002DFAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D93298AA1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIScrollView_InfiniteScroll.framework; path = "../../../../Developer/Xcode/DerivedData/e926-ebwztszlvsffnpaetixrfjlqaqej/Build/Products/Debug-iphoneos/UIScrollView-InfiniteScroll/UIScrollView_InfiniteScroll.framework"; sourceTree = "<group>"; };
+		D932F7961EE76B4A002C6E46 /* WatchSettingTableVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSettingTableVC.swift; sourceTree = "<group>"; };
 		D956B0AD1EE2A3B200EE8340 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "Pods/../build/Debug-iphoneos/Alamofire-iOS/Alamofire.framework"; sourceTree = "<group>"; };
 		D959BE661DAC40CA00FE59CE /* ImageDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageDetailVC.swift; sourceTree = "<group>"; };
 		D959BE681DAC77C200FE59CE /* SearchManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchManager.swift; sourceTree = "<group>"; };
 		D97880FD1E7F099E0037B0D4 /* SwiftGifOrigin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftGifOrigin.framework; path = "../../../../Developer/Xcode/DerivedData/e926-ebwztszlvsffnpaetixrfjlqaqej/Build/Products/Debug-iphoneos/SwiftGifOrigin/SwiftGifOrigin.framework"; sourceTree = "<group>"; };
+		D98A90AF1EE79C2400ED3966 /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
+		D98A90B31EE79FD000ED3966 /* e926.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = e926.entitlements; sourceTree = "<group>"; };
+		D98A90B41EE7A05C00ED3966 /* e926-watch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "e926-watch.entitlements"; sourceTree = "<group>"; };
+		D98A90B51EE7A06200ED3966 /* e926-watch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "e926-watch Extension.entitlements"; sourceTree = "<group>"; };
+		D98A90B61EE7A29E00ED3966 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D98A90B71EE7A57400ED3966 /* SharedSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedSession.swift; sourceTree = "<group>"; };
+		D99639B11EE78F6200F08B09 /* SearchViewIC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewIC.swift; sourceTree = "<group>"; };
 		D9A5EB9A1E638B8800850851 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		D9A5EB9C1E63B98800850851 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = "../../../../Developer/Xcode/DerivedData/e926-ebwztszlvsffnpaetixrfjlqaqej/Build/Products/Debug-iphoneos/PromiseKit-iOS/PromiseKit.framework"; sourceTree = "<group>"; };
 		D9A5EB9E1E63B99100850851 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = "../../../../Developer/Xcode/DerivedData/e926-ebwztszlvsffnpaetixrfjlqaqej/Build/Products/Debug-watchos/PromiseKit-watchOS/PromiseKit.framework"; sourceTree = "<group>"; };
+		D9ABFF021EE4BC0800FE7BD3 /* Alamofire.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Alamofire.framework; path = "../../../../Developer/Xcode/DerivedData/e926-ebwztszlvsffnpaetixrfjlqaqej/Build/Products/Debug-iphonesimulator/Alamofire/Alamofire.framework"; sourceTree = "<group>"; };
 		D9B080B01DA9C06000BDC28C /* e926.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = e926.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B080B31DA9C06000BDC28C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D9B080BC1DA9C06000BDC28C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -193,7 +207,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9E8F2D81EE2A650003C5A98 /* Alamofire.framework in Frameworks */,
+				D9ABFF031EE4BC0800FE7BD3 /* Alamofire.framework in Frameworks */,
 				D97880FE1E7F099E0037B0D4 /* SwiftGifOrigin.framework in Frameworks */,
 				D93298AB1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework in Frameworks */,
 				D9A5EB9D1E63B98800850851 /* PromiseKit.framework in Frameworks */,
@@ -249,6 +263,7 @@
 		A394754A6BC2D90B5AEFA33B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9ABFF021EE4BC0800FE7BD3 /* Alamofire.framework */,
 				D9E8F2D71EE2A650003C5A98 /* Alamofire.framework */,
 				D956B0AD1EE2A3B200EE8340 /* Alamofire.framework */,
 				D97880FD1E7F099E0037B0D4 /* SwiftGifOrigin.framework */,
@@ -267,9 +282,11 @@
 		D9224A3F1E0ACADA002DFAA1 /* e926-watch */ = {
 			isa = PBXGroup;
 			children = (
+				D98A90B41EE7A05C00ED3966 /* e926-watch.entitlements */,
 				D9224A401E0ACADA002DFAA1 /* Interface.storyboard */,
-				D9224A431E0ACADA002DFAA1 /* Assets.xcassets */,
+				D98A90B61EE7A29E00ED3966 /* Assets.xcassets */,
 				D9224A451E0ACADA002DFAA1 /* Info.plist */,
+				D99639B11EE78F6200F08B09 /* SearchViewIC.swift */,
 			);
 			path = "e926-watch";
 			sourceTree = "<group>";
@@ -277,6 +294,7 @@
 		D9224A4E1E0ACADA002DFAA1 /* e926-watch Extension */ = {
 			isa = PBXGroup;
 			children = (
+				D98A90B51EE7A06200ED3966 /* e926-watch Extension.entitlements */,
 				D9224A511E0ACADA002DFAA1 /* InterfaceController.swift */,
 				D9224A531E0ACADA002DFAA1 /* ExtensionDelegate.swift */,
 				D9224A551E0ACADA002DFAA1 /* NotificationController.swift */,
@@ -324,7 +342,9 @@
 		D9B080B21DA9C06000BDC28C /* e926 */ = {
 			isa = PBXGroup;
 			children = (
+				D98A90B31EE79FD000ED3966 /* e926.entitlements */,
 				D9B080B31DA9C06000BDC28C /* AppDelegate.swift */,
+				D98A90B71EE7A57400ED3966 /* SharedSession.swift */,
 				D9B080BC1DA9C06000BDC28C /* Assets.xcassets */,
 				D9B080E31DA9C0AD00BDC28C /* LaunchScreen.storyboard */,
 				D9B080E41DA9C0AD00BDC28C /* Main.storyboard */,
@@ -359,11 +379,11 @@
 			isa = PBXGroup;
 			children = (
 				D9B080F21DA9C10100BDC28C /* List */,
-				D9B081031DA9C13800BDC28C /* Menu */,
 				D9B080EC1DA9C0EE00BDC28C /* HomeVC.swift */,
-				D9B080F31DA9C10C00BDC28C /* MenuTableVC.swift */,
 				D9B080FF1DA9C13100BDC28C /* SearchVC.swift */,
 				D9EB65A31DAA58820079AF8B /* Search */,
+				D9B080F31DA9C10C00BDC28C /* MenuTableVC.swift */,
+				D9B081031DA9C13800BDC28C /* Menu */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -408,6 +428,7 @@
 			isa = PBXGroup;
 			children = (
 				D9B081011DA9C13600BDC28C /* SettingsTableVC.swift */,
+				D932F7961EE76B4A002C6E46 /* WatchSettingTableVC.swift */,
 			);
 			name = Menu;
 			sourceTree = "<group>";
@@ -416,6 +437,7 @@
 			isa = PBXGroup;
 			children = (
 				D9E0B7CA1ED9699E00E9F1BB /* Model.swift */,
+				D98A90AF1EE79C2400ED3966 /* ViewModel.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -549,18 +571,34 @@
 					D9224A3D1E0ACADA002DFAA1 = {
 						CreatedOnToolsVersion = 8.2;
 						DevelopmentTeam = D7S2KUY3DK;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					D9224A491E0ACADA002DFAA1 = {
 						CreatedOnToolsVersion = 8.2;
 						DevelopmentTeam = D7S2KUY3DK;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					D9B080AF1DA9C06000BDC28C = {
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = D7S2KUY3DK;
 						LastSwiftMigration = 0810;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					D9B080C51DA9C06000BDC28C = {
 						CreatedOnToolsVersion = 8.1;
@@ -603,7 +641,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9224A441E0ACADA002DFAA1 /* Assets.xcassets in Resources */,
 				D9224A421E0ACADA002DFAA1 /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -860,8 +897,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D98A90B11EE79C2400ED3966 /* ViewModel.swift in Sources */,
 				D9224A561E0ACADA002DFAA1 /* NotificationController.swift in Sources */,
 				D9224A541E0ACADA002DFAA1 /* ExtensionDelegate.swift in Sources */,
+				D98A90B91EE7A57400ED3966 /* SharedSession.swift in Sources */,
+				D98A90AD1EE79B1200ED3966 /* SearchViewIC.swift in Sources */,
 				D9224A521E0ACADA002DFAA1 /* InterfaceController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -875,13 +915,16 @@
 				D9B080ED1DA9C0EE00BDC28C /* HomeVC.swift in Sources */,
 				D959BE671DAC40CA00FE59CE /* ImageDetailVC.swift in Sources */,
 				D9B080EB1DA9C0E100BDC28C /* Cache.swift in Sources */,
+				D98A90B01EE79C2400ED3966 /* ViewModel.swift in Sources */,
 				D9B080F11DA9C0FD00BDC28C /* ListCollectionVC.swift in Sources */,
 				D9B080B41DA9C06000BDC28C /* AppDelegate.swift in Sources */,
 				D9B080F81DA9C11800BDC28C /* Parser.swift in Sources */,
 				D9E0B7C61ED8034A00E9F1BB /* Data.swift in Sources */,
 				D959BE691DAC77C200FE59CE /* SearchManager.swift in Sources */,
+				D932F7971EE76B4A002C6E46 /* WatchSettingTableVC.swift in Sources */,
 				D9B080F41DA9C10C00BDC28C /* MenuTableVC.swift in Sources */,
 				D9DD6D801DAADE200016A9C6 /* ImageZoomVC.swift in Sources */,
+				D98A90B21EE79C5800ED3966 /* SearchViewIC.swift in Sources */,
 				D9B080F61DA9C11300BDC28C /* Network.swift in Sources */,
 				D9B080EF1DA9C0F700BDC28C /* Identity.swift in Sources */,
 				D9E0B7CB1ED9699E00E9F1BB /* Model.swift in Sources */,
@@ -891,6 +934,7 @@
 				D9B081021DA9C13600BDC28C /* SettingsTableVC.swift in Sources */,
 				D9A5EB9B1E638B8800850851 /* Utils.swift in Sources */,
 				D9EB65A21DAA587A0079AF8B /* SearchResultVC.swift in Sources */,
+				D98A90B81EE7A57400ED3966 /* SharedSession.swift in Sources */,
 				D9B080FE1DA9C12C00BDC28C /* Result.swift in Sources */,
 				D9B081051DA9C14400BDC28C /* Theme.swift in Sources */,
 			);
@@ -955,17 +999,22 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CODE_SIGN_ENTITLEMENTS = "e926-watch/e926-watch.entitlements";
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
 				IBSC_MODULE = e926_watch_Extension;
 				INFOPLIST_FILE = "e926-watch/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926.watchkitapp;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "e926-watch/e926-watch-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 3.1;
+				WATCHOS_DEPLOYMENT_TARGET = 3.0;
 			};
 			name = Debug;
 		};
@@ -975,17 +1024,21 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CODE_SIGN_ENTITLEMENTS = "e926-watch/e926-watch.entitlements";
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
 				IBSC_MODULE = e926_watch_Extension;
 				INFOPLIST_FILE = "e926-watch/Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926.watchkitapp;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "e926-watch/e926-watch-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 3.1;
+				WATCHOS_DEPLOYMENT_TARGET = 3.0;
 			};
 			name = Release;
 		};
@@ -995,10 +1048,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CODE_SIGN_ENTITLEMENTS = "e926-watch Extension/e926-watch Extension.entitlements";
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
 				INFOPLIST_FILE = "e926-watch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1014,10 +1068,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CODE_SIGN_ENTITLEMENTS = "e926-watch Extension/e926-watch Extension.entitlements";
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
 				INFOPLIST_FILE = "e926-watch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1054,6 +1109,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1105,6 +1161,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1128,11 +1185,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = e926/e926.entitlements;
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = e926/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926;
+				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -1145,11 +1203,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = e926/e926.entitlements;
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = e926/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.austinmchau.e926app.e926;
+				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};

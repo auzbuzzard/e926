@@ -26,7 +26,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.austinmchau.e926app.e926</string>
+	<string>com.auzbuzzard.e926</string>
 	<key>WKWatchKitApp</key>
 	<true/>
 </dict>

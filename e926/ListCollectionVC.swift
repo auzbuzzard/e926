@@ -11,25 +11,29 @@ import PromiseKit
 import UIScrollView_InfiniteScroll
 import SwiftGifOrigin
 
-protocol ListCollectionVCRequestDelegate {
-    func vcShouldLoadImmediately() -> Bool
+protocol ListCollectionDataSource {
+    var results: [ImageResult] { get }
+    var tags: [String]? { get }
+    func getResults(asNew: Bool, withTags tags: [String]?, onComplete: @escaping () -> Void)
 }
 
 /// There CollectionViewController class that deals with the vertical scroll view of lists of returned image results.
 class ListCollectionVC: UICollectionViewController {
     
     // Mark: Delegates
-    var vm: ListCollectionVMProtocol!
+    var dataSource: ListCollectionDataSource = ListCollectionVM()
+    var listCategory: String?
     
     // Mark: VC Life Cycle
     private let cellReuseID = "mainCell"
     private let showImageSegueID = "showImageZoomVC"
+    private let mainHeaderID = "mainHeader"
+    fileprivate static let cellPadding = 30
     
     let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Infinite Scroll
         setupRefreshControl()
         setupInfiniteScroll()
     }
@@ -37,11 +41,11 @@ class ListCollectionVC: UICollectionViewController {
     func setupInfiniteScroll() {
         collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
         collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
-            let lastCount = (self?.vm.results.count)!
-            self?.vm.getResults(asNew: false, withTags: self?.vm.tags) {
+            let lastCount = (self?.dataSource.results.count)!
+            self?.dataSource.getResults(asNew: false, withTags: self?.dataSource.tags) {
                 // Update collection view
                 var index = [IndexPath]()
-                for n in lastCount..<(self?.vm.results.count)! {
+                for n in lastCount..<(self?.dataSource.results.count)! {
                     index.append(IndexPath(item: n, section: 0))
                 }
                 scrollView.performBatchUpdates({ () -> Void in
@@ -58,13 +62,13 @@ class ListCollectionVC: UICollectionViewController {
         collectionView?.addSubview(refreshControl)
     }
     func getNewResult() {
-        vm.getResults(asNew: true, withTags: vm.tags, onComplete: {
+        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
             self.collectionView?.reloadData()
             self.refreshControl.endRefreshing()
         })
     }
     
-    // Mark: Segues
+    // Mark: - Segues
     func segue(isTappedBy sender: UITapGestureRecognizer) {
         if sender.state == .ended {
             let point = sender.location(in: collectionView)
@@ -78,32 +82,29 @@ class ListCollectionVC: UICollectionViewController {
         if segue.identifier == showImageSegueID {
             let destinationVC = segue.destination as! ImageZoomVC
             let index = (sender as! IndexPath).row
-            destinationVC.imageResult = vm.results[index]
+            destinationVC.imageResult = dataSource.results[index]
         }
     }
     
-    // MARK: UICollectionViewDataSource
+    // MARK: - UICollectionViewDataSource
     override func numberOfSections(in collectionView: UICollectionView) -> Int { return 1 }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return vm?.results.count ?? 0
-    }
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return dataSource.results.count }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         // Define cell
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseID, for: indexPath) as! ListCollectionVCMainCell
         // Safeguard if there's enough cell
-        guard indexPath.row < vm.results.count else { return cell }
+        guard indexPath.row < dataSource.results.count else { return cell }
         // Setup gesture recognizer
         cell.setupImageViewGesture(receiver: self)
         
-        // Add Corners
+        // Layout the cell
         if let windowWidth = view.window?.bounds.size.width {
-            cell.setCellRadius(windowWidth: windowWidth)
+            cell.setupCellLayout(windowWidth: windowWidth)
         }
-
         // Setting the cell
-        let item = vm.results[indexPath.row]
+        let item = dataSource.results[indexPath.row]
         let itemVM = ListCollectionVCMainCellVM(imageResult: item)
         cell.setCellContents(indexPath: indexPath, dataSource: itemVM)
         
@@ -111,7 +112,24 @@ class ListCollectionVC: UICollectionViewController {
         return cell
     }
     
+    // Give section heading
+    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        // if it's header
+        if kind == UICollectionElementKindSectionHeader {
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: mainHeaderID, for: indexPath) as! ListCollectionVCMainHeader
+            
+            header.setContent(title: listCategory ?? "")
+            return header
+        } else {
+            return UICollectionReusableView()
+        }
+    }
     
+    // Mark: - UICollectionViewDelegate
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        performSegue(withIdentifier: showImageSegueID, sender: indexPath)
+    }
 }
 
 extension ListCollectionVC: UINavigationControllerDelegate {
@@ -126,28 +144,26 @@ extension ListCollectionVC: UINavigationControllerDelegate {
                 navigationController.hidesBarsOnSwipe = false
             }
         }
-        
-        
     }
 }
 
 extension ListCollectionVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width: CGFloat = {
-            var w = view.window?.bounds.size.width ?? 375
+            var w = (view.window?.bounds.size.width ?? 375) - 30
             if w > 480 { w = 480 }
             return w
         }()
         
-        guard indexPath.row < vm.results.count else { return CGSize(width: width, height: 0) }
+        guard indexPath.row < dataSource.results.count else { return CGSize(width: width, height: 0) }
         
-        let itemMetadata = vm!.results[indexPath.row].metadata
+        let itemMetadata = dataSource.results[indexPath.row].metadata
         let imageHeight = itemMetadata.height(ofSize: .sample) ?? 400
         let imageWidth = itemMetadata.width(ofSize: .sample) ?? Int(width)
         let correctedImageHeight = width / CGFloat(imageWidth) * CGFloat(imageHeight)
         
         
-        let height = 60 + 50 + correctedImageHeight
+        let height = /*60 + 50 +*/ correctedImageHeight
         return CGSize(width: width, height: height)
     }
     
@@ -195,340 +211,74 @@ class ListCollectionVCMainCell: UICollectionViewCell {
     
     var currentIndexPath: IndexPath!
     
-    @IBOutlet weak var titleView: UIView!
-    
     @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var titleImage: UIImageView!
-    @IBOutlet weak var titleSubheading: UILabel!
-    
-    @IBOutlet weak var mainImage: UIImageView!
-    
-    @IBOutlet weak var footerView: UIView!
-    
-    @IBOutlet weak var footerScoreLabel: UILabel!
-    @IBOutlet weak var footerFavLabel: UILabel!
-    @IBOutlet weak var footerCommentLabel: UILabel!
+    @IBOutlet weak var titleLabelBkgdView: UIView!
+    @IBOutlet weak var mainImageView: UIImageView!
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        mainImage.image = nil
-        titleImage.image = nil
+        mainImageView.image = nil
     }
     
     func setupImageViewGesture(receiver: ListCollectionVC) {
         let singleTap = UITapGestureRecognizer(target: receiver, action: #selector(ListCollectionVC.segue(isTappedBy:)))
         singleTap.numberOfTapsRequired = 1
-        mainImage.addGestureRecognizer(singleTap)
+        mainImageView.addGestureRecognizer(singleTap)
     }
     
-    func setCellRadius(windowWidth: CGFloat) {
-        layer.cornerRadius = bounds.size.width < windowWidth ? 5 : 0
+    // Mark: - Actual filling in the data and layout
+    
+    func setupCellLayout(windowWidth: CGFloat) {
+        contentView.layer.cornerRadius = bounds.size.width < windowWidth ? 10 : 10
+        contentView.layer.masksToBounds = true
+        
+        layer.shadowColor = UIColor.black.cgColor
+        layer.backgroundColor = UIColor.clear.cgColor
+        layer.shadowOpacity = 0.25
+        layer.shadowOffset = CGSize.zero
+        layer.shadowRadius = 5
+        layer.masksToBounds = false
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: contentView.layer.cornerRadius).cgPath
+        
     }
     
     func setCellContents(indexPath: IndexPath, dataSource: ListCollectionVCMainCellDataSource) {
         currentIndexPath = indexPath
-        titleLabel.text = dataSource.artistsName
-        titleSubheading.text = dataSource.authorName
-        footerFavLabel.text = "\(dataSource.favCount)"
-        footerScoreLabel.text = "\(dataSource.score)"
         
-        let color: UIColor = {
+        let ratingColor: UIColor = {
             switch dataSource.rating {
             case .s: return Theme.colors().background_safe
             case .q: return Theme.colors().background_questionable
             case .e: return Theme.colors().background_explicit
             }
         }()
-        titleView.backgroundColor = color
-        footerView.backgroundColor = color
+        
+        titleLabel.text = "\(dataSource.score) | \(dataSource.favCount)"
+        titleLabel.textColor = .white
+        titleLabel.sizeToFit()
+        titleLabelBkgdView.layer.masksToBounds = true
+        titleLabelBkgdView.layer.cornerRadius = titleLabelBkgdView.frame.size.height / 2
+        titleLabelBkgdView.layer.backgroundColor = ratingColor.cgColor
         
         setMainImage(indexPath: indexPath, dataSource: dataSource)
-        //setProfileImage(indexPath: indexPath, dataSource: dataSource)
     }
     
     func setMainImage(indexPath: IndexPath, dataSource: ListCollectionVCMainCellDataSource) {
         _ = dataSource.mainImage.then { image -> Void in
             if indexPath == self.currentIndexPath {
-                self.mainImage.image = image
-            }
-        }
-    }
-    
-    func setProfileImage(indexPath: IndexPath, dataSource: ListCollectionVCMainCellDataSource) {
-        _ = dataSource.profileImage.then { image -> Void in
-            if indexPath == self.currentIndexPath {
-                self.titleImage.image = image
+                self.mainImageView.image = image
             }
         }
     }
 }
 
-/*
-class ListCollectionVC: UICollectionViewController {
+class ListCollectionVCMainHeader: UICollectionReusableView {
     
-    var delegate: ListCollectionVCRequestDelegate?
-    var results: ListResult!
+    @IBOutlet weak var mainHeaderLabel: UILabel!
     
-    var refresh = UIRefreshControl()
-    var isLoading = false
-    
-    var isFirstListVC = true
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        if isFirstListVC {
-            navigationController?.delegate = self
-        }
-        
-        results = ListResult()
-        
-        if let delegate = delegate, delegate.vcShouldLoadImmediately(), !isLoading {
-            getResult {
-                self.isLoading = false
-            }
-        }
-        
-        collectionView?.backgroundColor = Theme.colors().background
-        
-        refresh.addTarget(self, action: #selector(ListCollectionVC.getNewResult), for: .valueChanged)
-        collectionView?.addSubview(refresh)
-        
-        // Add infinite scroll handler
-        
-        collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
-        collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
-            let collectionView = scrollView
-            
-            // suppose this is an array with new data
-            let currentResultCount = self?.results.results.count
-            self?.getResult() {
-                
-                var indexPaths = [IndexPath]()
-                //print(currentResultCount, self?.results.results.count)
-                for n in currentResultCount! - 1...(self?.results.results.count)! - 1 {
-                    let indexPath = IndexPath(row: n, section: 0)
-                    //print(indexPath)
-                    indexPaths.append(indexPath)
-                }
-                
-                // create index paths for affected items
-                
-                // Update collection view
-                collectionView.performBatchUpdates({ () -> Void in
-                    // add new items into collection
-                    //collectionView.insertItems(at: indexPaths)
-                }, completion: { (finished) -> Void in
-                    // finish infinite scroll animations
-                    collectionView.finishInfiniteScroll()
-                })
-                
-            }
-            
-        }
-        
+    func setContent(title: String) {
+        mainHeaderLabel.text = title
     }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        
-    }
-    
-    func getNewResult() {
-        results = ListResult()
-        if !isLoading {
-            getResult() {
-                DispatchQueue.main.async {
-                    self.refresh.endRefreshing()
-                }
-            }
-        }
-    }
-    
-    func getResult(completion: @escaping () -> Void) {
-        isLoading = true
-        delegate?.getResult(last_before_id: results.last_before_id).then { result -> Void in
-            self.results.add(result)
-            DispatchQueue.main.async {
-                self.collectionView?.reloadData()
-                self.isLoading = false
-                completion()
-            }
-            }.catch { error in
-                
-        }
-    }
-    
-    // MARK: - Navigation
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showImageZoomVC" {
-            let destinationVC = segue.destination as! ImageZoomVC
-            let index = (sender as! IndexPath).row
-            destinationVC.imageResult = results.results[index]
-        }
-    }
-    
-    
-    // MARK: UICollectionViewDataSource
-    
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return results?.results.count ?? 0
-    }
-    
-    @IBAction func segueTap(_ sender: UITapGestureRecognizer) {
-        print("tapped")
-    }
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        // Define cell
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ListCollectionVCMainCell
-        
-        // Setup gesture recognizer
-        let singleTap = UITapGestureRecognizer(target: self, action: #selector(ListCollectionVC.segueTapRecognizerIsTapped(sender:)))
-        singleTap.numberOfTapsRequired = 1
-        cell.mainImage.addGestureRecognizer(singleTap)
-        
-        // Add Corners
-        if let windowWidth = view.window?.bounds.size.width {
-            if cell.bounds.size.width < windowWidth  {
-                cell.layer.cornerRadius = 5
-            } else {
-                cell.layer.cornerRadius = 0
-            }
-        }
-        
-        // Safeguard if there's enough cell
-        guard indexPath.row < results.results.count else { return cell }
-        
-        // Define Item
-        let item = results.results[indexPath.row]
-        
-        // Setting the cell
-        let artists = item.metadata.artist?.joined(separator: ", ")
-        cell.titleLabel.text = artists != "" ? artists : "(no artist)"
-        cell.titleSubheading.text = item.metadata.author
-        
-        cell.footerFavLabel.text = "\(item.metadata.fav_count)"
-        cell.footerScoreLabel.text = "\(item.metadata.score)"
-        
-        cell.mainImage.image = nil
-        
-        item.imageFromCache(size: .sample)
-            .recover { error -> Promise<UIImage> in
-                return item.imageFromCache(size: .preview)
-            }.then { image -> Void in
-                cell.mainImage.image = image
-            }.catch { error in
-                if case ImageCache.CacheError.noImageInStore(_) = error {
-                    item.downloadImage(ofSize: .sample)
-                        .then { _ -> Void in
-                            collectionView.reloadItems(at: [indexPath])
-                        }.catch { error -> Void in
-                    }
-                } else {
-                    
-                }
-        }
-        
-        // Getting the Avatar
-        if let creator = item.creator {
-            creator.avatarFromCache()
-                .then { image in
-                    cell.titleImage.image = image
-                }.catch { error in
-                    if case Cache.CacheError.noImageInStore(_) = error {
-                        creator.getAvatar()
-                            .then { _ in
-                                collectionView.reloadItems(at: [indexPath])
-                            }.catch { error in
-                        }
-                    }
-            }
-        } else {
-            let user_id = item.metadata.creator_id
-            UserRequester().getUser(WithId: user_id)
-                .then { user -> Void in
-                    item.creator = user
-                    collectionView.reloadItems(at: [indexPath])
-                }.catch { error in
-                    
-            }
-        }
-        
-        // Setting the Footer
-        let rating = item.metadata.rating
-        var color = UIColor()
-        if rating == "s" {
-            color = Theme.colors().background_safe
-        } else if rating == "q" {
-            color = Theme.colors().background_questionable
-        } else if rating == "e" {
-            color = Theme.colors().background_explicit
-        } else { color = Theme.colors().background }
-        
-        cell.titleView.backgroundColor = color
-        cell.footerView.backgroundColor = color
-        
-        return cell
-    }
-    
-    func segueTapRecognizerIsTapped(sender: UITapGestureRecognizer) {
-        if sender.state == .ended {
-            let point:CGPoint = sender.location(in: collectionView)
-            if let indexPath = collectionView?.indexPathForItem(at: point) {
-                performSegue(withIdentifier: "showImageZoomVC", sender: indexPath)
-            }
-        }
-        
-    }
-    
-    func cellMainImageIsTapped(indexPath: IndexPath) {
-        
-    }
-    
-    // MARK: UICollectionViewDelegate
-    
-    /*
-     // Uncomment this method to specify if the specified item should be highlighted during tracking
-     override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-     return true
-     }
-     */
-    
-    /*
-     // Uncomment this method to specify if the specified item should be selected
-     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-     return true
-     }
-     */
-    
-    /*
-     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-     return false
-     }
-     
-     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-     return false
-     }
-     
-     override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
-     
-     }
-     */
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        collectionView?.collectionViewLayout.invalidateLayout()
-    }
-    
-    
     
 }
-*/
+

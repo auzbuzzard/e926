@@ -39,8 +39,9 @@ class Network {
             } else {
                 request.httpMethod = "POST"
                 
-                let paramString = "data=Hello"
-                request.httpBody = paramString.data(using: String.Encoding.utf8)
+                if let paramString = params?.joined(separator: "&") {
+                    request.httpBody = paramString.data(using: String.Encoding.utf8)
+                }
             }
             #if DEBUG
                 print(u)
@@ -50,5 +51,12 @@ class Network {
                 fulfill(data)
                 }.catch(execute: reject)
         }
+    }
+    
+    static func postWithAlamo(url: String, params: [String:String]?, encoding: ParameterEncoding) -> DataRequest {
+        var request = URLRequest(url: URL(string: url)!)
+        request.httpMethod = HTTPMethod.post.rawValue
+        request.allHTTPHeaderFields = params ?? nil
+        return Alamofire.request(request as URLRequestConvertible)
     }
 }

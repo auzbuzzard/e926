@@ -19,29 +19,51 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         self.present(svc, animated: true, completion: nil)
     }
     var imageResult: ImageResult!
+    var commentVM: ImageDetailCommentVM!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.estimatedRowHeight = 44.0
         tableView.rowHeight = UITableViewAutomaticDimension
+        
+        setupInfiniteScroll()
+        tableView.beginInfiniteScroll(true)
+        
+        commentVM = ImageDetailCommentVM(post_id: imageResult.id)
+        /*commentVM.getResults(page: 1, onComplete: {
+            self.tableView.reloadSections(IndexSet([2]), with: .automatic)
+        })*/
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func setupInfiniteScroll() {
+        tableView.addInfiniteScroll { [weak self] tableView -> Void in
+            let lastCount = (self?.commentVM.results.count)!
+            self?.commentVM.getResults(page: nil, onComplete: {
+                let currCount = (self?.commentVM.results.count)!
+                print("\(currCount), \(lastCount)")
+                tableView.setShouldShowInfiniteScrollHandler { _ -> Bool in
+                    return currCount - lastCount != 0
+                }
+                var index = [IndexPath]()
+                for n in lastCount..<currCount {
+                    index.append(IndexPath(item: n, section: 2))
+                }
+                tableView.finishInfiniteScroll(completion: { (tableView) in
+                    tableView.insertRows(at: index, with: .automatic)
+                })
+            })
+        }
     }
 
     // MARK: - Table view data source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        
-        return 2
-    }
+    override func numberOfSections(in tableView: UITableView) -> Int { return 3 }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0, 1: return 1
+        case 2: return commentVM.results.count
         default: return 0
         }
     }
@@ -69,27 +91,27 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
             
             return cell
             
+        case 2:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "commentCell", for: indexPath) as! ImageDetailVCCommentCell
+            guard indexPath.row < commentVM.results.count else { break }
+            cell.setContent(comment: commentVM.results[indexPath.row])
+            
+            return cell
+            
         default: return UITableViewCell()
         }
+        return UITableViewCell()
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case 0: return "Tags"
         case 1: return "Statistics"
+        case 2: return "Comments"
         default: return nil
         }
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
     func tagIsTapped(sender: UITapGestureRecognizer) {
         if let mainTextView = sender.view as? UITextView {
@@ -151,15 +173,14 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         }
     }
     
-    var searchDelegate: SearchManager?
-    
     func open(withSearchTag tag: String) {
-        searchDelegate = SearchManager()
-        searchDelegate?.searchString = tag
         let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
+        listVC.dataSource = ListCollectionVM()
         listVC.title = tag
         navigationController?.pushViewController(listVC, animated: true)
-        
+        listVC.dataSource.getResults(asNew: true, withTags: [tag], onComplete: {
+            listVC.collectionView?.reloadData()
+        })
     }
 
 }
@@ -171,5 +192,16 @@ class ImageDetailVCTextCell: UITableViewCell {
     
 }
 
+class ImageDetailVCCommentCell: UITableViewCell {
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var bodyTextView: UITextView!
+    
+    func setContent(comment: CommentResult) {
+        nameLabel.text = comment.metadata.creator
+        timeLabel.text = comment.metadata.created_at
+        bodyTextView.text = comment.metadata.body
+    }
+}
 
 

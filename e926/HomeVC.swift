@@ -8,16 +8,17 @@
 
 import UIKit
 import PromiseKit
+import Alamofire
 
 class HomeVC: UINavigationController {
     
     var listVC: ListCollectionVC!
-    var vm: ListCollectionVM!
+    var dataSource: ListCollectionVM!
     
     // Mark: View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        vm = ListCollectionVM()
+        dataSource = ListCollectionVM()
         
         NotificationCenter.default.addObserver(self, selector: #selector(HomeVC.useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
         
@@ -35,21 +36,40 @@ class HomeVC: UINavigationController {
             print("HomeVC: Instantiating listVC: \(listVC)")
         #endif
         
-        listVC.vm = vm
+        listVC.dataSource = dataSource
+        listVC.listCategory = "Home"
         
         setViewControllers([listVC], animated: false)
+        navigationController?.delegate = self
         
         listVC.collectionView?.collectionViewLayout.invalidateLayout()
         
-        vm.getResults(asNew: true, withTags: nil, onComplete: {
+        dataSource.getResults(asNew: true, withTags: nil, onComplete: {
             self.listVC.collectionView?.reloadData()
         })
     }
     
     func useE621ModeDidChange() {
-        vm.getResults(asNew: true, withTags: nil, onComplete: { })
+        dataSource.getResults(asNew: true, withTags: nil, onComplete: {
+            self.listVC.collectionView?.reloadData()
+        })
     }
 
+}
+
+extension HomeVC: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        if viewController == self {
+            navigationController.setNavigationBarHidden(true, animated: animated)
+        } else if let _ = viewController as? ListCollectionVC {
+            navigationController.hidesBarsOnSwipe = true
+        } else {
+            navigationController.setNavigationBarHidden(false, animated: animated)
+            if navigationController.hidesBarsOnSwipe == true {
+                navigationController.hidesBarsOnSwipe = false
+            }
+        }
+    }
 }
 
 /*
