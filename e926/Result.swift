@@ -57,7 +57,7 @@ struct ListResult: ResultListable {
     }
 }
 
-struct ImageResult: ResultItem, UsingImageCache {
+struct ImageResult: ResultItem, UsingImageCache, UsingTagCache {
     var id: Int { return metadata.id }
 
     private(set) var metadata: Metadata
@@ -66,7 +66,7 @@ struct ImageResult: ResultItem, UsingImageCache {
         let author: String
         
         let tags: String
-        
+        var tags_array: [String] { return tags.components(separatedBy: " ")}
         let status: String
         
         let file_url: String
@@ -128,6 +128,18 @@ struct ImageResult: ResultItem, UsingImageCache {
             case .preview: return preview_height
             }
         }
+    }
+    
+    func tagResult(from singleTag: String) -> Promise<TagResult> {
+        return tagCache.getTag(withName: singleTag)
+            .recover { error -> Promise<TagResult> in
+                if case TagCache.CacheError.noTagInStore(_) = error {
+                    return TagResultRequester().getTag(withName: singleTag)
+                } else {
+                    throw error
+                }
+        }
+        
     }
     
     func image(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
@@ -238,209 +250,19 @@ struct CommentResult: ResultItem {
     }
 }
 
-
-
-
-
-//class ListResult: ResultListable {
-//
-//    var results = [ImageResult]()
-//    var last_before_id: Int?
-//
-//    convenience init(result: [ImageResult]) {
-//        self.init()
-//        add(result)
-//    }
-//
-//    func add(_ result: [ImageResult]) {
-//        results.append(contentsOf: result)
-//        last_before_id = results.last?.id
-//    }
-//    func add(_ result: ListResult) {
-//        add(result.results)
-//    }
-//    
-//}
-//
-//class ImageResult: ResultItem {
-//    
-//    var id: Int { return metadata.id }
-//    
-//    var metadata: Metadata {
-//        didSet {
-//            downloadImage(ofSize: .preview).catch { error in }
-//        }
-//    }
-//    
-//    var creator: UserResult?
-//    
-//    struct Metadata: ResultItemMetadata {
-//        let id: Int
-//        let author: String
-//        
-//        let tags: String
-//        
-//        let status: String
-//        
-//        let file_url: String
-//        var file_ext: String?
-//        var file_ext_enum: File_Ext? {
-//            return file_ext != nil ? File_Ext(rawValue: file_ext!) : nil
-//        }
-//        var file_size: Int?
-//        
-//        let width: Int
-//        let height: Int
-//        
-//        let score: Int
-//        let fav_count: Int
-//        
-//        let rating: String
-//        var rating_enum: Rating? {
-//            return Rating(rawValue: rating)
-//        }
-//        
-//        let creator_id: Int
-//        
-//        let sample_width: Int?
-//        let sample_height: Int?
-//        
-//        let preview_width: Int?
-//        let preview_height: Int?
-//        
-//        var sample_url: String?
-//        let preview_url: String
-//        
-//        let artist: [String]?
-//        
-//        enum Status: String {
-//            case active, flagged, pending, deleted
-//        }
-//        enum File_Ext: String {
-//            case jpg = "jpg", png = "png", gif = "gif", swf = "swf", webm = "webm"
-//        }
-//        enum ImageSize: String {
-//            case file, sample, preview
-//        }
-//        enum Rating: String {
-//            case s = "s", q = "q", e = "e"
-//        }
-//        
-//        func width(ofSize size: ImageSize) -> Int? {
-//            switch size {
-//            case .file: return width
-//            case .sample: return sample_width
-//            case .preview: return preview_width
-//            }
-//        }
-//        
-//        func height(ofSize size: ImageSize) -> Int? {
-//            switch size {
-//            case .file: return height
-//            case .sample: return sample_height
-//            case .preview: return preview_height
-//            }
-//        }
-//    }
-//    
-//    init(metadata: Metadata) {
-//        self.metadata = metadata
-//    }
-//    
-//    func image(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
-//        return imageFromCache(size: size)
-//            .recover { error -> Promise<UIImage> in
-//                if case Cache.CacheError.noImageInStore(_) = error {
-//                    return self.downloadImage(ofSize: size)
-//                } else {
-//                    throw error
-//                }
-//            }
-//    }
-//    
-//    func imageFromCache(size: Metadata.ImageSize) -> Promise<UIImage> {
-//        return Cache.shared.getImage(withId: self.id, size: size)
-//    }
-//    
-//    func downloadImage(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
-//        var url = ""
-//        switch size {
-//        case .file: url = metadata.file_url
-//        case .sample: url = metadata.sample_url!
-//        case .preview: url = metadata.preview_url
-//        }
-//        
-//        return Network.get(url: url)
-//            .then { data -> Promise<UIImage> in
-//                guard let image = self.metadata.file_ext_enum == .gif ? UIImage.gif(data: data) : UIImage(data: data) else {
-//                    throw ImageResultError.dataIsNotUIImage(id: self.id, data: data)
-//                }
-//                _ = Cache.shared.setImage(image, id: self.id, size: size)
-//                return Promise(value: image)
-//        }
-//    }
-//    
-//    enum ImageResultError: Error {
-//        case downloadFailed(id: Int, url: String)
-//        case dataIsNotUIImage(id: Int, data: Data)
-//    }
-//}
-//
-//class UserResult: ResultItem {
-//    
-//    var id: Int { return metadata.id }
-//    
-//    var metadata: Metadata
-//    var avatarImageResult: ImageResult?
-//    
-//    struct Metadata: ResultItemMetadata {
-//        let name: String
-//        let id: Int
-//        let level: Int
-//        let avatar_id: Int?
-//    }
-//    
-//    init(metadata: Metadata) {
-//        self.metadata = metadata
-//    }
-//    
-//    func getAvatar() -> Promise<UIImage> {
-//        if let imageResult = avatarImageResult {
-//            return imageResult.image(ofSize: .preview)
-//        } else {
-//            return downloadAvatarResult().then { result -> Promise<UIImage> in
-//                return result.image(ofSize: .preview)
-//            }
-//        }
-//    }
-//    
-//    func avatarFromCache() -> Promise<UIImage> {
-//        if let imageResult = avatarImageResult {
-//            return imageResult.imageFromCache(size: .preview)
-//        } else {
-//            return downloadAvatarResult().then { result in
-//                return result.imageFromCache(size: .preview)
-//            }
-//        }
-//    }
-//    
-//    private func downloadAvatarResult() -> Promise<ImageResult> {
-//        guard let avatar_id = metadata.avatar_id else { return Promise<ImageResult>(error: UserResultError.noAvatarId(userId: metadata.id)) }
-//        return ImageRequester().downloadImageResult(withId: avatar_id).then { result -> ImageResult in
-//            self.avatarImageResult = result
-//            return result
-//        }
-//    }
-//    
-//    enum UserResultError: Error {
-//        case noAvatarId(userId: Int)
-//        case avatarIsNotSafe(userId: Int)
-//    }
-//    
-//}
-//
-//
-//
-
-
+struct TagResult: ResultItem {
+    var id: Int { return metadata.id }
+    var metadata: Metadata
+    
+    struct Metadata: ResultItemMetadata {
+        let id: Int
+        let name: String
+        let count: Int
+        let type: Int
+        var type_enum: TypeEnum { return TypeEnum(rawValue: type) ?? .general }
+        enum TypeEnum: Int {
+            case general = 0, artist = 1, copyright = 3, character = 4, species = 5
+        }
+    }
+}
 

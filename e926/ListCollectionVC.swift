@@ -16,6 +16,12 @@ protocol ListCollectionDataSource {
     var tags: [String]? { get }
     func getResults(asNew: Bool, withTags tags: [String]?, onComplete: @escaping () -> Void)
 }
+protocol ListCollectionDelegate {
+    func listCollectionShouldHideNavBarOnList() -> Bool
+}
+extension ListCollectionDelegate {
+    func listCollectionShouldHideNavBarOnList() -> Bool { return false }
+}
 
 /// There CollectionViewController class that deals with the vertical scroll view of lists of returned image results.
 class ListCollectionVC: UICollectionViewController {
@@ -23,6 +29,7 @@ class ListCollectionVC: UICollectionViewController {
     // Mark: Delegates
     var dataSource: ListCollectionDataSource = ListCollectionVM()
     var listCategory: String?
+    var isFirstListCollectionVC = true
     
     // Mark: VC Life Cycle
     private let cellReuseID = "mainCell"
@@ -36,6 +43,7 @@ class ListCollectionVC: UICollectionViewController {
         super.viewDidLoad()
         setupRefreshControl()
         setupInfiniteScroll()
+        if isFirstListCollectionVC { navigationController?.delegate = self }
     }
     
     func setupInfiniteScroll() {
@@ -82,7 +90,15 @@ class ListCollectionVC: UICollectionViewController {
         if segue.identifier == showImageSegueID {
             let destinationVC = segue.destination as! ImageZoomVC
             let index = (sender as! IndexPath).row
-            destinationVC.imageResult = dataSource.results[index]
+            let result = dataSource.results[index]
+            destinationVC.imageResult = result
+            DispatchQueue.global(qos: .background).async {
+                for tag in result.metadata.tags_array {
+                    _ = result.tagResult(from: tag).then { tagResult -> Void in
+                        _ = TagCache.shared.setTag(tagResult)
+                    }
+                }
+            }
         }
     }
     
@@ -135,7 +151,7 @@ class ListCollectionVC: UICollectionViewController {
 extension ListCollectionVC: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         if viewController == self {
-            navigationController.setNavigationBarHidden(true, animated: animated)
+            navigationController.setNavigationBarHidden(isFirstListCollectionVC, animated: animated)
         } else if let _ = viewController as? ListCollectionVC {
             navigationController.hidesBarsOnSwipe = true
         } else {

@@ -19,7 +19,10 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         self.present(svc, animated: true, completion: nil)
     }
     var imageResult: ImageResult!
+    var tags = [TagResult]()
     var commentVM: ImageDetailCommentVM!
+    
+    enum SectionType: Int { case tags = 0, statistics, comments }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,9 +34,6 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         tableView.beginInfiniteScroll(true)
         
         commentVM = ImageDetailCommentVM(post_id: imageResult.id)
-        /*commentVM.getResults(page: 1, onComplete: {
-            self.tableView.reloadSections(IndexSet([2]), with: .automatic)
-        })*/
     }
     
     func setupInfiniteScroll() {
@@ -62,38 +62,28 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case 0, 1: return 1
-        case 2: return commentVM.results.count
+        case SectionType.tags.rawValue, SectionType.statistics.rawValue: return 1
+        case SectionType.comments.rawValue: return commentVM.results.count
         default: return 0
         }
     }
-
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.section {
-        case 0:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath) as! ImageDetailVCTextCell
-            
-            let singleTap = UITapGestureRecognizer(target: self, action: #selector(tagIsTapped(sender:)))
-            singleTap.numberOfTapsRequired = 1
-            cell.mainTextView.addGestureRecognizer(singleTap)
-            
-            let tagAttrString = NSMutableAttributedString(string: imageResult.metadata.tags)
-            tagAttrString.addAttribute(NSForegroundColorAttributeName, value: Theme.colors().text, range: NSMakeRange(0, tagAttrString.length))
-            tagAttrString.addAttribute(NSFontAttributeName, value: UIFont.preferredFont(forTextStyle: UIFontTextStyle.body), range: NSMakeRange(0, tagAttrString.length))
-            
-            cell.mainTextView.attributedText = tagAttrString
-            
+        case SectionType.tags.rawValue:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "collectionTextCell", for: indexPath) as! ImageDetailVCCollectionTextCell
+            cell.setupLayout()
+            cell.layoutIfNeeded()
             return cell
-            
-        case 1:
+        case SectionType.statistics.rawValue:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath) as! ImageDetailVCTextCell
             
             return cell
             
-        case 2:
+        case SectionType.comments.rawValue:
             let cell = tableView.dequeueReusableCell(withIdentifier: "commentCell", for: indexPath) as! ImageDetailVCCommentCell
             guard indexPath.row < commentVM.results.count else { break }
+            cell.setupLayout()
             cell.setContent(comment: commentVM.results[indexPath.row])
             
             return cell
@@ -103,100 +93,144 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         return UITableViewCell()
     }
     
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 44))
+        let label = UILabel(frame: CGRect(x: 8, y: 0, width: tableView.frame.size.width - 8, height: 32))
+        label.font = UIFont.systemFont(ofSize: 26, weight: UIFontWeightMedium)
+        label.textColor = .white
         switch section {
-        case 0: return "Tags"
-        case 1: return "Statistics"
-        case 2: return "Comments"
-        default: return nil
+        case SectionType.tags.rawValue: label.text = "Tags"
+        case SectionType.statistics.rawValue: label.text = "Statistics"
+        case SectionType.comments.rawValue: label.text = "Comments"
+        default: break
         }
+        view.addSubview(label)
+        
+        return view
     }
     
-
-    func tagIsTapped(sender: UITapGestureRecognizer) {
-        if let mainTextView = sender.view as? UITextView {
-            let point = sender.location(in: mainTextView)
-            let position = mainTextView.closestPosition(to: point)
-            if let range = mainTextView.tokenizer.rangeEnclosingPosition(position!, with: .word, inDirection: 1) {
-                
-                var startIndex = mainTextView.offset(from: mainTextView.beginningOfDocument, to: range.start)
-                var endIndex = mainTextView.offset(from: mainTextView.beginningOfDocument, to: range.end)
-                
-                //print("range: \(range)")
-                
-                //looking forwards
-                
-                //print("length: \(mainTextView.attributedText.length)")
-                //print("ok: \(mainTextView.position(from: mainTextView.beginningOfDocument, offset: endIndex)), endIndex: \(endIndex), length: \(mainTextView.attributedText.length)")
-                
-                while true {
-                    guard let _ = mainTextView.position(from: mainTextView.beginningOfDocument, offset: endIndex + 1) else {
-                        endIndex -= 1
-                        break
-                    }
-                    if endIndex >= mainTextView.attributedText.length {
-                        endIndex = mainTextView.attributedText.length - 1
-                        break
-                    }
-                    let endCharacter = mainTextView.attributedText.attributedSubstring(from: NSMakeRange(endIndex, 1))
-                    //print("endIndex: \(endIndex), char: \(endCharacter.string)")
-                    if endCharacter.string != " " && endIndex < mainTextView.attributedText.length - 1 {
-                        endIndex += 1
-                    } else {
-                        endIndex -= 1
-                        break
-                    }
-                }
-                
-                ////looking backwards
-                
-                while true {
-                    guard let _ = mainTextView.position(from: mainTextView.beginningOfDocument, offset: startIndex - 1) else { break }
-                    let startCharacter = mainTextView.attributedText.attributedSubstring(from: NSMakeRange(startIndex, 1))
-                    //print("startIndex: \(startIndex), char: \(startCharacter.string)")
-                    if startCharacter.string != " " && startIndex != 0 {
-                        startIndex -= 1
-                    } else {
-                        startIndex += 1
-                        break
-                    }
-                }
-                
-                //print("final: \(startIndex), \(endIndex - startIndex + 1)")
-                
-                let word = mainTextView.attributedText.attributedSubstring(from: NSMakeRange(startIndex, endIndex - startIndex + 1))
-                
-                //print("word: \(word.string), word length: \(word.length)")
-                
-                open(withSearchTag: word.string)
-            }
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { return 44 }
+    
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        switch indexPath.section {
+        case 0:
+            guard let tableViewCell = cell as? ImageDetailVCCollectionTextCell else { return }
+            tableViewCell.setCollectionViewDataSourceDelegate(self, forRow: indexPath.row)
+        default: break
         }
     }
     
     func open(withSearchTag tag: String) {
         let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
         listVC.dataSource = ListCollectionVM()
+        listVC.listCategory = "Results"
         listVC.title = tag
+        listVC.isFirstListCollectionVC = false
         navigationController?.pushViewController(listVC, animated: true)
         listVC.dataSource.getResults(asNew: true, withTags: [tag], onComplete: {
             listVC.collectionView?.reloadData()
         })
     }
+}
 
+extension ImageDetailVC: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let sizeLabel = UILabel()
+        sizeLabel.text = imageResult.metadata.tags.components(separatedBy: " ")[indexPath.row]
+        sizeLabel.sizeToFit()
+        
+        return CGSize(width: sizeLabel.bounds.width + 16, height: 24)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 10
+    }
+}
+
+extension ImageDetailVC: UICollectionViewDelegate, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imageResult.metadata.tags.components(separatedBy: " ").count
+    }
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "tokenCell", for: indexPath) as! ImageDetailVCCollectionTextCellCollectionCell
+        
+        let tags =  imageResult.metadata.tags.components(separatedBy: " ")
+        cell.setupCellLayout()
+        cell.setupCellContents(tag: tags[indexPath.row], result: imageResult) {
+            //collectionView.reloadItems(at: [indexPath])
+            cell.layoutIfNeeded()
+            self.tableView.setNeedsLayout()
+            self.tableView.layoutIfNeeded()
+        }
+        return cell
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let tag = imageResult.metadata.tags.components(separatedBy: " ")[indexPath.row]
+        open(withSearchTag: tag)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsetsMake(10, 10, 10, 10)
+    }
 }
 
 class ImageDetailVCTextCell: UITableViewCell {
-    
     @IBOutlet weak var mainTextView: UITextView!
+}
+
+class ImageDetailVCCollectionTextCell: UITableViewCell {
+    @IBOutlet var collectionView: UICollectionView!
     
+    func setupLayout() {
+        collectionView.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        collectionView.layer.cornerRadius = 5
+        collectionView.layer.masksToBounds = true
+    }
     
+    func setCollectionViewDataSourceDelegate(_ delegate: UICollectionViewDelegate & UICollectionViewDataSource, forRow row: Int) {
+        collectionView.delegate = delegate
+        collectionView.dataSource = delegate
+        collectionView.tag = row
+        collectionView.reloadData()
+    }
+    
+    override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+        collectionView.frame = CGRect(x: 0, y: 0, width: targetSize.width, height: CGFloat(10000))
+        collectionView.layoutIfNeeded()
+        return collectionView.collectionViewLayout.collectionViewContentSize
+    }
+}
+
+class ImageDetailVCCollectionTextCellCollectionCell: UICollectionViewCell {
+    @IBOutlet weak var label: UILabel!
+    
+    func setupCellContents(tag: String, result: ImageResult, onComplete: @escaping () -> Void) {
+        label.text = tag
+        label.backgroundColor = Theme.colors().tagColor(ofType: .general)
+        self.label.sizeToFit()
+        self.contentView.setNeedsLayout()
+        _ = result.tagResult(from: tag).then { tagResult -> Void in
+            self.label.backgroundColor = Theme.colors().tagColor(ofType: tagResult.metadata.type_enum)
+            onComplete()
+        }
+    }
+    func setupCellLayout() {
+        contentView.layer.cornerRadius = bounds.size.height / 2
+        contentView.layer.masksToBounds = true
+    }
 }
 
 class ImageDetailVCCommentCell: UITableViewCell {
+    
+    @IBOutlet weak var bkgdView: UIView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var bodyTextView: UITextView!
     
+    func setupLayout() {
+        bkgdView.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        bkgdView.layer.cornerRadius = 10
+        bkgdView.clipsToBounds = true
+    }
     func setContent(comment: CommentResult) {
         nameLabel.text = comment.metadata.creator
         timeLabel.text = comment.metadata.created_at

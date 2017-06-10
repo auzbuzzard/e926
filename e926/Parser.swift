@@ -48,7 +48,7 @@ class ListParser: Parser {
     }
 }
 
-class ImageParser: ParserForItem {
+class ImageParser: ParserForItem, UsingTagCache {
     
     static func parse(data: Data) -> Promise<ImageResult> {
         return Promise { fulfill, reject in
@@ -106,6 +106,8 @@ class ImageParser: ParserForItem {
         }
         
         let metadata: ImageResult.Metadata = ImageResult.Metadata(id: id, author: author, tags: tags, status: status, file_url: file_url, file_ext: file_ext, file_size: file_size, width: width, height: height, score: score, fav_count: fav_count, rating: rating, creator_id: creator_id, sample_width: sample_width, sample_height: sample_height, preview_width: preview_width, preview_height: preview_height, sample_url: sample_url, preview_url: preview_url, artist: artist)
+        
+        
         return Promise { fulfill, _ in
             fulfill(ImageResult(metadata: metadata))
         }
@@ -181,6 +183,30 @@ class CommentParser: ParserForItem {
     }
 }
 
+class TagParser: Parser {
+    static func parse(data: Data) -> Promise<TagResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let jsonArray = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
+                    let json = jsonArray[0]
+                    
+                    let id = json["id"] as? Int ?? 0
+                    let name = json["name"] as? String ?? ""
+                    let count = json["count"] as? Int ?? 0
+                    let type = json["type"] as? Int ?? 0
+                    
+                    let metadata = TagResult.Metadata(id: id, name: name, count: count, type: type)
+                    
+                    fulfill(TagResult(metadata: metadata))
+                }
+            } catch {
+                reject(error)
+            }
+            
+            
+        }
+    }
+}
 
 
 

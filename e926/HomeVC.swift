@@ -40,7 +40,6 @@ class HomeVC: UINavigationController {
         listVC.listCategory = "Home"
         
         setViewControllers([listVC], animated: false)
-        navigationController?.delegate = self
         
         listVC.collectionView?.collectionViewLayout.invalidateLayout()
         
@@ -57,29 +56,4 @@ class HomeVC: UINavigationController {
 
 }
 
-extension HomeVC: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        if viewController == self {
-            navigationController.setNavigationBarHidden(true, animated: animated)
-        } else if let _ = viewController as? ListCollectionVC {
-            navigationController.hidesBarsOnSwipe = true
-        } else {
-            navigationController.setNavigationBarHidden(false, animated: animated)
-            if navigationController.hidesBarsOnSwipe == true {
-                navigationController.hidesBarsOnSwipe = false
-            }
-        }
-    }
-}
 
-/*
-extension HomeVC: ListCollectionVCRequestDelegate {
-    internal func vcShouldLoadImmediately() -> Bool {
-        return true
-    }
-    
-    func getResult(last_before_id: Int?) -> Promise<ListResult> {
-        return ListRequester().downloadList(ofType: .post, tags: nil, last_before_id: last_before_id)
-    }
-}
-*/

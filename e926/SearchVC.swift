@@ -65,10 +65,11 @@
         listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
         listVC.dataSource = dataSource
         listVC.listCategory = "Results"
+        listVC.isFirstListCollectionVC = false
         dataSource.tags = dataSource.tags(from: stringTag ?? "")
         
         navigationController?.pushViewController(listVC, animated: true)
-        listVC.title = dataSource.tags?.joined(separator: ", ")
+        listVC.title = dataSource.tags?.joined(separator: " ")
         
         //listVC.collectionView?.collectionViewLayout.invalidateLayout()
         dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {

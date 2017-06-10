@@ -52,6 +52,7 @@
 		D9B081001DA9C13100BDC28C /* SearchVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B080FF1DA9C13100BDC28C /* SearchVC.swift */; };
 		D9B081021DA9C13600BDC28C /* SettingsTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B081011DA9C13600BDC28C /* SettingsTableVC.swift */; };
 		D9B081051DA9C14400BDC28C /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B081041DA9C14400BDC28C /* Theme.swift */; };
+		D9D670A61EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9D670A51EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework */; };
 		D9DD6D801DAADE200016A9C6 /* ImageZoomVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9DD6D7F1DAADE200016A9C6 /* ImageZoomVC.swift */; };
 		D9E0B7C61ED8034A00E9F1BB /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E0B7C51ED8034A00E9F1BB /* Data.swift */; };
 		D9E0B7C81ED966CF00E9F1BB /* ListCollectionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E0B7C71ED966CF00E9F1BB /* ListCollectionVM.swift */; };
@@ -180,6 +181,7 @@
 		D9B080FF1DA9C13100BDC28C /* SearchVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchVC.swift; sourceTree = "<group>"; };
 		D9B081011DA9C13600BDC28C /* SettingsTableVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableVC.swift; sourceTree = "<group>"; };
 		D9B081041DA9C14400BDC28C /* Theme.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		D9D670A51EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UICollectionViewLeftAlignedLayout.framework; path = "Pods/../build/Debug-iphoneos/UICollectionViewLeftAlignedLayout/UICollectionViewLeftAlignedLayout.framework"; sourceTree = "<group>"; };
 		D9DD6D7F1DAADE200016A9C6 /* ImageZoomVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageZoomVC.swift; sourceTree = "<group>"; };
 		D9E0B7C51ED8034A00E9F1BB /* Data.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		D9E0B7C71ED966CF00E9F1BB /* ListCollectionVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCollectionVM.swift; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9D670A61EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework in Frameworks */,
 				D9ABFF031EE4BC0800FE7BD3 /* Alamofire.framework in Frameworks */,
 				D97880FE1E7F099E0037B0D4 /* SwiftGifOrigin.framework in Frameworks */,
 				D93298AB1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework in Frameworks */,
@@ -263,6 +266,7 @@
 		A394754A6BC2D90B5AEFA33B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D9D670A51EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework */,
 				D9ABFF021EE4BC0800FE7BD3 /* Alamofire.framework */,
 				D9E8F2D71EE2A650003C5A98 /* Alamofire.framework */,
 				D956B0AD1EE2A3B200EE8340 /* Alamofire.framework */,
@@ -564,7 +568,7 @@
 		D9B080A81DA9C06000BDC28C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0820;
+				LastSwiftUpdateCheck = 0900;
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Austin Chau";
 				TargetAttributes = {
@@ -1187,7 +1191,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = e926/e926.entitlements;
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos/UICollectionViewLeftAlignedLayout",
+				);
 				INFOPLIST_FILE = e926/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926;
@@ -1205,7 +1212,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = e926/e926.entitlements;
 				DEVELOPMENT_TEAM = D7S2KUY3DK;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/build/Debug-iphoneos/UICollectionViewLeftAlignedLayout",
+				);
 				INFOPLIST_FILE = e926/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.auzbuzzard.e926;

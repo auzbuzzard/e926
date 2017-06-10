@@ -30,6 +30,12 @@ protocol UsingImageResultCache {
 extension UsingImageResultCache {
     var imageResultCache: ImageResultCache { return ImageResultCache.shared }
 }
+protocol UsingTagCache {
+    var tagCache: TagCache { get }
+}
+extension UsingTagCache {
+    var tagCache: TagCache { return TagCache.shared }
+}
 
 // For internal class conformance
 protocol CacheClass { }
@@ -116,6 +122,33 @@ class UserCache: CacheClass {
     
     enum CacheError: Error {
         case noUserInStore(id: Int)
+    }
+}
+
+class TagCache: CacheClass {
+    static let shared = TagCache()
+    private init() { }
+    lazy var tags = Dictionary<String, TagResult>()
+    
+    func getTag(withName name: String) -> Promise<TagResult> {
+        return Promise { fulfill, reject in
+            if let tag = tags[name] {
+                fulfill(tag)
+            } else {
+                reject(CacheError.noTagInStore(name: name))
+            }
+        }
+    }
+    
+    func setTag(_ tag: TagResult) -> Promise<Void> {
+        return Promise { fulfill, reject in
+            tags.updateValue(tag, forKey: "\(tag.metadata.name)")
+            fulfill()
+        }
+    }
+    
+    enum CacheError: Error {
+        case noTagInStore(name: String)
     }
 }
 

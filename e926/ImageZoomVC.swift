@@ -17,13 +17,13 @@ class ImageZoomVC: UIViewController {
     @IBOutlet weak var mainScrollView: UIScrollView!
     
     var imageResult: ImageResult!
-    var isFileImage = false
-    var isFullScreen = false
+    fileprivate(set) var isFileImage = false
+    fileprivate(set) var isFullScreen = false
     
     // Mark: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.backgroundColor = Theme.colors().background
         mainImageView = UIImageView(frame: CGRect.zero)
         setupScrollView()
         setupGestureRecognizer()
@@ -37,12 +37,13 @@ class ImageZoomVC: UIViewController {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         coordinator.notifyWhenInteractionEnds({ context in
+            //self.view.invalidateIntrinsicContentSize()
             self.mainScrollView.contentSize = self.mainImageView.frame.size
         })
     }
     
     override func viewWillLayoutSubviews() {
-        setZoomScale()
+        setZoomScale(thenZoomOut: true)
     }
     
     // Mark: - Data Loading
@@ -95,13 +96,16 @@ class ImageZoomVC: UIViewController {
         mainImageView.image = image
 
         if withZoom {
-            mainImageView.sizeToFit()
-            mainScrollView.contentSize = mainImageView.bounds.size
-            setZoomScale()
+            adjustViewSizes(thenZoomOut: true)
         }
     }
+    func adjustViewSizes(thenZoomOut zoomOut: Bool) {
+        mainImageView.sizeToFit()
+        mainScrollView.contentSize = mainImageView.bounds.size
+        setZoomScale(thenZoomOut: zoomOut)
+    }
     
-    func setZoomScale() {
+    func setZoomScale(thenZoomOut zoomOut: Bool) {
         let imageViewSize = mainImageView.bounds.size
         let scrollViewSize = mainScrollView.bounds.size
         let widthScale = scrollViewSize.width / imageViewSize.width
@@ -111,9 +115,11 @@ class ImageZoomVC: UIViewController {
         let maximumZoomScale = minimumZoomScale * 6.0
         
         if minimumZoomScale != CGFloat.infinity && maximumZoomScale != CGFloat.infinity {
-        mainScrollView.minimumZoomScale = minimumZoomScale
-        mainScrollView.maximumZoomScale = maximumZoomScale
-            mainScrollView.zoomScale = minimumZoomScale
+            mainScrollView.minimumZoomScale = minimumZoomScale
+            mainScrollView.maximumZoomScale = maximumZoomScale
+            if zoomOut {
+                mainScrollView.zoomScale = minimumZoomScale
+            }
         }
     }
     
@@ -135,10 +141,12 @@ class ImageZoomVC: UIViewController {
     func handleDoubleTap(recognizer: UITapGestureRecognizer) {
         if (mainScrollView.zoomScale > mainScrollView.minimumZoomScale) {
             mainScrollView.setZoomScale(mainScrollView.minimumZoomScale, animated: true)
+            print("NO")
         } else {
             switchTo(fullScreen: true, animated: true, withExtraAnimation: {
                 self.mainScrollView.setZoomScale(self.mainScrollView.maximumZoomScale * 0.4, animated: true)
             }, completion: { })
+            print("YES")
         }
         adjustPadding()
     }
@@ -172,7 +180,7 @@ class ImageZoomVC: UIViewController {
             UIView.animate(withDuration: duration, animations: {
                 self.navigationController?.navigationBar.alpha = 1
                 self.tabBarController?.tabBar.alpha = 1
-                self.view.backgroundColor = UIColor.white
+                self.view.backgroundColor = Theme.colors().background
                 UIApplication.shared.isStatusBarHidden = false
                 withExtraAnimation()
             }, completion: { success in

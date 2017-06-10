@@ -56,7 +56,7 @@ class ImageRequester: Requester {
         let url = ImageRequester.image_url + "/\(id).json"
         return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ImageResult> in
             return ImageParser.parse(data: data)
-        }
+            }
     }
 }
 
@@ -108,6 +108,19 @@ class CommentRequester: Requester {
         let url = CommentRequester.list_url + "/index.json?" + params.joined(separator: "&")
         return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ListCommentResult> in
             return ListCommentParser.parse(data: data)
+        }
+    }
+}
+
+class TagResultRequester: Requester, UsingTagCache {
+    static let tag_url = base_url + "/tag"
+    func getTag(withName name: String) -> Promise<TagResult> {
+        let url = TagResultRequester.tag_url + "/index.json?" + "name=\(name)"
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<TagResult> in
+            return TagParser.parse(data: data)
+            }.then(on: .global(qos: .userInitiated)) { tagResult -> TagResult in
+            _ = self.tagCache.setTag(tagResult)
+            return tagResult
         }
     }
 }
