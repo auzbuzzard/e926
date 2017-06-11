@@ -11,6 +11,7 @@
 		600180E3D98EC2ED18EA811E /* Pods_e926_watch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3B39D9BAE7B79B395BC7EBF /* Pods_e926_watch.framework */; };
 		701D65E3D5ABB9EFBDEACA4B /* Pods_e926.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC80BB0028B3425D6805B8F8 /* Pods_e926.framework */; };
 		97C86E542CC6F345AE56BB95 /* Pods_e926_watch_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC38D6FF42F10A2ACD6463B /* Pods_e926_watch_Extension.framework */; };
+		D90EF0931EED3AE2009E9E6B /* Fuzi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90EF0921EED3AE2009E9E6B /* Fuzi.framework */; };
 		D9224A421E0ACADA002DFAA1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9224A401E0ACADA002DFAA1 /* Interface.storyboard */; };
 		D9224A4B1E0ACADA002DFAA1 /* e926-watch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D9224A4A1E0ACADA002DFAA1 /* e926-watch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D9224A521E0ACADA002DFAA1 /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A511E0ACADA002DFAA1 /* InterfaceController.swift */; };
@@ -151,6 +152,8 @@
 		B9D6B1A2A697007E36E7E099 /* Pods_e926UITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_e926UITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFF2017C16B982D33A134B2 /* Pods-e926Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-e926Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		D86CBB37A057A82F09DB0AA2 /* Pods-e926Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-e926Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests.release.xcconfig"; sourceTree = "<group>"; };
+		D90EF0901EED3793009E9E6B /* Fuzi.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Fuzi.framework; path = "Pods/../build/Debug-iphoneos/Fuzi/Fuzi.framework"; sourceTree = "<group>"; };
+		D90EF0921EED3AE2009E9E6B /* Fuzi.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Fuzi.framework; path = "Pods/../build/Debug-iphoneos/Fuzi/Fuzi.framework"; sourceTree = "<group>"; };
 		D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "e926-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9224A411E0ACADA002DFAA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		D9224A451E0ACADA002DFAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -275,6 +278,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D90EF0931EED3AE2009E9E6B /* Fuzi.framework in Frameworks */,
 				D9A9E6A31EED1EAA00FD6383 /* SwiftGifOrigin.framework in Frameworks */,
 				D94838B21EECDDC500F911A3 /* Carlos.framework in Frameworks */,
 				D9D670A61EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework in Frameworks */,
@@ -333,6 +337,8 @@
 		A394754A6BC2D90B5AEFA33B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D90EF0901EED3793009E9E6B /* Fuzi.framework */,
+				D90EF0921EED3AE2009E9E6B /* Fuzi.framework */,
 				D94838B31EED198A00F911A3 /* SwiftyGif.framework */,
 				D94838B11EECDDC500F911A3 /* Carlos.framework */,
 				D94838AF1EECDB1400F911A3 /* Haneke.framework */,
@@ -1609,6 +1615,7 @@
 					"$(PROJECT_DIR)/build/Debug-iphoneos/KSTokenView",
 					"$(PROJECT_DIR)/build/Debug-iphoneos/HanekeSwift",
 					"$(PROJECT_DIR)/build/Debug-iphoneos/Carlos",
+					"$(PROJECT_DIR)/build/Debug-iphoneos/Fuzi",
 				);
 				INFOPLIST_FILE = e926/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1637,6 +1644,7 @@
 					"$(PROJECT_DIR)/build/Debug-iphoneos/KSTokenView",
 					"$(PROJECT_DIR)/build/Debug-iphoneos/HanekeSwift",
 					"$(PROJECT_DIR)/build/Debug-iphoneos/Carlos",
+					"$(PROJECT_DIR)/build/Debug-iphoneos/Fuzi",
 				);
 				INFOPLIST_FILE = e926/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

@@ -248,6 +248,59 @@ class TagParser: Parser {
     }
 }
 
+class PoolResultParser: Parser {
+    static func parse(data: Data) -> Promise<PoolResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
+                    
+                    let created_at: (json_class: String, s: Int, n: Int) = {
+                        let dict = json["created_at"] as? NSDictionary
+                        let json_class = dict?["json_class"] as? String ?? ""
+                        let s = dict?["s"] as? Int ?? 0
+                        let n = dict?["n"] as? Int ?? 0
+                        return (json_class, s, n)
+                    }()
+                    let description = json["description"] as? String ?? ""
+                    let id = json["id"] as? Int ?? 0
+                    let is_active = json["is_active"] as? Bool ?? false
+                    let is_locked = json["is_locked"] as? Bool ?? true
+                    let name = json["name"] as? String ?? ""
+                    let post_count = json["post_count"] as? Int ?? 0
+                    let updated_at: (json_class: String, s: Int, n: Int) = {
+                        let dict = json["updated_at"] as? NSDictionary
+                        let json_class = dict?["json_class"] as? String ?? ""
+                        let s = dict?["s"] as? Int ?? 0
+                        let n = dict?["n"] as? Int ?? 0
+                        return (json_class, s, n)
+                    }()
+                    let user_id = json["user_id"] as? Int ?? 0
+                    
+                    let posts: [ImageResult] = {
+                        var result = [ImageResult]()
+                        if let array = json["posts"] as? Array<NSDictionary> {
+                            for item in array {
+                                _ = ImageParser.parse(dictionary: item).then { img in
+                                    result.append(img)
+                                }
+                            }
+                        }
+                        return result
+                    }()
+                    
+                    let metadata = PoolResult.Metadata(created_at: created_at, description: description, id: id, is_active: is_active, is_locked: is_locked, name: name, post_count: post_count, updated_at: updated_at, user_id: user_id, posts: posts)
+                    
+                    fulfill(PoolResult(metadata: metadata))
+                }
+            } catch {
+                reject(error)
+            }
+            
+            
+        }
+    }
+}
+
 
 
 

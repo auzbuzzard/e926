@@ -11,8 +11,10 @@ import PromiseKit
 
 class ListCollectionVM: ListCollectionDataSource {
     private var model = ListModel(ofType: .post)
+    
     var results: [ImageResult] { return model.result.results }
     var tags: [String]? { get { return model.tags } set { model.tags = newValue } }
+    var poolId: Int?
     
     func getResults(asNew: Bool = true, withTags tags: [String]? = nil, onComplete: @escaping () -> Void) {
         model.getResult(reset: asNew, tags: tags, onComplete: onComplete)
@@ -21,10 +23,43 @@ class ListCollectionVM: ListCollectionDataSource {
     func getResults(asNew: Bool = true, withStringTags tag: String? = nil, onComplete: @escaping () -> Void) {
         getResults(asNew: asNew, withTags: tags(from: tag), onComplete: onComplete)
     }
+    func getPool(asNew: Bool, poolId: Int, onComplete: @escaping () -> Void) {
+        onComplete()
+    }
     
     func tags(from stringTag: String?) -> [String]? {
         return stringTag?.components(separatedBy: " ")
     }
+}
+
+class ListCollectionPoolVM: ListCollectionDataSource {
+    var result: PoolResult!
+    
+    var results: [ImageResult] { return result?.metadata.posts ?? [ImageResult]() }
+    var tags: [String]?
+    var poolId: Int? { return result?.id }
+    var currentPage = 1
+    
+    func getResults(asNew: Bool, withTags tags: [String]?, onComplete: @escaping () -> Void) {
+        onComplete()
+    }
+    
+    func getPool(asNew: Bool, forImage id: Int, onComplete: @escaping () -> Void) {
+        print("VM: Getting Pool")
+        _ = PoolRequester().getPool(forImage: id).then { result -> Void in
+            self.result = result
+            onComplete()
+        }
+    }
+    func getPool(asNew: Bool, poolId: Int, onComplete: @escaping () -> Void) {
+        if asNew { self.result.results = [ImageResult](); self.currentPage = 1 }
+        _ = PoolRequester().getPool(withId: poolId, page: currentPage + 1).then { result -> Void in
+            self.result?.add(result)
+            onComplete()
+        }
+    }
+    
+    
 }
 
 class ImageDetailCommentVM {

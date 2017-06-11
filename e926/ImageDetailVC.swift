@@ -21,18 +21,29 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
     var imageResult: ImageResult!
     var tags = [TagResult]()
     var commentVM: ImageDetailCommentVM!
+    var poolVM: ListCollectionPoolVM!
     
-    enum SectionType: Int { case tags = 0, statistics, comments }
+    var imageHasPool = false
+    
+    enum SectionType: Int { case tags = 0, statistics = -1, pool = 1, comments = 2 }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.estimatedRowHeight = 44.0
         tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.delegate = self
         
         setupInfiniteScroll()
         tableView.beginInfiniteScroll(true)
         
+        //findIfImageHasPool()
+        poolVM = ListCollectionPoolVM()
+        poolVM.getPool(asNew: true, forImage: imageResult.id) {
+            print("got results")
+            let i = IndexSet(integer: SectionType.pool.rawValue)
+            self.tableView.reloadSections(i , with: UITableViewRowAnimation.automatic)
+        }
         commentVM = ImageDetailCommentVM(post_id: imageResult.id)
     }
     
@@ -47,7 +58,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
                 }
                 var index = [IndexPath]()
                 for n in lastCount..<currCount {
-                    index.append(IndexPath(item: n, section: 2))
+                    index.append(IndexPath(item: n, section: SectionType.comments.rawValue))
                 }
                 tableView.finishInfiniteScroll(completion: { (tableView) in
                     tableView.insertRows(at: index, with: .automatic)
@@ -55,6 +66,13 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
             })
         }
     }
+    /*
+    func findIfImageHasPool() -> Promise<PoolResult> {
+        PoolRequester().getPool(forImage: imageResult.id).then {
+            self.imageHasPool = true
+            
+        }
+    }*/
 
     // MARK: - Table view data source
 
@@ -62,8 +80,9 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
-        case SectionType.tags.rawValue, SectionType.statistics.rawValue: return 1
+        case SectionType.tags.rawValue, SectionType.pool.rawValue: return 1
         case SectionType.comments.rawValue: return commentVM.results.count
+        case SectionType.statistics.rawValue: fallthrough
         default: return 0
         }
     }
@@ -77,6 +96,15 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
             return cell
         case SectionType.statistics.rawValue:
             let cell = tableView.dequeueReusableCell(withIdentifier: "textCell", for: indexPath) as! ImageDetailVCTextCell
+            
+            return cell
+        case SectionType.pool.rawValue:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "poolSimpleCell", for: indexPath)
+            cell.textLabel?.textColor = Theme.colors().text
+            cell.textLabel?.text = poolVM.result?.metadata.name
+            //cell.setupLayout()
+            //cell.setupContents(poolVM: poolVM)
+            //cell.layoutIfNeeded()
             
             return cell
             
@@ -100,7 +128,8 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         label.textColor = Theme.colors().text
         switch section {
         case SectionType.tags.rawValue: label.text = "Tags"
-        case SectionType.statistics.rawValue: label.text = "Statistics"
+        //case SectionType.statistics.rawValue: label.text = "Statistics"
+        case SectionType.pool.rawValue: label.text = "Pool"
         case SectionType.comments.rawValue: label.text = "Comments"
         default: break
         }
@@ -109,7 +138,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         return view
     }
     
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { return 44 }
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { return section == SectionType.pool.rawValue ? 72 : 44 }
     
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         switch indexPath.section {
@@ -117,6 +146,20 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
             guard let tableViewCell = cell as? ImageDetailVCCollectionTextCell else { return }
             tableViewCell.setCollectionViewDataSourceDelegate(self, forRow: indexPath.row)
         default: break
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("selected something: \(indexPath)")
+        switch indexPath.section {
+        case SectionType.pool.rawValue:
+            print("Pool table clicked")
+            if poolVM.result != nil {
+                print("opening pool")
+                open(withPool: poolVM)
+            } else { print("fallthru"); fallthrough }
+        default:
+            tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
@@ -131,6 +174,17 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         listVC.dataSource.getResults(asNew: true, withTags: [tag], onComplete: {
             listVC.collectionView?.reloadData()
         })
+    }
+    func open(withPool vm: ListCollectionPoolVM) {
+        print("poolVM: \(poolVM.results.count)")
+        let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
+        listVC.dataSource = poolVM
+        listVC.listCategory = "Pool"
+        listVC.title = vm.result?.metadata.name
+        listVC.isFirstListCollectionVC = false
+        listVC.shouldHideNavigationBar = false
+        navigationController?.pushViewController(listVC, animated: true)
+        listVC.collectionView?.reloadData()
     }
 }
 
@@ -218,6 +272,23 @@ class ImageDetailVCCollectionTextCellCollectionCell: UICollectionViewCell {
         contentView.layer.cornerRadius = bounds.size.height / 2
         contentView.layer.masksToBounds = true
     }
+}
+
+class ImageDetailVCPoolCell: UITableViewCell {
+    @IBOutlet weak var bkgdView: UIView!
+    @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var collectionView: UICollectionView!
+    
+    func setupLayout() {
+        bkgdView.backgroundColor = Theme.colors().background_layer1.withAlphaComponent(0.5)
+        bkgdView.layer.cornerRadius = 10
+        bkgdView.clipsToBounds = true
+        label.textColor = Theme.colors().text
+    }
+    func setupContents(poolVM: ListCollectionPoolVM) {
+        label.text = poolVM.result?.metadata.name
+    }
+    
 }
 
 class ImageDetailVCCommentCell: UITableViewCell {

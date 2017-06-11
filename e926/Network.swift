@@ -61,6 +61,12 @@ class Network {
         }
     }
     
+    static func getWithAlamo(url: String) -> DataRequest {
+        var request = URLRequest(url: URL(string: url)!)
+        request.httpMethod = HTTPMethod.get.rawValue
+        return Alamofire.request(request as URLRequestConvertible)
+    }
+    
     static func postWithAlamo(url: String, params: [String:String]?, encoding: ParameterEncoding) -> DataRequest {
         var request = URLRequest(url: URL(string: url)!)
         request.httpMethod = HTTPMethod.post.rawValue

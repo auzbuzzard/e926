@@ -8,6 +8,7 @@
 
 import Foundation
 import PromiseKit
+import Fuzi
 
 class Requester {
     static var base_url: String {
@@ -56,8 +57,11 @@ class ListRequester: Requester {
 class ImageRequester: Requester {
     static var image_url: String { return base_url + "/post/show" }
     
+    func getUrl(withId id: Int, withoutJson: Bool = false) -> String {
+        return ImageRequester.image_url + "/\(id)\(withoutJson ? "" : ".json")"
+    }
     func downloadImageResult(withId id: Int) -> Promise<ImageResult> {
-        let url = ImageRequester.image_url + "/\(id).json"
+        let url = getUrl(withId: id)
         return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ImageResult> in
             return ImageParser.parse(data: data)
             }
@@ -130,7 +134,42 @@ class TagResultRequester: Requester, UsingTagCache {
 }
 
 class PoolRequester: Requester {
+    static let pool_url = base_url + "/pool"
+    func getPool(forImage id: Int) -> Promise<PoolResult> {
+        let url = ImageRequester().getUrl(withId: id, withoutJson: true)
+        return Network.getWithAlamo(url: url).responseString().then { response in
+            //print(response)
+            
+            let doc = try? HTMLDocument(cChars: (response.cString(using: .utf8))!)
+            let element = doc?.xpath("//*[@id=\"post-view\"]/div[1]/div[2]").first
+            //print(doc?.body)
+            if let attr = element?.attributes, attr["class"] == "status-notice", let link = element?.children[0].children(tag: "p")[0].children(tag: "a")[0], let url = link.attributes["href"] {
+                return self.getPool(withLink: url)
+            } else {
+                return Promise<PoolResult>(error: PoolRequestError.cannotParseHTML(id: id))
+            }
+        }
+    }
     
+    func getPool(withId id: Int, page: Int) -> Promise<PoolResult> {
+        let url = PoolRequester.pool_url + "/show/\(id).json?page=\(page)"
+        print(url)
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<PoolResult> in
+            return PoolResultParser.parse(data: data)
+        }
+    }
+    
+    private func getPool(withLink linkUrl: String) -> Promise<PoolResult> {
+        let url = Requester.base_url + linkUrl + ".json"
+        //print(url)
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<PoolResult> in
+            return PoolResultParser.parse(data: data)
+        }
+    }
+    
+    enum PoolRequestError: Error {
+        case cannotParseHTML(id: Int)
+    }
 }
 
 

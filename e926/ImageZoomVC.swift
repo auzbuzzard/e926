@@ -29,6 +29,7 @@ class ImageZoomVC: UIViewController {
         setupGestureRecognizer()
         
         loadImage()
+        loadExtraMetadata()
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -82,6 +83,10 @@ class ImageZoomVC: UIViewController {
                     }
                 }
         }*/
+    }
+    
+    func loadExtraMetadata() {
+        
     }
     
     // Mark: - Scroll View and ImageView Constraints

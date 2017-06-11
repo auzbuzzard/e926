@@ -14,7 +14,15 @@ import SwiftGifOrigin
 protocol ListCollectionDataSource {
     var results: [ImageResult] { get }
     var tags: [String]? { get }
+    var poolId: Int? { get }
     func getResults(asNew: Bool, withTags tags: [String]?, onComplete: @escaping () -> Void)
+    func getPool(asNew: Bool, poolId: Int, onComplete: @escaping () -> Void)
+}
+struct ListCollectionDataSourceGetResultsOptions {
+    enum OptionType { case tag, poolId }
+    let optionType: OptionType
+    var tags: [String]?
+    var poolId: Int?
 }
 protocol ListCollectionDelegate {
     func listCollectionShouldHideNavBarOnList() -> Bool
@@ -42,6 +50,7 @@ class ListCollectionVC: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("LVC: \(dataSource is ListCollectionPoolVM)")
         setupRefreshControl()
         setupInfiniteScroll()
         if isFirstListCollectionVC {
@@ -55,19 +64,31 @@ class ListCollectionVC: UICollectionViewController {
         collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
         collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
             let lastCount = (self?.dataSource.results.count)!
-            self?.dataSource.getResults(asNew: false, withTags: self?.dataSource.tags) {
-                // Update collection view
-                var index = [IndexPath]()
-                for n in lastCount..<(self?.dataSource.results.count)! {
-                    index.append(IndexPath(item: n, section: 0))
+            print(self?.dataSource)
+            if self?.dataSource is ListCollectionVM {
+                self?.dataSource.getResults(asNew: false, withTags: self?.dataSource.tags) {
+                    self?.setupInfiniteScrollOnComplete(lastCount: lastCount, collectionView: scrollView)
                 }
-                scrollView.performBatchUpdates({ () -> Void in
-                    scrollView.insertItems(at: index)
-                }, completion: { (finished) -> Void in
-                    scrollView.finishInfiniteScroll()
+            } else if self?.dataSource is ListCollectionPoolVM {
+                self?.dataSource.getPool(asNew: false, poolId: (self?.dataSource.poolId)!, onComplete: {
+                    self?.setupInfiniteScrollOnComplete(lastCount: lastCount, collectionView: scrollView)
                 })
             }
         }
+    }
+    private func setupInfiniteScrollOnComplete(lastCount: Int, collectionView scrollView: UICollectionView) {
+        // Update collection view
+        
+        var index = [IndexPath]()
+        for n in lastCount..<(self.dataSource.results.count) {
+            index.append(IndexPath(item: n, section: 0))
+        }
+        print("updating from inf scroll: \(index)")
+        scrollView.performBatchUpdates({ () -> Void in
+            scrollView.insertItems(at: index)
+        }, completion: { (finished) -> Void in
+            scrollView.finishInfiniteScroll()
+        })
     }
     
     func setupRefreshControl() {

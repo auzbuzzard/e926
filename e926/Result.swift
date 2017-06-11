@@ -267,3 +267,36 @@ struct TagResult: ResultItem {
     }
 }
 
+struct PoolResult: ResultItem, ResultListable {
+    var results: [ImageResult] { get { return metadata.posts } set { metadata.posts = newValue } }
+    
+    var id: Int { return metadata.id }
+    var metadata: Metadata
+    
+    struct Metadata: ResultItemMetadata {
+        let created_at: (json_class: String, s: Int, n: Int)
+        let description: String
+        let id: Int
+        let is_active: Bool
+        let is_locked: Bool
+        let name: String
+        let post_count: Int
+        let updated_at: (json_class: String, s: Int, n: Int)
+        let user_id: Int
+        
+        var posts: [ImageResult]
+    }
+    
+    mutating func add(_ result: [ImageResult]) {
+        results.append(contentsOf: result)
+    }
+    mutating func add(_ result: PoolResult) {
+        add(result.results)
+    }
+}
+
+
+
+
+
+
