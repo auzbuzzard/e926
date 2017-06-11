@@ -21,8 +21,6 @@ class SearchResultVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        NotificationCenter.default.addObserver(self, selector: #selector(HomeVC.useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
         
         instantiateVC()
         
@@ -46,10 +44,6 @@ class SearchResultVC: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     func instantiateVC() {

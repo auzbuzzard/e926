@@ -43,8 +43,16 @@ class Network {
                     request.httpBody = paramString.data(using: String.Encoding.utf8)
                 }
             }
+            
+            let userAgent: String = {
+                let bundleIdentifier = Bundle.main.bundleIdentifier ?? "BundleIdentifier"
+                let bundleVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "BundleVersion"
+                return "\(bundleIdentifier)/\(bundleVersion) (by auzbuzzard on e621)"
+            }()
+            
+            request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
             #if DEBUG
-                print(u)
+                //print(u)
             #endif
             let dataPromise: URLDataPromise = session.dataTask(with: request as URLRequest)
             dataPromise.asDataAndResponse().then { (data, respone) -> Void in

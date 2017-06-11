@@ -35,10 +35,14 @@ class ListParser: Parser {
                     for item in json {
                         ImageParser.parse(dictionary: item).then { result -> Void in
                             results.append(result)
-                            }.catch { error in
-                        }
+                            }.catch { error -> Void in
+                                if case ImageParser.ImageParserError.imageIsCensored(_, _) = error {
+                                    
+                                } else if case ImageParser.ImageParserError.imageTypeIsNotSupported(_, _) = error {
+                                    
+                                }
+                            }
                     }
-                    
                     fulfill(ListResult(result: results))
                 }
             } catch {
@@ -49,6 +53,22 @@ class ListParser: Parser {
 }
 
 class ImageParser: ParserForItem, UsingTagCache {
+    
+    static func imageShouldBeCensored(status: String) -> Bool {
+        guard let status_enum = ImageResult.Metadata.Status(rawValue: status) else { return true }
+        switch Identity.censorMode {
+        case .strong: return status_enum == .active ? false : true
+        case .safe, .none: return false
+        }
+    }
+    
+    static func imageTypeIsSupported(file_ext: String) -> Bool {
+        guard let status_enum = ImageResult.Metadata.File_Ext(rawValue: file_ext) else { return false }
+        switch status_enum {
+        case .jpg, .png, .gif: return true
+        case .swf, .webm: return false
+        }
+    }
     
     static func parse(data: Data) -> Promise<ImageResult> {
         return Promise { fulfill, reject in
@@ -76,6 +96,21 @@ class ImageParser: ParserForItem, UsingTagCache {
         let file_url = item["file_url"] as? String ?? ""
         let file_ext = item["file_ext"] as? String
         let file_size = item["file_size"] as? Int
+        
+        if file_ext == nil || !imageTypeIsSupported(file_ext: file_ext!) {
+            return Promise { _, reject in
+                reject(ImageParserError.imageTypeIsNotSupported(id: id, status: {
+                    if file_ext != nil { return ImageResult.Metadata.File_Ext(rawValue: file_ext!) ?? .jpg }
+                    else { return .jpg }
+                }()))
+            }
+        }
+        
+        if imageShouldBeCensored(status: status) {
+            return Promise { _, reject in
+                reject(ImageParserError.imageIsCensored(id: id, status: ImageResult.Metadata.Status(rawValue: status) ?? .pending))
+            }
+        }
         
         let width = item["width"] as? Int ?? 1
         let height = item["height"] as? Int ?? 1
@@ -113,6 +148,11 @@ class ImageParser: ParserForItem, UsingTagCache {
         }
     }
     
+    
+    enum ImageParserError: Error {
+        case imageIsCensored(id: Int, status: ImageResult.Metadata.Status)
+        case imageTypeIsNotSupported(id: Int, status: ImageResult.Metadata.File_Ext)
+    }
 }
 
 class UserParser: Parser {

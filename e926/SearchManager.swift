@@ -8,7 +8,7 @@
 
 import Foundation
 import PromiseKit
-
+/*
 class SearchManager {
     
     //static let shared = Lis
@@ -22,6 +22,6 @@ class SearchManager {
     }
     
     func getResult(last_before_id: Int?) -> Promise<ListResult> {
-        return ListRequester().downloadList(ofType: .post, tags: tags, last_before_id: last_before_id)
+        return ListRequester().downloadList(ofType: .post, tags: tags, last_before_id: last_before_id, page: nil)
     }
-}
+}*/

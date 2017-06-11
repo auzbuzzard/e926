@@ -15,6 +15,15 @@ class Identity {
     static let main = Identity()
     private init() { }
     
+    static var censorMode: CensorMode {
+        let useE621Mode = UserDefaults.standard.bool(forKey: Preferences.useE621Mode.rawValue)
+        if main.isLoggedIn && useE621Mode { return .none }
+        else if main.isLoggedIn && !useE621Mode { return .safe }
+        else if !main.isLoggedIn && useE621Mode { return .none }
+        else { return .strong }
+    }
+    enum CensorMode { case strong, safe, none }
+    
     var apiKey: String?
     
     var isLoggedIn: Bool {

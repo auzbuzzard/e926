@@ -29,7 +29,8 @@ class ListCollectionVC: UICollectionViewController {
     // Mark: Delegates
     var dataSource: ListCollectionDataSource = ListCollectionVM()
     var listCategory: String?
-    var isFirstListCollectionVC = true
+    var isFirstListCollectionVC = false
+    var shouldHideNavigationBar = true
     
     // Mark: VC Life Cycle
     private let cellReuseID = "mainCell"
@@ -43,7 +44,11 @@ class ListCollectionVC: UICollectionViewController {
         super.viewDidLoad()
         setupRefreshControl()
         setupInfiniteScroll()
-        if isFirstListCollectionVC { navigationController?.delegate = self }
+        if isFirstListCollectionVC {
+            collectionView?.delegate = self
+        }
+        navigationController?.delegate = self
+        NotificationCenter.default.addObserver(self, selector: #selector(useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
     }
     
     func setupInfiniteScroll() {
@@ -76,6 +81,10 @@ class ListCollectionVC: UICollectionViewController {
         })
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // Mark: - Segues
     func segue(isTappedBy sender: UITapGestureRecognizer) {
         if sender.state == .ended {
@@ -103,6 +112,7 @@ class ListCollectionVC: UICollectionViewController {
     }
     
     // MARK: - UICollectionViewDataSource
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int { return 1 }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return dataSource.results.count }
@@ -143,25 +153,64 @@ class ListCollectionVC: UICollectionViewController {
     
     // Mark: - UICollectionViewDelegate
     
+    /*
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         performSegue(withIdentifier: showImageSegueID, sender: indexPath)
+    }*/
+    
+    // Mark: - Notification Observing
+    
+    func useE621ModeDidChange() {
+        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
+            self.collectionView?.reloadData()
+        })
     }
-}
-
-extension ListCollectionVC: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        if viewController == self {
-            navigationController.setNavigationBarHidden(isFirstListCollectionVC, animated: animated)
-        } else if let _ = viewController as? ListCollectionVC {
-            navigationController.hidesBarsOnSwipe = true
+    
+    // Mark: - Scroll View
+    
+    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+        print("dragging")
+        if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
+            changeTabBar(hidden: true, animated: true)
         } else {
-            navigationController.setNavigationBarHidden(false, animated: animated)
-            if navigationController.hidesBarsOnSwipe == true {
-                navigationController.hidesBarsOnSwipe = false
-            }
+            changeTabBar(hidden: false, animated: true)
+        }
+    }
+    
+    func changeTabBar(hidden:Bool, animated: Bool){
+        let tabBar = self.tabBarController?.tabBar
+        if tabBar!.isHidden == hidden { return }
+        let frame = tabBar?.frame
+        let offset = (hidden ? (frame?.size.height)! : -(frame?.size.height)!)
+        let duration: TimeInterval = (animated ? 0.5 : 0.0)
+        tabBar?.isHidden = false
+        if frame != nil {
+            UIView.animate(withDuration: duration, animations: {
+                tabBar!.frame = tabBar!.frame.offsetBy(dx: 0, dy: offset)
+            }, completion: {
+                if $0 {
+                    tabBar?.isHidden = hidden
+                }
+            })
         }
     }
 }
+
+// MARK: - Nav Controller Delegate
+
+extension ListCollectionVC: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        if viewController is ListCollectionVC {
+            navigationController.setNavigationBarHidden(shouldHideNavigationBar, animated: animated)
+            navigationController.hidesBarsOnSwipe = !shouldHideNavigationBar
+        } else {
+            navigationController.setNavigationBarHidden(false, animated: animated)
+            navigationController.hidesBarsOnSwipe = false
+        }
+    }
+}
+
+// Mark: - CollectionView Flow Layout
 
 extension ListCollectionVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -188,7 +237,7 @@ extension ListCollectionVC: UICollectionViewDelegateFlowLayout {
     }
 }
 
-// Mark: ViewCell Stuff
+// Mark: CollectionView Cell Protocols
 
 protocol ListCollectionVCMainCellDataSource {
     var artistsName: String { get }
@@ -223,6 +272,8 @@ struct ListCollectionVCMainCellVM: ListCollectionVCMainCellDataSource {
     }
 }
 
+// Mark: - The CollectionView Cell
+
 class ListCollectionVCMainCell: UICollectionViewCell {
     
     var currentIndexPath: IndexPath!
@@ -237,9 +288,10 @@ class ListCollectionVCMainCell: UICollectionViewCell {
     }
     
     func setupImageViewGesture(receiver: ListCollectionVC) {
-        let singleTap = UITapGestureRecognizer(target: receiver, action: #selector(ListCollectionVC.segue(isTappedBy:)))
+        let singleTap = UITapGestureRecognizer(target: receiver, action: #selector(receiver.segue(isTappedBy:)))
         singleTap.numberOfTapsRequired = 1
         mainImageView.addGestureRecognizer(singleTap)
+        mainImageView.isUserInteractionEnabled = true
     }
     
     // Mark: - Actual filling in the data and layout

@@ -97,7 +97,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 44))
         let label = UILabel(frame: CGRect(x: 8, y: 0, width: tableView.frame.size.width - 8, height: 32))
         label.font = UIFont.systemFont(ofSize: 26, weight: UIFontWeightMedium)
-        label.textColor = .white
+        label.textColor = Theme.colors().text
         switch section {
         case SectionType.tags.rawValue: label.text = "Tags"
         case SectionType.statistics.rawValue: label.text = "Statistics"
@@ -126,6 +126,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         listVC.listCategory = "Results"
         listVC.title = tag
         listVC.isFirstListCollectionVC = false
+        listVC.shouldHideNavigationBar = false
         navigationController?.pushViewController(listVC, animated: true)
         listVC.dataSource.getResults(asNew: true, withTags: [tag], onComplete: {
             listVC.collectionView?.reloadData()
@@ -181,7 +182,7 @@ class ImageDetailVCCollectionTextCell: UITableViewCell {
     @IBOutlet var collectionView: UICollectionView!
     
     func setupLayout() {
-        collectionView.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        collectionView.backgroundColor = Theme.colors().background_layer1.withAlphaComponent(0.5)
         collectionView.layer.cornerRadius = 5
         collectionView.layer.masksToBounds = true
     }
@@ -227,7 +228,7 @@ class ImageDetailVCCommentCell: UITableViewCell {
     @IBOutlet weak var bodyTextView: UITextView!
     
     func setupLayout() {
-        bkgdView.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        bkgdView.backgroundColor = Theme.colors().background_layer1.withAlphaComponent(0.5)
         bkgdView.layer.cornerRadius = 10
         bkgdView.clipsToBounds = true
     }

@@ -8,6 +8,7 @@
 
 import UIKit
 import PromiseKit
+import Carlos
 
 // Mark: Protocols
 // For External Class Conformance
@@ -41,9 +42,16 @@ extension UsingTagCache {
 protocol CacheClass { }
 //extension CacheClass { }
 
+class Cache {
+    static var image: ImageCache { return ImageCache.shared }
+    static var imageResult: ImageResultCache { return ImageResultCache.shared }
+    static var user: UserCache { return UserCache.shared }
+    static var tag: TagCache { return TagCache.shared }
+}
+
 class ImageCache: CacheClass {
     fileprivate static let shared = ImageCache()
-    private init() { images.totalCostLimit = 750 * 1024 * 1024 /* 750MB */ }
+    private init() { images.totalCostLimit = 750 * 1024 /* 750MB */ }
     
     private lazy var images = NSCache<NSString, UIImage>()
     

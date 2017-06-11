@@ -13,6 +13,7 @@ enum Colors: Int {
     
     var background: UIColor { return UIColor(red: 21/255, green: 47/255, blue: 86/255, alpha: 1) }
     var background_layer1: UIColor { return UIColor(red: 40/255, green: 74/255, blue: 129/255, alpha: 1) }
+    var yellow_highlight: UIColor { return UIColor(red: 255/255, green: 215/255, blue: 0/255, alpha: 1)}
     
     var background_safe: UIColor { return UIColor(red: 62/255, green: 158/255, blue: 73/255, alpha: 1) }
     var background_questionable: UIColor { return UIColor(red: 228/255, green: 225/255, blue: 80/255, alpha: 1) }

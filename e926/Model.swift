@@ -18,14 +18,15 @@ class ListModel {
     private(set) var result = ListResult()
     var tags: [String]?
     var stringTags: String? { return tags?.joined(separator: " ") }
+    var page = 1
     
     func getResult(reset: Bool = false, tags: [String]?, onComplete: @escaping () -> Void) {
-        if reset { result = ListResult() }
+        if reset { result = ListResult(); page = 1 } else { page += 1 }
         self.tags = tags
-        _ = ListRequester().downloadList(ofType: listType, tags: tags, last_before_id: result.last_before_id)
+        _ = ListRequester().downloadList(ofType: listType, tags: tags, last_before_id: nil, page: page)
             .then { listResult -> Void in
-            self.result.add(listResult)
-            onComplete()
+                self.result.add(listResult)
+                onComplete()
         }
     }
 }

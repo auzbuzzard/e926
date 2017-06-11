@@ -20,14 +20,8 @@ class HomeVC: UINavigationController {
         super.viewDidLoad()
         dataSource = ListCollectionVM()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(HomeVC.useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
-        
         instantiateVC()
         
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     func instantiateVC() {
@@ -38,6 +32,8 @@ class HomeVC: UINavigationController {
         
         listVC.dataSource = dataSource
         listVC.listCategory = "Home"
+        listVC.isFirstListCollectionVC = true
+        listVC.shouldHideNavigationBar = true
         
         setViewControllers([listVC], animated: false)
         
@@ -47,13 +43,6 @@ class HomeVC: UINavigationController {
             self.listVC.collectionView?.reloadData()
         })
     }
-    
-    func useE621ModeDidChange() {
-        dataSource.getResults(asNew: true, withTags: nil, onComplete: {
-            self.listVC.collectionView?.reloadData()
-        })
-    }
-
 }
 
 

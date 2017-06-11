@@ -1,0 +1,6 @@
+framework module SCITokenSearchField {
+  umbrella header "SCITokenSearchField-umbrella.h"
+
+  export *
+  module * { export * }
+}

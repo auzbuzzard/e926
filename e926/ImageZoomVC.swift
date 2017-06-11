@@ -49,6 +49,17 @@ class ImageZoomVC: UIViewController {
     // Mark: - Data Loading
     
     func loadImage() {
+        _ = imageResult.image(ofSize: .sample).then { image -> Void in
+            if !self.isFileImage {
+                self.setImageView(image: image, withZoom: true)
+            }
+        }
+        _ = imageResult.image(ofSize: .file).then { image -> Void in
+            self.setImageView(image: image, withZoom: false)
+            self.isFileImage = true
+        }
+        
+        /*
         imageResult.imageFromCache(size: .file)
             .then { image -> Void in
                 self.isFileImage = true
@@ -70,7 +81,7 @@ class ImageZoomVC: UIViewController {
                             }
                     }
                 }
-        }
+        }*/
     }
     
     // Mark: - Scroll View and ImageView Constraints
@@ -162,11 +173,13 @@ class ImageZoomVC: UIViewController {
     }
     
     func switchTo(fullScreen switchToFullScreen: Bool, animated: Bool, withExtraAnimation: @escaping () -> Void, completion: @escaping () -> Void) {
-        let duration = animated ? 0.3 : 0.1
+        let duration = animated ? 0.3 : 0.0
         if switchToFullScreen {
             UIView.animate(withDuration: duration, animations: {
                 UIApplication.shared.isStatusBarHidden = true
+                self.navigationController?.setNavigationBarHidden(true, animated: false)
                 self.navigationController?.navigationBar.alpha = 0
+                self.tabBarController?.tabBar.isHidden = true
                 self.tabBarController?.tabBar.alpha = 0
                 self.view.backgroundColor = UIColor.black
                 withExtraAnimation()
@@ -178,7 +191,9 @@ class ImageZoomVC: UIViewController {
             })
         } else {
             UIView.animate(withDuration: duration, animations: {
+                self.navigationController?.setNavigationBarHidden(false, animated: false)
                 self.navigationController?.navigationBar.alpha = 1
+                self.tabBarController?.tabBar.isHidden = false
                 self.tabBarController?.tabBar.alpha = 1
                 self.view.backgroundColor = Theme.colors().background
                 UIApplication.shared.isStatusBarHidden = false

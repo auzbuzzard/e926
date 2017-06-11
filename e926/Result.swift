@@ -68,6 +68,7 @@ struct ImageResult: ResultItem, UsingImageCache, UsingTagCache {
         let tags: String
         var tags_array: [String] { return tags.components(separatedBy: " ")}
         let status: String
+        var status_enum: Status { return Status(rawValue: status) ?? .pending }
         
         let file_url: String
         var file_ext: String?
