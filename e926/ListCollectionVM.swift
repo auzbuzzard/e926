@@ -55,6 +55,7 @@ class ListCollectionPoolVM: ListCollectionDataSource {
         if asNew { self.result.results = [ImageResult](); self.currentPage = 1 }
         _ = PoolRequester().getPool(withId: poolId, page: currentPage + 1).then { result -> Void in
             self.result?.add(result)
+            self.currentPage += 1
             onComplete()
         }
     }
