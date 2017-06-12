@@ -47,7 +47,13 @@ class ListRequester: Requester {
         #if DEBUG
             print(url)
         #endif
-        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ListResult> in
+        
+        let network = Network.get(url: url)
+        let tags = Censor.bannedTagsPromise!
+        
+        return when(resolved: tags).then { _ -> Promise<Data> in
+            return network
+        }.then(on: .global(qos: .userInitiated)) { data -> Promise<ListResult> in
             return ListParser.parse(data: data)
         }
     }
