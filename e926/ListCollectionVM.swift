@@ -45,7 +45,7 @@ class ListCollectionPoolVM: ListCollectionDataSource {
     }
     
     func getPool(asNew: Bool, forImage id: Int, onComplete: @escaping () -> Void) {
-        print("VM: Getting Pool")
+        //print("VM: Getting Pool")
         _ = PoolRequester().getPool(forImage: id).then { result -> Void in
             self.result = result
             onComplete()

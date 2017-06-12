@@ -157,12 +157,12 @@ class ImageZoomVC: UIViewController {
     func handleDoubleTap(recognizer: UITapGestureRecognizer) {
         if (mainScrollView.zoomScale > mainScrollView.minimumZoomScale) {
             mainScrollView.setZoomScale(mainScrollView.minimumZoomScale, animated: true)
-            print("NO")
+            //print("NO")
         } else {
             switchTo(fullScreen: true, animated: true, withExtraAnimation: {
                 self.mainScrollView.setZoomScale(self.mainScrollView.maximumZoomScale * 0.4, animated: true)
             }, completion: { })
-            print("YES")
+            //print("YES")
         }
         adjustPadding()
     }

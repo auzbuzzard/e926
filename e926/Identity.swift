@@ -16,11 +16,13 @@ class Identity {
     private init() { }
     
     static var censorMode: CensorMode {
+        /*
         let useE621Mode = UserDefaults.standard.bool(forKey: Preferences.useE621Mode.rawValue)
         if main.isLoggedIn && useE621Mode { return .none }
         else if main.isLoggedIn && !useE621Mode { return .safe }
         else if !main.isLoggedIn && useE621Mode { return .none }
-        else { return .strong }
+        else { return .strong }*/
+        return .strong
     }
     enum CensorMode { case strong, safe, none }
     
@@ -52,12 +54,12 @@ class LoginManager {
         
         let request = Network.postWithAlamo(url: str, params: param, encoding: JSONEncoding.default)
         _ = request.response().then { response -> Void in
-            print(response.1.allHeaderFields)
+            //print(response.1.allHeaderFields)
            // let data =
             
             let data = response.2
             let string = try? NSAttributedString(data: data, options: [NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType], documentAttributes: nil)
-            print(string?.string)
+            //print(string?.string)
             //self.getAPIKey()
         }
     }
@@ -70,10 +72,10 @@ class LoginManager {
         ]
         let request = Network.postWithAlamo(url: str, params: param, encoding: JSONEncoding.default)
         _ = request.response().then { response -> Void in
-            print(response)
+            //print(response)
             let data = response.2
             let string = try? NSAttributedString(data: data, options: [NSDocumentTypeDocumentAttribute:NSHTMLTextDocumentType], documentAttributes: nil)
-            print(string?.string)
+            //print(string?.string)
             //print(response)
         }
     }

@@ -40,7 +40,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         //findIfImageHasPool()
         poolVM = ListCollectionPoolVM()
         poolVM.getPool(asNew: true, forImage: imageResult.id) {
-            print("got results")
+            //print("got results")
             let i = IndexSet(integer: SectionType.pool.rawValue)
             self.tableView.reloadSections(i , with: UITableViewRowAnimation.automatic)
         }
@@ -52,7 +52,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
             let lastCount = (self?.commentVM.results.count)!
             self?.commentVM.getResults(page: nil, onComplete: {
                 let currCount = (self?.commentVM.results.count)!
-                print("\(currCount), \(lastCount)")
+                //print("\(currCount), \(lastCount)")
                 tableView.setShouldShowInfiniteScrollHandler { _ -> Bool in
                     return currCount - lastCount != 0
                 }
@@ -150,14 +150,14 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("selected something: \(indexPath)")
+        //print("selected something: \(indexPath)")
         switch indexPath.section {
         case SectionType.pool.rawValue:
-            print("Pool table clicked")
+            //print("Pool table clicked")
             if poolVM.result != nil {
-                print("opening pool")
+                //print("opening pool")
                 open(withPool: poolVM)
-            } else { print("fallthru"); fallthrough }
+            } else { /*print("fallthru");*/ fallthrough }
         default:
             tableView.deselectRow(at: indexPath, animated: true)
         }
@@ -176,7 +176,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         })
     }
     func open(withPool vm: ListCollectionPoolVM) {
-        print("poolVM: \(poolVM.results.count)")
+        //print("poolVM: \(poolVM.results.count)")
         let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
         listVC.dataSource = poolVM
         listVC.listCategory = "Pool"

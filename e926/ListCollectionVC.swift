@@ -50,7 +50,7 @@ class ListCollectionVC: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("LVC: \(dataSource is ListCollectionPoolVM)")
+        //print("LVC: \(dataSource is ListCollectionPoolVM)")
         setupRefreshControl()
         setupInfiniteScroll()
         if isFirstListCollectionVC {
@@ -64,7 +64,7 @@ class ListCollectionVC: UICollectionViewController {
         collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
         collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
             let lastCount = (self?.dataSource.results.count)!
-            print(self?.dataSource)
+            //print(self?.dataSource)
             if self?.dataSource is ListCollectionVM {
                 self?.dataSource.getResults(asNew: false, withTags: self?.dataSource.tags) {
                     self?.setupInfiniteScrollOnComplete(lastCount: lastCount, collectionView: scrollView)
@@ -83,7 +83,7 @@ class ListCollectionVC: UICollectionViewController {
         for n in lastCount..<(self.dataSource.results.count) {
             index.append(IndexPath(item: n, section: 0))
         }
-        print("updating from inf scroll: \(index)")
+        //print("updating from inf scroll: \(index)")
         scrollView.performBatchUpdates({ () -> Void in
             scrollView.insertItems(at: index)
         }, completion: { (finished) -> Void in
@@ -190,7 +190,7 @@ class ListCollectionVC: UICollectionViewController {
     // Mark: - Scroll View
     
     func scrollViewWillBeginDragging(scrollView: UIScrollView) {
-        print("dragging")
+        //print("dragging")
         if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
             changeTabBar(hidden: true, animated: true)
         } else {

@@ -153,7 +153,7 @@ class PoolRequester: Requester {
     
     func getPool(withId id: Int, page: Int) -> Promise<PoolResult> {
         let url = PoolRequester.pool_url + "/show/\(id).json?page=\(page)"
-        print(url)
+        //print(url)
         return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<PoolResult> in
             return PoolResultParser.parse(data: data)
         }

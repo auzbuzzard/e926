@@ -35,7 +35,7 @@ class e926Tests: XCTestCase {
         
         let request = Network.postWithAlamo(url: str, params: param, encoding: JSONEncoding.default)
         request.responseJSON { response in
-            print(response)
+            //print(response)
         }
     }
     

@@ -54,7 +54,12 @@ class ListParser: Parser {
 
 class ImageParser: ParserForItem, UsingTagCache {
     
-    static func imageShouldBeCensored(status: String) -> Bool {
+    static func imageShouldBeCensored(status: String, tags: String) -> Bool {
+        let tagsArr = tags.components(separatedBy: " ")
+        if Identity.censorMode == .strong && tagsArr.contains(where: {Censor.bannedTags.contains($0)}) {
+            return true
+        }
+        
         guard let status_enum = ImageResult.Metadata.Status(rawValue: status) else { return true }
         switch Identity.censorMode {
         case .strong: return status_enum == .active ? false : true
@@ -106,7 +111,7 @@ class ImageParser: ParserForItem, UsingTagCache {
             }
         }
         
-        if imageShouldBeCensored(status: status) {
+        if imageShouldBeCensored(status: status, tags: tags) {
             return Promise { _, reject in
                 reject(ImageParserError.imageIsCensored(id: id, status: ImageResult.Metadata.Status(rawValue: status) ?? .pending))
             }

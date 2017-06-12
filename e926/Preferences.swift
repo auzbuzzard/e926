@@ -20,3 +20,7 @@ enum Store: String {
 class SettingsStore {
     
 }
+
+class Censor {
+    static let bannedTags: [String] = ["underwear", "nude", "breasts", "partially_clothed", "cleavage", "featureless_crotch", "low_angle_view", "undressing","big_breasts", "skimpy", "obese", "crossdressing", "diaper", "young"]
+}

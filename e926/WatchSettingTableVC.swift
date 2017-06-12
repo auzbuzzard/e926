@@ -99,7 +99,7 @@ class WatchSettingTableVCInputCell: UITableViewCell, UITextFieldDelegate {
     
     func setupCellContent(vm: FavoritesSearchTagsVM) {
         self.vm = vm
-        print(vm)
+        //print(vm)
         inputField.delegate = self
         inputField.backgroundColor = .clear
         inputField.textColor = .white
