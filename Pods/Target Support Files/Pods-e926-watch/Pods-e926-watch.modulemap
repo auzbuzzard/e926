@@ -1,0 +1,6 @@
+framework module Pods_e926_watch {
+  umbrella header "Pods-e926-watch-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,6 @@
+framework module Pods_e926UITests {
+  umbrella header "Pods-e926UITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

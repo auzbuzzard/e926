@@ -1,0 +1,6 @@
+framework module Pods_e926 {
+  umbrella header "Pods-e926-umbrella.h"
+
+  export *
+  module * { export * }
+}
