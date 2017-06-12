@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PromiseKit
 
 enum Preferences: String {
     case useE621Mode
@@ -22,5 +23,11 @@ class SettingsStore {
 }
 
 class Censor {
-    static let bannedTags: [String] = ["underwear", "nude", "breasts", "partially_clothed", "cleavage", "featureless_crotch", "low_angle_view", "undressing","big_breasts", "skimpy", "obese", "crossdressing", "diaper", "young"]
+    
+    static var bannedTagsPromise: Promise<Void>!
+    static var bannedTags: [String] = ["underwear", "nude", "breasts", "partially_clothed", "cleavage", "featureless_crotch", "low_angle_view", "undressing","big_breasts", "skimpy", "obese", "crossdressing", "diaper", "young"]
+    
+    enum CensorError: Error {
+        case cannotLoadFromPastebin
+    }
 }

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PromiseKit
 import WatchConnectivity
 
 @UIApplicationMain
@@ -19,6 +20,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         WatchSession.shared.start()
         Theme.apply()
+        
+        // Adding to censor
+        Censor.bannedTagsPromise = Network.get(url: "https://pastebin.com/raw/CNRKmQg5").then { data -> Promise<Void> in
+            return Promise<Void> { fulfill, reject in
+                guard let string = String(data: data, encoding: .utf8) else { reject(Censor.CensorError.cannotLoadFromPastebin); return }
+                //print(string)
+                //Censor.bannedTags.removeAll()
+                Censor.bannedTags = string.components(separatedBy: " ")
+                fulfill()
+            }
+        }
         
         return true
     }
