@@ -7,7 +7,7 @@
 		<key>e926-mac.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>21</integer>
+			<integer>24</integer>
 		</dict>
 		<key>e926-watch (Notification).xcscheme</key>
 		<dict>
@@ -28,6 +28,21 @@
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
 		<key>D9224A3D1E0ACADA002DFAA1</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D94838821EECD64200F911A3</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D94838931EECD64300F911A3</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>D948389E1EECD64300F911A3</key>
 		<dict>
 			<key>primary</key>
 			<true/>

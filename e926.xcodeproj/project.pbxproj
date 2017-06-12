@@ -18,7 +18,6 @@
 		D9224A541E0ACADA002DFAA1 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A531E0ACADA002DFAA1 /* ExtensionDelegate.swift */; };
 		D9224A561E0ACADA002DFAA1 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A551E0ACADA002DFAA1 /* NotificationController.swift */; };
 		D9224A581E0ACADA002DFAA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9224A571E0ACADA002DFAA1 /* Assets.xcassets */; };
-		D9224A5C1E0ACADA002DFAA1 /* e926-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */; };
 		D93298AB1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93298AA1E7355A6005573E0 /* UIScrollView_InfiniteScroll.framework */; };
 		D932F7971EE76B4A002C6E46 /* WatchSettingTableVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D932F7961EE76B4A002C6E46 /* WatchSettingTableVC.swift */; };
 		D94838861EECD64200F911A3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94838851EECD64200F911A3 /* AppDelegate.swift */; };
@@ -79,13 +78,6 @@
 			remoteGlobalIDString = D9224A491E0ACADA002DFAA1;
 			remoteInfo = "e926-watch Extension";
 		};
-		D9224A5A1E0ACADA002DFAA1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D9B080A81DA9C06000BDC28C /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = D9224A3D1E0ACADA002DFAA1;
-			remoteInfo = "e926-watch";
-		};
 		D94838951EECD64300F911A3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D9B080A81DA9C06000BDC28C /* Project object */;
@@ -134,7 +126,6 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				D9224A5C1E0ACADA002DFAA1 /* e926-watch.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -686,7 +677,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				D9224A5B1E0ACADA002DFAA1 /* PBXTargetDependency */,
 			);
 			name = e926;
 			productName = e926;
@@ -1206,11 +1196,6 @@
 			isa = PBXTargetDependency;
 			target = D9224A491E0ACADA002DFAA1 /* e926-watch Extension */;
 			targetProxy = D9224A4C1E0ACADA002DFAA1 /* PBXContainerItemProxy */;
-		};
-		D9224A5B1E0ACADA002DFAA1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = D9224A3D1E0ACADA002DFAA1 /* e926-watch */;
-			targetProxy = D9224A5A1E0ACADA002DFAA1 /* PBXContainerItemProxy */;
 		};
 		D94838961EECD64300F911A3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
