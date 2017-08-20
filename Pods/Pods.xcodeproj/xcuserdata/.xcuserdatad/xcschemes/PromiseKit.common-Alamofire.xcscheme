@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'E44ECB06F4277CA7EE0196AB002E2F60'
+               BlueprintIdentifier = 'B20B49D70B36A2F8445CAA14BD1767C5'
                BlueprintName = 'PromiseKit.common-Alamofire'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'PromiseKit.common-Alamofire.framework'>

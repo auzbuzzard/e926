@@ -56,12 +56,12 @@ class ImageParser: ParserForItem, UsingTagCache {
     
     static func imageShouldBeCensored(status: String, tags: String) -> Bool {
         let tagsArr = tags.components(separatedBy: " ")
-        if Identity.censorMode == .strong && tagsArr.contains(where: {Censor.bannedTags.contains($0)}) {
+        if Censor.censorMode == .strong && tagsArr.contains(where: {Censor.bannedTags.contains($0)}) {
             return true
         }
         
         guard let status_enum = ImageResult.Metadata.Status(rawValue: status) else { return true }
-        switch Identity.censorMode {
+        switch Censor.censorMode {
         case .strong: return status_enum == .active ? false : true
         case .safe, .none: return false
         }

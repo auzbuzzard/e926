@@ -18,6 +18,8 @@ protocol ResultListable: Result {
     var results: [Item] { get set }
 }
 extension ResultListable {
+    var last_before_id: Int? { return results.last?.id }
+    
     mutating func add(_ result: [Item]) {
         results.append(contentsOf: result)
     }
@@ -38,19 +40,24 @@ protocol ResultItemMetadata { }
 // Mark: - Actual Classes
 
 struct ListResult: ResultListable {
-    var results: [ImageResult]
-    var last_before_id: Int? { return results.last?.id }
+    typealias ResultType = ImageResult
+    
+    var results: [ResultType]
+    private(set) var currentPage = 0
+    var tags: [String]?
+    var tagsAsString: String? { return tags?.joined(separator: " ") }
     
     init() {
-        results = [ImageResult]()
+        results = [ResultType]()
     }
-    init(result: [ImageResult]) {
+    init(result: [ResultType]) {
         self.init()
         add(result)
     }
     
-    mutating func add(_ result: [ImageResult]) {
+    mutating func add(_ result: [ResultType]) {
         results.append(contentsOf: result)
+        currentPage += 1
     }
     mutating func add(_ result: ListResult) {
         add(result.results)
@@ -143,22 +150,22 @@ struct ImageResult: ResultItem, UsingImageCache, UsingTagCache {
         
     }
     
-    func image(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
-        return imageFromCache(size: size)
-            .recover { error -> Promise<UIImage> in
+    func imageData(forSize size: Metadata.ImageSize) -> Promise<Data> {
+        return imageDataFromCache(size: size)
+            .recover { error -> Promise<Data> in
                 if case ImageCache.CacheError.noImageInStore(_) = error {
-                    return self.downloadImage(ofSize: size)
+                    return self.downloadImageData(forSize: size)
                 } else {
                     throw error
                 }
         }
     }
     
-    func imageFromCache(size: Metadata.ImageSize) -> Promise<UIImage> {
-        return imageCache.getImage(withId: self.id, size: size)
+    func imageDataFromCache(size: Metadata.ImageSize) -> Promise<Data> {
+        return imageCache.getImageData(forId: self.id, size: size)
     }
     
-    func downloadImage(ofSize size: Metadata.ImageSize) -> Promise<UIImage> {
+    func downloadImageData(forSize size: Metadata.ImageSize) -> Promise<Data> {
         let url: String = {
             switch size {
             case .file: return metadata.file_url
@@ -168,18 +175,14 @@ struct ImageResult: ResultItem, UsingImageCache, UsingTagCache {
         }()
         
         return Network.get(url: url)
-            .then { data -> Promise<UIImage> in
-                guard let image = self.metadata.file_ext_enum == .gif ? UIImage.gif(data: data) : UIImage(data: data) else {
-                    throw ImageResultError.dataIsNotUIImage(id: self.id, data: data)
-                }
-                _ = self.imageCache.setImage(image, id: self.id, size: size)
-                return Promise(value: image)
+            .then { data -> Promise<Data> in
+                _ = self.imageCache.setImageData(data, id: self.id, size: size)
+                return Promise(value: data)
         }
     }
     
     enum ImageResultError: Error {
         case downloadFailed(id: Int, url: String)
-        case dataIsNotUIImage(id: Int, data: Data)
     }
 }
 
@@ -206,9 +209,9 @@ struct UserResult: ResultItem, UsingUserCache, UsingImageResultCache {
         }
     }
 
-     func getAvatar() -> Promise<UIImage> {
+     func getAvatar() -> Promise<Data> {
         return avatarResult.then { result in
-            return result.image(ofSize: .preview)
+            return result.imageData(forSize: .preview)
         }
     }
 

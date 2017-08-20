@@ -50,39 +50,15 @@ class ImageZoomVC: UIViewController {
     // Mark: - Data Loading
     
     func loadImage() {
-        _ = imageResult.image(ofSize: .sample).then { image -> Void in
+        _ = imageResult.imageData(forSize: .sample).then { data -> Void in
             if !self.isFileImage {
-                self.setImageView(image: image, withZoom: true)
+                self.setImageView(data: data, withZoom: true)
             }
         }
-        _ = imageResult.image(ofSize: .file).then { image -> Void in
-            self.setImageView(image: image, withZoom: false)
+        _ = imageResult.imageData(forSize: .file).then { data -> Void in
+            self.setImageView(data: data, withZoom: false)
             self.isFileImage = true
         }
-        
-        /*
-        imageResult.imageFromCache(size: .file)
-            .then { image -> Void in
-                self.isFileImage = true
-                self.setImageView(image: image, withZoom: true)
-            }.catch { error in
-                if case ImageCache.CacheError.noImageInStore(id: _) = error {
-                    self.imageResult.imageFromCache(size: .sample)
-                        .recover { error -> Promise<UIImage> in
-                            return self.imageResult.imageFromCache(size: .preview)
-                        }.then { image in
-                            self.setImageView(image: image, withZoom: true)
-                        }.then { _ -> Promise<UIImage> in
-                            return self.imageResult.downloadImage(ofSize: .file)
-                        }.then { image -> Void in
-                            self.setImageView(image: image, withZoom: false)
-                        }.catch { error in
-                            if case ImageResult.ImageResultError.downloadFailed(id: _, url: _) = error {
-                                print("Error (ImageZoomVC): Cannot download full image")
-                            }
-                    }
-                }
-        }*/
     }
     
     func loadExtraMetadata() {
@@ -108,8 +84,14 @@ class ImageZoomVC: UIViewController {
         mainScrollView.contentInset = UIEdgeInsets(top: verticalPadding, left: horizontalPadding, bottom: verticalPadding, right: horizontalPadding)
     }
     
-    func setImageView(image: UIImage?, withZoom: Bool) {
+    func setImageView(data: Data?, withZoom: Bool) {
+        guard let data = data else { mainImageView.image = nil; return }
+        guard let image = UIImage(data: data) else { print("Image could not be casted into UIImage."); return }
         mainImageView.image = image
+        if imageResult.metadata.file_ext_enum == .gif {
+            mainImageView.image = image
+            mainImageView.animate(withGIFData: data)
+        }
 
         if withZoom {
             adjustViewSizes(thenZoomOut: true)

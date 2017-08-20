@@ -53,6 +53,9 @@ struct Theme {
         UIApplication.shared.statusBarView?.backgroundColor = color
         // Tab Bar
         UITabBar.appearance().backgroundImage = imageColor
+            // Remove top gradient line
+        UITabBar.appearance().layer.borderWidth = 0.0
+        UITabBar.appearance().clipsToBounds = true
         UITabBar.appearance().tintColor = colors().link
         // Navigation Bar
         UINavigationBar.appearance().tintColor = colors().link

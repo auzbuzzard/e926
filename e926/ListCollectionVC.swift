@@ -9,7 +9,7 @@
 import UIKit
 import PromiseKit
 import UIScrollView_InfiniteScroll
-import SwiftGifOrigin
+import Gifu
 
 protocol ListCollectionDataSource {
     var results: [ImageResult] { get }
@@ -34,13 +34,21 @@ extension ListCollectionDelegate {
 /// There CollectionViewController class that deals with the vertical scroll view of lists of returned image results.
 class ListCollectionVC: UICollectionViewController {
     
-    // Mark: Delegates
+    // Mark: - Delegates
     var dataSource: ListCollectionDataSource = ListCollectionVM()
     var listCategory: String?
     var isFirstListCollectionVC = false
     var shouldHideNavigationBar = true
     
-    // Mark: VC Life Cycle
+    // Mark: - Notification Observing
+    
+    func useE621ModeDidChange() {
+        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
+            self.collectionView?.reloadData()
+        })
+    }
+    
+    // Mark: - VC Life Cycle
     private let cellReuseID = "mainCell"
     private let showImageSegueID = "showImageZoomVC"
     private let mainHeaderID = "mainHeader"
@@ -64,7 +72,7 @@ class ListCollectionVC: UICollectionViewController {
         collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
         collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
             let lastCount = (self?.dataSource.results.count)!
-            print(self?.dataSource)
+            print(self?.dataSource as Any)
             if self?.dataSource is ListCollectionVM {
                 self?.dataSource.getResults(asNew: false, withTags: self?.dataSource.tags) {
                     self?.setupInfiniteScrollOnComplete(lastCount: lastCount, collectionView: scrollView)
@@ -76,6 +84,7 @@ class ListCollectionVC: UICollectionViewController {
             }
         }
     }
+    
     private func setupInfiniteScrollOnComplete(lastCount: Int, collectionView scrollView: UICollectionView) {
         // Update collection view
         
@@ -172,21 +181,6 @@ class ListCollectionVC: UICollectionViewController {
         }
     }
     
-    // Mark: - UICollectionViewDelegate
-    
-    /*
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        performSegue(withIdentifier: showImageSegueID, sender: indexPath)
-    }*/
-    
-    // Mark: - Notification Observing
-    
-    func useE621ModeDidChange() {
-        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
-            self.collectionView?.reloadData()
-        })
-    }
-    
     // Mark: - Scroll View
     
     func scrollViewWillBeginDragging(scrollView: UIScrollView) {
@@ -258,116 +252,8 @@ extension ListCollectionVC: UICollectionViewDelegateFlowLayout {
     }
 }
 
-// Mark: CollectionView Cell Protocols
 
-protocol ListCollectionVCMainCellDataSource {
-    var artistsName: String { get }
-    var authorName: String { get }
-    var favCount: Int { get }
-    var score: Int { get }
-    var rating: ImageResult.Metadata.Rating { get }
-    var imageType: ImageResult.Metadata.File_Ext { get }
-    var mainImage: Promise<UIImage> { get }
-    var profileImage: Promise<UIImage> { get }
-}
 
-struct ListCollectionVCMainCellVM: ListCollectionVCMainCellDataSource {
-    let imageResult: ImageResult
-    
-    init(imageResult: ImageResult) {
-        self.imageResult = imageResult
-    }
-    
-    var artistsName: String { return imageResult.metadata.artist?.joined(separator: ", ") ?? "(no artist)" }
-    var authorName: String { return imageResult.metadata.author }
-    var favCount: Int { return imageResult.metadata.fav_count }
-    var score: Int { return imageResult.metadata.score }
-    var rating: ImageResult.Metadata.Rating { return imageResult.metadata.rating_enum }
-    
-    var imageType: ImageResult.Metadata.File_Ext { return imageResult.metadata.file_ext_enum ?? .jpg }
-    var mainImage: Promise<UIImage> {
-        return imageResult.image(ofSize: .sample)
-    }
-    var profileImage: Promise<UIImage> {
-        return Promise<UIImage>(error: UserResult.UserResultError.noAvatarId(userId: 0))
-    }
-}
 
-// Mark: - The CollectionView Cell
 
-class ListCollectionVCMainCell: UICollectionViewCell {
-    
-    var currentIndexPath: IndexPath!
-    
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var titleLabelBkgdView: UIView!
-    @IBOutlet weak var mainImageView: UIImageView!
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        mainImageView.image = nil
-    }
-    
-    func setupImageViewGesture(receiver: ListCollectionVC) {
-        let singleTap = UITapGestureRecognizer(target: receiver, action: #selector(receiver.segue(isTappedBy:)))
-        singleTap.numberOfTapsRequired = 1
-        mainImageView.addGestureRecognizer(singleTap)
-        mainImageView.isUserInteractionEnabled = true
-    }
-    
-    // Mark: - Actual filling in the data and layout
-    
-    func setupCellLayout(windowWidth: CGFloat) {
-        contentView.layer.cornerRadius = bounds.size.width < windowWidth ? 10 : 10
-        contentView.layer.masksToBounds = true
-        
-        layer.shadowColor = UIColor.black.cgColor
-        layer.backgroundColor = UIColor.clear.cgColor
-        layer.shadowOpacity = 0.25
-        layer.shadowOffset = CGSize.zero
-        layer.shadowRadius = 5
-        layer.masksToBounds = false
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: contentView.layer.cornerRadius).cgPath
-        
-    }
-    
-    func setCellContents(indexPath: IndexPath, dataSource: ListCollectionVCMainCellDataSource) {
-        currentIndexPath = indexPath
-        
-        let ratingColor: UIColor = {
-            switch dataSource.rating {
-            case .s: return Theme.colors().background_safe
-            case .q: return Theme.colors().background_questionable
-            case .e: return Theme.colors().background_explicit
-            }
-        }()
-        
-        titleLabel.text = "\(dataSource.score) | \(dataSource.favCount)"
-        titleLabel.textColor = .white
-        titleLabel.sizeToFit()
-        titleLabelBkgdView.layer.masksToBounds = true
-        titleLabelBkgdView.layer.cornerRadius = titleLabelBkgdView.frame.size.height / 2
-        titleLabelBkgdView.layer.backgroundColor = ratingColor.cgColor
-        
-        setMainImage(indexPath: indexPath, dataSource: dataSource)
-    }
-    
-    func setMainImage(indexPath: IndexPath, dataSource: ListCollectionVCMainCellDataSource) {
-        _ = dataSource.mainImage.then { image -> Void in
-            if indexPath == self.currentIndexPath {
-                self.mainImageView.image = image
-            }
-        }
-    }
-}
-
-class ListCollectionVCMainHeader: UICollectionReusableView {
-    
-    @IBOutlet weak var mainHeaderLabel: UILabel!
-    
-    func setContent(title: String) {
-        mainHeaderLabel.text = title
-    }
-    
-}
 

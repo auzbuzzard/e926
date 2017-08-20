@@ -92,9 +92,9 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/Alamofire/Alamofire.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Carlos/Carlos.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Fuzi/Fuzi.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Gifu/Gifu.framework"
   install_framework "$BUILT_PRODUCTS_DIR/PiedPiper/PiedPiper.framework"
   install_framework "$BUILT_PRODUCTS_DIR/PromiseKit.common-Alamofire/PromiseKit.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/SwiftGifOrigin/SwiftGifOrigin.framework"
   install_framework "$BUILT_PRODUCTS_DIR/UICollectionViewLeftAlignedLayout/UICollectionViewLeftAlignedLayout.framework"
   install_framework "$BUILT_PRODUCTS_DIR/UIScrollView-InfiniteScroll/UIScrollView_InfiniteScroll.framework"
 fi
@@ -102,9 +102,9 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/Alamofire/Alamofire.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Carlos/Carlos.framework"
   install_framework "$BUILT_PRODUCTS_DIR/Fuzi/Fuzi.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Gifu/Gifu.framework"
   install_framework "$BUILT_PRODUCTS_DIR/PiedPiper/PiedPiper.framework"
   install_framework "$BUILT_PRODUCTS_DIR/PromiseKit.common-Alamofire/PromiseKit.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/SwiftGifOrigin/SwiftGifOrigin.framework"
   install_framework "$BUILT_PRODUCTS_DIR/UICollectionViewLeftAlignedLayout/UICollectionViewLeftAlignedLayout.framework"
   install_framework "$BUILT_PRODUCTS_DIR/UIScrollView-InfiniteScroll/UIScrollView_InfiniteScroll.framework"
 fi

@@ -55,8 +55,8 @@ class MenuTableVC: UITableViewController {
                 cell.profileLabel.text = user.metadata.name
                 
                 _ = user.getAvatar()
-                    .then { image -> Void in
-                        cell.profileImageView.image = image
+                    .then { data -> Void in
+                        cell.profileImageView.image = UIImage(data: data) ?? nil
                         tableView.reloadRows(at: [indexPath], with: .none)
                     }
             } else {

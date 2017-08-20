@@ -3,6 +3,7 @@ PODS:
   - Carlos (0.9.1):
     - PiedPiper (~> 0.10.1)
   - Fuzi (1.0.1)
+  - Gifu (2.0.0)
   - PiedPiper (0.10.1)
   - PromiseKit (4.1.7):
     - PromiseKit/Foundation (= 4.1.7)
@@ -18,7 +19,6 @@ PODS:
     - PromiseKit/CorePromise
   - PromiseKit/UIKit (4.1.7):
     - PromiseKit/CorePromise
-  - SwiftGifOrigin (1.6.1)
   - UICollectionViewLeftAlignedLayout (1.0.2)
   - UIScrollView-InfiniteScroll (1.0.0)
 
@@ -26,9 +26,9 @@ DEPENDENCIES:
   - Alamofire (~> 4.4)
   - Carlos
   - Fuzi (~> 1.0.0)
+  - Gifu
   - PromiseKit (~> 4.0)
   - PromiseKit/Alamofire (~> 4.0)
-  - SwiftGifOrigin (~> 1.6.1)
   - UICollectionViewLeftAlignedLayout
   - UIScrollView-InfiniteScroll (~> 1.0.0)
 
@@ -36,12 +36,12 @@ SPEC CHECKSUMS:
   Alamofire: dc44b1600b800eb63da6a19039a0083d62a6a62d
   Carlos: f6883dabefcdc762c050be9d1d7716d4beb60736
   Fuzi: 851403654bac55675aaeed815d0c8a1d3e3d3e8b
+  Gifu: 56a4d8f1092399159fa32662aa2232158b48d8ac
   PiedPiper: 0f9bc4e76c6fb0154d6fe6e078174e7fc391a684
   PromiseKit: 779f2e41faf62d854e7593026ddbcb0bb5c5002d
-  SwiftGifOrigin: d6679d3ebe9df2e049a84bc52582635107b581f6
   UICollectionViewLeftAlignedLayout: 830bf6fa5bab9f9b464f62e3384f9d2e00b3c0f6
   UIScrollView-InfiniteScroll: d26885be71caca7485cdb37eab513a8f89036bb0
 
-PODFILE CHECKSUM: 982ed07cb9f1bc80ff39e33c0c92c9d617ba7d3f
+PODFILE CHECKSUM: d8718b5d6e130433d258766447bb101da68bee2b
 
 COCOAPODS: 1.2.0

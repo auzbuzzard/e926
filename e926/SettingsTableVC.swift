@@ -38,6 +38,7 @@ class SettingsTableVC: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         useE621ModeSwitch.isOn = UserDefaults.standard.bool(forKey: Preferences.useE621Mode.rawValue)
+        useStrongFiltersSwitch.isOn = UserDefaults.standard.bool(forKey: Preferences.useStrongFilters.rawValue)
     }
 
     override func didReceiveMemoryWarning() {

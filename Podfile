@@ -13,9 +13,9 @@ target 'e926' do
   use_frameworks!
   
   # Pods for e926
-  pod 'SwiftGifOrigin', '~> 1.6.1'
+  #pod 'SwiftGifOrigin', '~> 1.6.1'
   #pod 'AImage'
-  #pod 'Gifu'
+  pod 'Gifu'
   #pod 'SwiftyGif'
   #pod 'AImage'
   pod 'Alamofire', '~> 4.4'

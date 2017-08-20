@@ -9,6 +9,31 @@
 import Foundation
 import PromiseKit
 
+
+
+class ListM {
+    let listType: ListRequester.ListType
+    init(ofType type: ListRequester.ListType = .post) {
+        listType = type
+    }
+    
+    private(set) var result = ListResult()
+    
+    func getResult(asNew reset: Bool = false, tags: [String]?) -> Promise<Void> {
+        if reset { result = ListResult() }
+        result.tags = tags
+        return ListRequester().downloadList(ofType: listType, tags: tags, page: result.currentPage + 1)
+            .then { listResult -> Void in
+                self.result.add(listResult)
+        }
+    }
+}
+
+class ListVM {
+    
+}
+
+
 class ListModel {
     let listType: ListRequester.ListType
     init(ofType type: ListRequester.ListType) {

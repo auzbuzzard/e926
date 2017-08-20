@@ -23,7 +23,7 @@ class ListRequester: Requester {
     static var list_post_url: String { return base_url + "/post/index.json" }
     static var list_user_url: String { return base_url + "/user/index.json" }
     
-    func downloadList(ofType listType: ListType, tags: [String]?, last_before_id: Int?, page: Int?) -> Promise<ListResult> {
+    func downloadList(ofType listType: ListType, tags: [String]?, last_before_id: Int? = nil, page: Int?) -> Promise<ListResult> {
         var params = [String]()
         
         if let last_before_id = last_before_id {

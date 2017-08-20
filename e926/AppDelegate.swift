@@ -8,6 +8,7 @@
 
 import UIKit
 import PromiseKit
+import Gifu
 import WatchConnectivity
 
 @UIApplicationMain
@@ -22,10 +23,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Theme.apply()
         
         // Adding to censor
-        Censor.bannedTagsPromise = Network.get(url: "https://pastebin.com/raw/CNRKmQg5").then { data -> Promise<Void> in
+        Censor.bannedTagsPromise = Network.get(url: "https://pastebin.com/raw/CNRKmQg5", session: URLSession(configuration: .ephemeral)).then { data -> Promise<Void> in
             return Promise<Void> { fulfill, reject in
                 guard let string = String(data: data, encoding: .utf8) else { reject(Censor.CensorError.cannotLoadFromPastebin); return }
-                //print(string)
+                #if DEBUG
+                    print("showing: \(string)")
+                #endif
                 //Censor.bannedTags.removeAll()
                 Censor.bannedTags = string.components(separatedBy: " ")
                 fulfill()
@@ -111,3 +114,31 @@ extension UITabBarController {
         return self.tabBar.frame.origin.y < self.view.frame.maxY
     }
 }
+
+// MARK: - Part of Gifu's extension magic.
+extension UIImageView: GIFAnimatable {
+    private struct AssociatedKeys {
+        static var AnimatorKey = "gifu.animator.key"
+    }
+    
+    override open func display(_ layer: CALayer) {
+        updateImageIfNeeded()
+    }
+    
+    public var animator: Animator? {
+        get {
+            guard let animator = objc_getAssociatedObject(self, &AssociatedKeys.AnimatorKey) as? Animator else {
+                let animator = Animator(withDelegate: self)
+                self.animator = animator
+                return animator
+            }
+            
+            return animator
+        }
+        
+        set {
+            objc_setAssociatedObject(self, &AssociatedKeys.AnimatorKey, newValue as Animator?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+}
+

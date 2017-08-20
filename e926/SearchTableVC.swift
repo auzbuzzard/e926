@@ -28,6 +28,7 @@ class SearchTableVC: UITableViewController {
         searchController.dimsBackgroundDuringPresentation = true
         searchController.searchBar.backgroundImage = UIImage()
         searchController.searchBar.barStyle = .black
+        searchController.searchBar.keyboardAppearance = .dark
         searchController.delegate = self
         searchController.searchBar.delegate = self
         searchController.hidesNavigationBarDuringPresentation = false

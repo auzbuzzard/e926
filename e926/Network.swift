@@ -24,14 +24,14 @@ enum NetworkError: Error {
 
 class Network {
     
-    static func get(url: String) -> Promise<Data> {
-        return post(url: url, params: nil)
+    static func get(url: String, session: URLSession? = nil) -> Promise<Data> {
+        return post(url: url, params: nil, session: session)
     }
     
-    static func post(url: String, params: [String]?) -> Promise<Data> {
+    static func post(url: String, params: [String]?, session: URLSession? = nil) -> Promise<Data> {
         return Promise { fulfill, reject in
             guard let u = URL(string: url) else { reject(NetworkError.InvalidURL(url: url)); return }
-            let session = URLSession.shared
+            let session = session ?? URLSession.shared
             
             let request = NSMutableURLRequest(url: u)
             if params == nil {

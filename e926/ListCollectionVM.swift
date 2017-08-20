@@ -32,6 +32,29 @@ class ListCollectionVM: ListCollectionDataSource {
     }
 }
 
+/// View Model for ListCollectionVCMainCell
+struct ListCollectionVCMainCellVM: ListCollectionVCMainCellDataSource {
+    let imageResult: ImageResult
+    
+    init(imageResult: ImageResult) {
+        self.imageResult = imageResult
+    }
+    
+    var artistsName: String { return imageResult.metadata.artist?.joined(separator: ", ") ?? "(no artist)" }
+    var authorName: String { return imageResult.metadata.author }
+    var favCount: Int { return imageResult.metadata.fav_count }
+    var score: Int { return imageResult.metadata.score }
+    var rating: ImageResult.Metadata.Rating { return imageResult.metadata.rating_enum }
+    
+    var imageType: ImageResult.Metadata.File_Ext { return imageResult.metadata.file_ext_enum ?? .jpg }
+    var mainImageData: Promise<Data> {
+        return imageResult.imageData(forSize: .sample)
+    }
+    var profileImageData: Promise<Data> {
+        return Promise<Data>(error: UserResult.UserResultError.noAvatarId(userId: 0))
+    }
+}
+
 class ListCollectionPoolVM: ListCollectionDataSource {
     var result: PoolResult!
     
