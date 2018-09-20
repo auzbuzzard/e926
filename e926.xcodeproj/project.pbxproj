@@ -11,7 +11,6 @@
 		600180E3D98EC2ED18EA811E /* Pods_e926_watch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3B39D9BAE7B79B395BC7EBF /* Pods_e926_watch.framework */; };
 		701D65E3D5ABB9EFBDEACA4B /* Pods_e926.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC80BB0028B3425D6805B8F8 /* Pods_e926.framework */; };
 		97C86E542CC6F345AE56BB95 /* Pods_e926_watch_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC38D6FF42F10A2ACD6463B /* Pods_e926_watch_Extension.framework */; };
-		D90EF0931EED3AE2009E9E6B /* Fuzi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90EF0921EED3AE2009E9E6B /* Fuzi.framework */; };
 		D9224A421E0ACADA002DFAA1 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9224A401E0ACADA002DFAA1 /* Interface.storyboard */; };
 		D9224A521E0ACADA002DFAA1 /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A511E0ACADA002DFAA1 /* InterfaceController.swift */; };
 		D9224A541E0ACADA002DFAA1 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9224A531E0ACADA002DFAA1 /* ExtensionDelegate.swift */; };
@@ -156,8 +155,6 @@
 		B9D6B1A2A697007E36E7E099 /* Pods_e926UITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_e926UITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAFF2017C16B982D33A134B2 /* Pods-e926Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-e926Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		D86CBB37A057A82F09DB0AA2 /* Pods-e926Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-e926Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests.release.xcconfig"; sourceTree = "<group>"; };
-		D90EF0901EED3793009E9E6B /* Fuzi.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Fuzi.framework; path = "Pods/../build/Debug-iphoneos/Fuzi/Fuzi.framework"; sourceTree = "<group>"; };
-		D90EF0921EED3AE2009E9E6B /* Fuzi.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Fuzi.framework; path = "Pods/../build/Debug-iphoneos/Fuzi/Fuzi.framework"; sourceTree = "<group>"; };
 		D9224A3E1E0ACADA002DFAA1 /* e926-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "e926-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9224A411E0ACADA002DFAA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		D9224A451E0ACADA002DFAA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -288,7 +285,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D9C229521F4A288600ABB2CF /* Gifu.framework in Frameworks */,
-				D90EF0931EED3AE2009E9E6B /* Fuzi.framework in Frameworks */,
 				D94838B21EECDDC500F911A3 /* Carlos.framework in Frameworks */,
 				D9D670A61EEB5CAA00612DD9 /* UICollectionViewLeftAlignedLayout.framework in Frameworks */,
 				D9ABFF031EE4BC0800FE7BD3 /* Alamofire.framework in Frameworks */,
@@ -347,8 +343,6 @@
 			isa = PBXGroup;
 			children = (
 				D9C229511F4A288600ABB2CF /* Gifu.framework */,
-				D90EF0901EED3793009E9E6B /* Fuzi.framework */,
-				D90EF0921EED3AE2009E9E6B /* Fuzi.framework */,
 				D94838B31EED198A00F911A3 /* SwiftyGif.framework */,
 				D94838B11EECDDC500F911A3 /* Carlos.framework */,
 				D94838AF1EECDB1400F911A3 /* Haneke.framework */,
@@ -607,7 +601,6 @@
 				2A1624EA80E667187E22E644 /* [CP] Check Pods Manifest.lock */,
 				D9224A3C1E0ACADA002DFAA1 /* Resources */,
 				F0359CE197B5B4E07DE7ED6A /* Frameworks */,
-				27CEC9C795D4B5721D3E1567 /* [CP] Copy Pods Resources */,
 				D96831C11F0EEB0900479ECC /* Embed App Extensions */,
 			);
 			buildRules = (
@@ -629,7 +622,6 @@
 				D9224A471E0ACADA002DFAA1 /* Frameworks */,
 				D9224A481E0ACADA002DFAA1 /* Resources */,
 				04DFBCDC1BD1AF0CA2A88F94 /* [CP] Embed Pods Frameworks */,
-				C3ACC816A64E74A878FCE2E8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -703,7 +695,6 @@
 				D9B080AE1DA9C06000BDC28C /* Resources */,
 				D9224A641E0ACADA002DFAA1 /* Embed Watch Content */,
 				2DE20DB5578F4B3F253993BE /* [CP] Embed Pods Frameworks */,
-				BC6A09D3B49CF1E03A1EC1F8 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -723,8 +714,6 @@
 				D9B080C21DA9C06000BDC28C /* Sources */,
 				D9B080C31DA9C06000BDC28C /* Frameworks */,
 				D9B080C41DA9C06000BDC28C /* Resources */,
-				96F517B51ED9C2DE27C0366D /* [CP] Embed Pods Frameworks */,
-				8D877E56E4A64FA6A1C7E56C /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -744,8 +733,6 @@
 				D9B080CD1DA9C06000BDC28C /* Sources */,
 				D9B080CE1DA9C06000BDC28C /* Frameworks */,
 				D9B080CF1DA9C06000BDC28C /* Resources */,
-				5300EE044A6E5CA540BD8EBD /* [CP] Embed Pods Frameworks */,
-				0FD125066ED55104F59283C6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -764,7 +751,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0900;
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "Austin Chau";
 				TargetAttributes = {
 					D9224A3D1E0ACADA002DFAA1 = {
@@ -925,43 +912,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-e926-watch Extension/Pods-e926-watch Extension-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/PromiseKit.root-CorePromise-Foundation-watchOS3.1/PromiseKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926-watch Extension/Pods-e926-watch Extension-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		0FD125066ED55104F59283C6 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926UITests/Pods-e926UITests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		27CEC9C795D4B5721D3E1567 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926-watch/Pods-e926-watch-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2A1624EA80E667187E22E644 /* [CP] Check Pods Manifest.lock */ = {
@@ -970,13 +930,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-e926-watch-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2DE20DB5578F4B3F253993BE /* [CP] Embed Pods Frameworks */ = {
@@ -985,9 +948,24 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-e926/Pods-e926-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/Carlos/Carlos.framework",
+				"${BUILT_PRODUCTS_DIR}/Gifu/Gifu.framework",
+				"${BUILT_PRODUCTS_DIR}/PiedPiper/PiedPiper.framework",
+				"${BUILT_PRODUCTS_DIR}/PromiseKit.default-Alamofire-CorePromise/PromiseKit.framework",
+				"${BUILT_PRODUCTS_DIR}/UICollectionViewLeftAlignedLayout/UICollectionViewLeftAlignedLayout.framework",
+				"${BUILT_PRODUCTS_DIR}/UIScrollView-InfiniteScroll/UIScrollView_InfiniteScroll.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Carlos.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Gifu.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PiedPiper.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UICollectionViewLeftAlignedLayout.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UIScrollView_InfiniteScroll.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1000,28 +978,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-e926-watch Extension-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		5300EE044A6E5CA540BD8EBD /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926UITests/Pods-e926UITests-frameworks.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		67AC20ADB03286D1C5494550 /* [CP] Check Pods Manifest.lock */ = {
@@ -1030,13 +996,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-e926-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		7206AB7DFADD65BB03276932 /* [CP] Check Pods Manifest.lock */ = {
@@ -1045,13 +1014,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-e926Tests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		7906E345BA2280D4B325BDBA /* [CP] Check Pods Manifest.lock */ = {
@@ -1060,73 +1032,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-e926UITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		8D877E56E4A64FA6A1C7E56C /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		96F517B51ED9C2DE27C0366D /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926Tests/Pods-e926Tests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BC6A09D3B49CF1E03A1EC1F8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926/Pods-e926-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C3ACC816A64E74A878FCE2E8 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-e926-watch Extension/Pods-e926-watch Extension-resources.sh\"\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1536,15 +1451,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -1588,15 +1511,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;

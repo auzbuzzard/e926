@@ -23,7 +23,7 @@ target 'e926' do
   pod 'UIScrollView-InfiniteScroll', '~> 1.0.0'
   pod 'UICollectionViewLeftAlignedLayout'
   pod "Carlos"
-  pod 'Fuzi', '~> 1.0.0'
+  #pod 'Fuzi', '~> 1.0.0'
   
   #pod "CLTokenInputView"
   #pod 'SCITokenSearchField', '~> 1.0'

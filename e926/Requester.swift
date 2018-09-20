@@ -8,7 +8,7 @@
 
 import Foundation
 import PromiseKit
-import Fuzi
+// import Fuzi
 
 class Requester {
     static var base_url: String {
@@ -146,14 +146,15 @@ class PoolRequester: Requester {
         return Network.getWithAlamo(url: url).responseString().then { response in
             //print(response)
             
-            let doc = try? HTMLDocument(cChars: (response.cString(using: .utf8))!)
-            let element = doc?.xpath("//*[@id=\"post-view\"]/div[1]/div[2]").first
+//            let doc = try? HTMLDocument(cChars: (response.cString(using: .utf8))!)
+//            let element = doc?.xpath("//*[@id=\"post-view\"]/div[1]/div[2]").first
             //print(doc?.body)
-            if let attr = element?.attributes, attr["class"] == "status-notice", let link = element?.children.first?.children(tag: "p").first?.children(tag: "a").first, let url = link.attributes["href"] {
-                return self.getPool(withLink: url)
-            } else {
-                return Promise<PoolResult>(error: PoolRequestError.cannotParseHTML(id: id))
-            }
+//            if let attr = element?.attributes, attr["class"] == "status-notice", let link = element?.children.first?.children(tag: "p").first?.children(tag: "a").first, let url = link.attributes["href"] {
+//                return self.getPool(withLink: url)
+//            } else {
+//                return Promise<PoolResult>(error: PoolRequestError.cannotParseHTML(id: id))
+//            }
+            return Promise<PoolResult>(error: PoolRequestError.cannotParseHTML(id: id))
         }
     }
     

@@ -1,0 +1,5 @@
+#import <Foundation/Foundation.h>
+@interface PodsDummy_PromiseKit_root_CorePromise_Foundation_watchOS3_0 : NSObject
+@end
+@implementation PodsDummy_PromiseKit_root_CorePromise_Foundation_watchOS3_0
+@end
