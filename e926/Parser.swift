@@ -10,299 +10,153 @@ import Foundation
 import PromiseKit
 
 protocol Parser {
-    associatedtype ParseResult: Result
+    associatedtype ParseResult: ModelResult
     static func parse(data: Data) -> Promise<ParseResult>
 }
 
+protocol ParserForList {
+    associatedtype ParseResult: ModelResult
+    static func parse(data: Data) -> Promise<[ParseResult]>
+}
+
 protocol ParserForItem {
-    associatedtype Result: ResultItem
-    static func parse(dictionary item: NSDictionary) -> Promise<Result>
+    associatedtype ParseResult: ResultItem
+    static func parse(dictionary item: NSDictionary) -> Promise<ParseResult>
+}
+
+extension ParserForItem {
+    static func parse(data: Data) -> Promise<ParseResult> {
+        return Promise { fulfill, reject in
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
+                    fulfill(json)
+                } else { reject(ParserError.CannotCastJsonIntoNSDictionary(data: data)) }
+            } catch { reject(error) }
+            }.then(on: .global(qos: .userInitiated)) { json in
+                return parse(dictionary: json)
+        }
+    }
 }
 
 enum ParserError: Error {
     case JsonDataCorrupted(data: Data)
     case CannotCastJsonIntoNSDictionary(data: Data)
+    case parserGuardFailed(id: String, variable: String)
 }
 
-class ListParser: Parser {
-    static func parse(data: Data) -> Promise<ListResult> {
-        return Promise { fulfill, reject in
+// MARK: - Implementation
+
+struct UserParser: ParserForItem {
+    static func parse(dictionary item: NSDictionary) -> Promise<UserResult> {
+        guard let id = item["id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "0", variable: "id")) }
+        guard let name = item["name"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "name")) }
+        guard let level = item["level"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "name")) }
+        
+        let avatar_id = item["avatar_id"] as? Int
+        
+        let metadata = UserResult.Metadata(name: name, id: id, level: level, avatar_id: avatar_id)
+        return Promise(value: UserResult(metadata: metadata))
+    }
+}
+
+struct CommentParser: ParserForItem {
+    static func parse(data: Data) -> Promise<[CommentResult]> {
+        return Promise<Array<NSDictionary>> { fulfill, reject in
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
-                    
-                    var results = [ImageResult]()
-                    
-                    for item in json {
-                        ImageParser.parse(dictionary: item).then { result -> Void in
-                            results.append(result)
-                            }.catch { error -> Void in
-                                if case ImageParser.ImageParserError.imageIsCensored(_, _) = error {
-                                    
-                                } else if case ImageParser.ImageParserError.imageTypeIsNotSupported(_, _) = error {
-                                    
-                                }
-                            }
-                    }
-                    fulfill(ListResult(result: results))
-                }
-            } catch {
-                reject(error)
-            }
-        }
-    }
-}
-
-class ImageParser: ParserForItem, UsingTagCache {
-    
-    static func imageShouldBeCensored(status: String, tags: String) -> Bool {
-        let tagsArr = tags.components(separatedBy: " ")
-        if Censor.censorMode == .strong && tagsArr.contains(where: {Censor.bannedTags.contains($0)}) {
-            return true
-        }
-        
-        guard let status_enum = ImageResult.Metadata.Status(rawValue: status) else { return true }
-        switch Censor.censorMode {
-        case .strong: return status_enum == .active ? false : true
-        case .safe, .none: return false
-        }
-    }
-    
-    static func imageTypeIsSupported(file_ext: String) -> Bool {
-        guard let status_enum = ImageResult.Metadata.File_Ext(rawValue: file_ext) else { return false }
-        switch status_enum {
-        case .jpg, .png, .gif: return true
-        case .swf, .webm: return false
-        }
-    }
-    
-    static func parse(data: Data) -> Promise<ImageResult> {
-        return Promise { fulfill, reject in
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
-                    parse(dictionary: json).then { result -> Void in
-                        fulfill(result)
-                        }.catch { error in
-                        reject(error)
-                    }
-                } else {
-                    reject(ParserError.CannotCastJsonIntoNSDictionary(data: data))
-                }
+                    fulfill(json)
+                } else { reject(ParserError.CannotCastJsonIntoNSDictionary(data: data)) }
+            } catch { reject(error) }
+        }.then(on: .global(qos: .userInitiated)) { json in
+            return when(resolved: json.map{ return parse(dictionary: $0) })
+        }.then(on: .global(qos: .userInitiated)) { results in
+            return results.flatMap {
+                if case let .fulfilled(value) = $0 { return value } else { return nil }
             }
         }
     }
     
-    static func parse(dictionary item: NSDictionary) -> Promise<ImageResult> {
-        let id = item["id"] as? Int ?? 0
-        let author = item["author"] as? String ?? ""
-        
-        let tags = item["tags"] as? String ?? ""
-        
-        let status = item["status"] as? String ?? ""
-        let file_url = item["file_url"] as? String ?? ""
-        let file_ext = item["file_ext"] as? String
-        let file_size = item["file_size"] as? Int
-        
-        if file_ext == nil || !imageTypeIsSupported(file_ext: file_ext!) {
-            return Promise { _, reject in
-                reject(ImageParserError.imageTypeIsNotSupported(id: id, status: {
-                    if file_ext != nil { return ImageResult.Metadata.File_Ext(rawValue: file_ext!) ?? .jpg }
-                    else { return .jpg }
-                }()))
-            }
-        }
-        
-        if imageShouldBeCensored(status: status, tags: tags) {
-            return Promise { _, reject in
-                reject(ImageParserError.imageIsCensored(id: id, status: ImageResult.Metadata.Status(rawValue: status) ?? .pending))
-            }
-        }
-        
-        let width = item["width"] as? Int ?? 1
-        let height = item["height"] as? Int ?? 1
-        
-        let score = item["score"] as? Int ?? 0
-        let fav_count = item["fav_count"] as? Int ?? 0
-        
-        let rating = item["rating"] as? String ?? "e"
-        
-        let creator_id = item["creator_id"] as? Int ?? 0
-        
-        
-        let sample_width = item["sample_width"] as? Int
-        let sample_height = item["sample_height"] as? Int
-        let preview_width = item["preview_width"] as? Int
-        let preview_height = item["preview_height"] as? Int
-        
-        let sample_url = item["sample_url"] as? String
-        let preview_url = item["preview_url"] as? String ?? ""
-        
-        var artist = [String]()
-        if let item_artist = item["artist"] as? NSArray {
-            for i in item_artist  {
-                if let a = i as? String {
-                    artist.append(a)
-                }
-            }
-        }
-        
-        let metadata: ImageResult.Metadata = ImageResult.Metadata(id: id, author: author, tags: tags, status: status, file_url: file_url, file_ext: file_ext, file_size: file_size, width: width, height: height, score: score, fav_count: fav_count, rating: rating, creator_id: creator_id, sample_width: sample_width, sample_height: sample_height, preview_width: preview_width, preview_height: preview_height, sample_url: sample_url, preview_url: preview_url, artist: artist)
-        
-        
-        return Promise { fulfill, _ in
-            fulfill(ImageResult(metadata: metadata))
-        }
-    }
-    
-    
-    enum ImageParserError: Error {
-        case imageIsCensored(id: Int, status: ImageResult.Metadata.Status)
-        case imageTypeIsNotSupported(id: Int, status: ImageResult.Metadata.File_Ext)
-    }
-}
-
-class UserParser: Parser {
-    
-    static func parse(data: Data) -> Promise<UserResult> {
-        return Promise { fulfill, reject in
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
-                    
-                    let name = json["name"] as? String ?? ""
-                    let id = json["id"] as? Int ?? 0
-                    let level = json["level"] as? Int ?? 0
-                    
-                    let avatar_id = json["avatar_id"] as? Int
-                    
-                    let metadata = UserResult.Metadata(name: name, id: id, level: level, avatar_id: avatar_id)
-                    
-                    fulfill(UserResult(metadata: metadata))
-                    
-                } else {
-                    reject(ParserError.CannotCastJsonIntoNSDictionary(data: data))
-                }
-            } catch {
-                reject(error)
-            }
-        }
-    }
-}
-
-class ListCommentParser: Parser {
-    static func parse(data: Data) -> Promise<ListCommentResult> {
-        return Promise { fulfill, reject in
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
-                    
-                    var results = [CommentResult]()
-                    
-                    for item in json {
-                        CommentParser.parse(dictionary: item).then { result -> Void in
-                            results.append(result)
-                            }.catch { error in
-                        }
-                    }
-                    fulfill(ListCommentResult(result: results))
-                }
-            } catch {
-                reject(error)
-            }
-        }
-    }
-}
-
-class CommentParser: ParserForItem {    
     static func parse(dictionary: NSDictionary) -> Promise<CommentResult> {
-        return Promise { fulfill, _ in
-            let id = dictionary["id"] as? Int ?? 0
-            let created_at = dictionary["created_at"] as? String ?? ""
-            let post_id = dictionary["post_id"] as? Int ?? 0
-            let creator = dictionary["creator"] as? String ?? ""
-            let creator_id = dictionary["creator_id"] as? Int ?? 0
-            let body = dictionary["body"] as? String ?? ""
-            let score = dictionary["score"] as? Int ?? 0
-            
-            let metadata = CommentResult.Metadata(id: id, created_at: created_at, post_id: post_id, creator: creator, creator_id: creator_id, body: body, score: score)
-            
-            fulfill(CommentResult(metadata: metadata))
-        }
+        guard let id = dictionary["id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "0", variable: "id")) }
+        guard let created_at = dictionary["created_at"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "created_at")) }
+        guard let post_id = dictionary["post_id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "post_id")) }
+        guard let creator = dictionary["creator"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "creator")) }
+        guard let creator_id = dictionary["creator_id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "creator_id")) }
+        guard let body = dictionary["body"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "body")) }
+        guard let score = dictionary["score"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "score")) }
+        
+        let metadata = CommentResult.Metadata(id: id, created_at: created_at, post_id: post_id, creator: creator, creator_id: creator_id, body: body, score: score)
+        
+        return Promise(value: CommentResult(metadata: metadata))
     }
 }
 
-class TagParser: Parser {
+struct TagParser: ParserForItem {
     static func parse(data: Data) -> Promise<TagResult> {
-        return Promise { fulfill, reject in
+        return Promise<NSDictionary> { fulfill, reject in
             do {
-                if let jsonArray = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
-                    let json = jsonArray[0]
-                    
-                    let id = json["id"] as? Int ?? 0
-                    let name = json["name"] as? String ?? ""
-                    let count = json["count"] as? Int ?? 0
-                    let type = json["type"] as? Int ?? 0
-                    
-                    let metadata = TagResult.Metadata(id: id, name: name, count: count, type: type)
-                    
-                    fulfill(TagResult(metadata: metadata))
-                }
-            } catch {
-                reject(error)
-            }
-            
-            
-        }
+                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? Array<NSDictionary> {
+                    fulfill(json[0])
+                } else { reject(ParserError.CannotCastJsonIntoNSDictionary(data: data)) }
+            } catch { reject(error) }
+        }.then(on: .global(qos: .userInitiated)) { return parse(dictionary: $0) }
+    }
+    
+    static func parse(dictionary item: NSDictionary) -> Promise<TagResult> {
+        guard let id = item["id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "0", variable: "id")) }
+        guard let name = item["name"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "name")) }
+        guard let count = item["count"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "count")) }
+        guard let type = item["type"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "type")) }
+    
+        let metadata = TagResult.Metadata(id: id, name: name, count: count, type: type)
+        
+        return Promise(value: TagResult(metadata: metadata))
     }
 }
 
-class PoolResultParser: Parser {
-    static func parse(data: Data) -> Promise<PoolResult> {
-        return Promise { fulfill, reject in
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? NSDictionary {
-                    
-                    let created_at: (json_class: String, s: Int, n: Int) = {
-                        let dict = json["created_at"] as? NSDictionary
-                        let json_class = dict?["json_class"] as? String ?? ""
-                        let s = dict?["s"] as? Int ?? 0
-                        let n = dict?["n"] as? Int ?? 0
-                        return (json_class, s, n)
-                    }()
-                    let description = json["description"] as? String ?? ""
-                    let id = json["id"] as? Int ?? 0
-                    let is_active = json["is_active"] as? Bool ?? false
-                    let is_locked = json["is_locked"] as? Bool ?? true
-                    let name = json["name"] as? String ?? ""
-                    let post_count = json["post_count"] as? Int ?? 0
-                    let updated_at: (json_class: String, s: Int, n: Int) = {
-                        let dict = json["updated_at"] as? NSDictionary
-                        let json_class = dict?["json_class"] as? String ?? ""
-                        let s = dict?["s"] as? Int ?? 0
-                        let n = dict?["n"] as? Int ?? 0
-                        return (json_class, s, n)
-                    }()
-                    let user_id = json["user_id"] as? Int ?? 0
-                    
-                    let posts: [ImageResult] = {
-                        var result = [ImageResult]()
-                        if let array = json["posts"] as? Array<NSDictionary> {
-                            for item in array {
-                                _ = ImageParser.parse(dictionary: item).then { img in
-                                    result.append(img)
-                                }
-                            }
-                        }
-                        return result
-                    }()
-                    
-                    let metadata = PoolResult.Metadata(created_at: created_at, description: description, id: id, is_active: is_active, is_locked: is_locked, name: name, post_count: post_count, updated_at: updated_at, user_id: user_id, posts: posts)
-                    
-                    fulfill(PoolResult(metadata: metadata))
-                }
-            } catch {
-                reject(error)
+class PoolResultParser: ParserForItem {
+    static func parse(dictionary item: NSDictionary) -> Promise<PoolResult> {
+        guard let id = item["id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "0", variable: "id")) }
+        
+        guard let created_at: (json_class: String, s: Int, n: Int) = {
+            if let dict = item["created_at"] as? NSDictionary,
+            let json_class = dict["json_class"] as? String,
+            let s = dict["s"] as? Int,
+            let n = dict["n"] as? Int {
+                return (json_class, s, n)
+            } else { return nil }
+        }() else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "created_at")) }
+        guard let description = item["description"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "description")) }
+        
+        guard let is_active = item["is_active"] as? Bool else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "is_active")) }
+        guard let is_locked = item["is_locked"] as? Bool else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "is_locked")) }
+        guard let name = item["name"] as? String else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "name")) }
+        guard let post_count = item["post_count"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "post_count")) }
+        
+        guard let updated_at: (json_class: String, s: Int, n: Int) = {
+            if let dict = item["updated_at"] as? NSDictionary,
+            let json_class = dict["json_class"] as? String,
+            let s = dict["s"] as? Int,
+            let n = dict["n"] as? Int {
+                return (json_class, s, n)
+            } else { return nil }
+        }() else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "updated_at")) }
+        guard let user_id = item["user_id"] as? Int else { return Promise(error: ParserError.parserGuardFailed(id: "\(id)", variable: "user_id")) }
+        
+        return Promise<Array<NSDictionary>> { fulfill, reject in
+            guard let array = item["posts"] as? Array<NSDictionary> else { reject(ParserError.parserGuardFailed(id: "\(id)", variable: "posts")); return }
+            fulfill(array)
+        }.then(on: .global(qos: .userInitiated)) { array in
+            return when(resolved: array.map{ ImageParser.parse(dictionary: $0) })
+        }.then(on: .global(qos: .userInitiated)) { results -> [ImageResult] in
+            return results.flatMap {
+                if case let .fulfilled(value) = $0 { return value } else { return nil }
             }
-            
-            
+        }.then { posts -> Promise<PoolResult> in
+            let metadata = PoolResult.Metadata(created_at: created_at, description: description, id: id, is_active: is_active, is_locked: is_locked, name: name, post_count: post_count, updated_at: updated_at, user_id: user_id, posts: posts)
+            return Promise(value: PoolResult(metadata: metadata))
         }
+
     }
 }
 

@@ -23,6 +23,10 @@ class ImageZoomVC: UIViewController {
     // Mark: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        if #available(iOS 11, *) {
+            navigationItem.largeTitleDisplayMode = .never
+        }
+        
         view.backgroundColor = Theme.colors().background
         mainImageView = UIImageView(frame: CGRect.zero)
         setupScrollView()
@@ -50,12 +54,12 @@ class ImageZoomVC: UIViewController {
     // Mark: - Data Loading
     
     func loadImage() {
-        _ = imageResult.imageData(forSize: .sample).then { data -> Void in
+        _ = imageResult.imageData(for: .sample).then { data -> Void in
             if !self.isFileImage {
                 self.setImageView(data: data, withZoom: true)
             }
         }
-        _ = imageResult.imageData(forSize: .file).then { data -> Void in
+        _ = imageResult.imageData(for: .file).then { data -> Void in
             self.setImageView(data: data, withZoom: false)
             self.isFileImage = true
         }

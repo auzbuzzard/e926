@@ -7,41 +7,33 @@
 //
 
 import UIKit
-import PromiseKit
-import Alamofire
 
 class HomeVC: UINavigationController {
     
     var listVC: ListCollectionVC!
-    var dataSource: ListCollectionVM!
     
     // Mark: View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        dataSource = ListCollectionVM()
         
         instantiateVC()
         
     }
     
     func instantiateVC() {
-        listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
-        #if DEBUG
-            print("HomeVC: Instantiating listVC: \(listVC)")
-        #endif
+        listVC = UIStoryboard(name: ListCollectionVC.storyboardName, bundle: nil).instantiateViewController(withIdentifier: ListCollectionVC.storyboardID) as! ListCollectionVC
         
-        listVC.dataSource = dataSource
-        listVC.listCategory = "Home"
         listVC.isFirstListCollectionVC = true
         listVC.shouldHideNavigationBar = true
         
-        setViewControllers([listVC], animated: false)
+        listVC.title = "e926"
         
-        listVC.collectionView?.collectionViewLayout.invalidateLayout()
-        
-        dataSource.getResults(asNew: true, withTags: nil, onComplete: {
+        listVC.dataSource = ListCollectionVM(result: ListResult())
+        listVC.dataSource?.getResults(asNew: true, withTags: nil).then {
             self.listVC.collectionView?.reloadData()
-        })
+        }.catch { print($0) }
+        
+        setViewControllers([listVC], animated: false)
     }
 }
 

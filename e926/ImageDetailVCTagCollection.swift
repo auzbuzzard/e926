@@ -46,7 +46,7 @@ extension ImageDetailVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let tag = imageResult.metadata.tags.components(separatedBy: " ")[indexPath.row]
-        open(withSearchTag: tag)
+        open(with: tag)
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsetsMake(10, 10, 10, 10)

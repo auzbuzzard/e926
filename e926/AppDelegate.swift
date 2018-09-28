@@ -19,8 +19,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
+        _ = SearchManager.main
+        
         WatchSession.shared.start()
-        Theme.apply()
+        Theme.apply(.basic)
         
         // Adding to censor
         Censor.bannedTagsPromise = Network.get(url: "https://pastebin.com/raw/CNRKmQg5", session: URLSession(configuration: .ephemeral)).then { data -> Promise<Void> in

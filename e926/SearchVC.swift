@@ -26,7 +26,7 @@
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dataSource = ListCollectionVM()
+        dataSource = ListCollectionVM(result: ListResult())
         view.backgroundColor = Theme.colors().background
         navigationController?.delegate = self
         searchSuggestionsVC = storyboard?.instantiateViewController(withIdentifier: "searchSuggestionsVC") as! SearchSuggestionsVC
@@ -66,15 +66,15 @@
         listVC.dataSource = dataSource
         listVC.listCategory = "Results"
         listVC.isFirstListCollectionVC = false
-        dataSource.tags = dataSource.tags(from: stringTag ?? "")
+        //dataSource.tags = dataSource.tags(from: stringTag ?? "")
         
         navigationController?.pushViewController(listVC, animated: true)
         listVC.title = dataSource.tags?.joined(separator: " ")
         
         //listVC.collectionView?.collectionViewLayout.invalidateLayout()
-        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
+        dataSource.getResults(asNew: true, withTags: dataSource.tags).then {
             self.listVC.collectionView?.reloadData()
-        })
+        }
     }
     
     // Mark: SearchBar
@@ -100,7 +100,7 @@
     }
     
     func useE621ModeDidChange() {
-        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: { })
+        dataSource.getResults(asNew: true, withTags: dataSource.tags).catch { print($0) }
     }
  }
  

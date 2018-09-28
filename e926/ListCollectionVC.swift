@@ -9,14 +9,13 @@
 import UIKit
 import PromiseKit
 import UIScrollView_InfiniteScroll
-import Gifu
 
 protocol ListCollectionDataSource {
     var results: [ImageResult] { get }
     var tags: [String]? { get }
     var poolId: Int? { get }
-    func getResults(asNew: Bool, withTags tags: [String]?, onComplete: @escaping () -> Void)
-    func getPool(asNew: Bool, poolId: Int, onComplete: @escaping () -> Void)
+    func getResults(asNew: Bool, withTags tags: [String]?) -> Promise<Void>
+    func getPool(asNew: Bool, poolId: Int) -> Promise<Void>
 }
 struct ListCollectionDataSourceGetResultsOptions {
     enum OptionType { case tag, poolId }
@@ -34,85 +33,93 @@ extension ListCollectionDelegate {
 /// There CollectionViewController class that deals with the vertical scroll view of lists of returned image results.
 class ListCollectionVC: UICollectionViewController {
     
-    // Mark: - Delegates
-    var dataSource: ListCollectionDataSource = ListCollectionVM()
-    var listCategory: String?
+    // MARK: - Declarations
+    
+    enum Errors: Error {
+        case setupInfiniteScrollFailed
+    }
+    
+    // MARK: - Constants and tags
+    public static let storyboardName = "ListCollection"
+    public static let storyboardID = "listCollectionVC"
+    private let showImageSegueID = "showImageZoomVC"
+    private let mainHeaderID = "mainHeader"
+    
     var isFirstListCollectionVC = false
     var shouldHideNavigationBar = true
     
-    // Mark: - Notification Observing
+    fileprivate static let cellPadding = 30
     
-    func useE621ModeDidChange() {
-        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
-            self.collectionView?.reloadData()
-        })
-    }
+    // Mark: - Delegates
+    var dataSource: ListCollectionDataSource?
+    var listCategory: String?
     
     // Mark: - VC Life Cycle
-    private let cellReuseID = "mainCell"
-    private let showImageSegueID = "showImageZoomVC"
-    private let mainHeaderID = "mainHeader"
-    fileprivate static let cellPadding = 30
     
     let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("LVC: \(dataSource is ListCollectionPoolVM)")
+        
         setupRefreshControl()
         setupInfiniteScroll()
-        if isFirstListCollectionVC {
-            collectionView?.delegate = self
-        }
+        
         navigationController?.delegate = self
+        if #available(iOS 11, *) {
+            navigationController?.navigationBar.prefersLargeTitles = true
+            navigationItem.largeTitleDisplayMode = .always
+        }
+        if isFirstListCollectionVC {
+            navigationItem.rightBarButtonItems = nil
+        }
+        
         NotificationCenter.default.addObserver(self, selector: #selector(useE621ModeDidChange), name: Notification.Name.init(rawValue: Preferences.useE621Mode.rawValue), object: nil)
     }
     
-    func setupInfiniteScroll() {
-        collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
-        collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
-            let lastCount = (self?.dataSource.results.count)!
-            print(self?.dataSource as Any)
-            if self?.dataSource is ListCollectionVM {
-                self?.dataSource.getResults(asNew: false, withTags: self?.dataSource.tags) {
-                    self?.setupInfiniteScrollOnComplete(lastCount: lastCount, collectionView: scrollView)
-                }
-            } else if self?.dataSource is ListCollectionPoolVM {
-                self?.dataSource.getPool(asNew: false, poolId: (self?.dataSource.poolId)!, onComplete: {
-                    self?.setupInfiniteScrollOnComplete(lastCount: lastCount, collectionView: scrollView)
-                })
-            }
-        }
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
-    private func setupInfiniteScrollOnComplete(lastCount: Int, collectionView scrollView: UICollectionView) {
-        // Update collection view
-        
-        var index = [IndexPath]()
-        for n in lastCount..<(self.dataSource.results.count) {
-            index.append(IndexPath(item: n, section: 0))
-        }
-        print("updating from inf scroll: \(index)")
-        scrollView.performBatchUpdates({ () -> Void in
-            scrollView.insertItems(at: index)
-        }, completion: { (finished) -> Void in
-            scrollView.finishInfiniteScroll()
-        })
-    }
+    // Setup UI
     
     func setupRefreshControl() {
         refreshControl.addTarget(self, action: #selector(ListCollectionVC.getNewResult), for: .valueChanged)
         collectionView?.addSubview(refreshControl)
     }
-    func getNewResult() {
-        dataSource.getResults(asNew: true, withTags: dataSource.tags, onComplete: {
-            self.collectionView?.reloadData()
-            self.refreshControl.endRefreshing()
-        })
+    
+    func setupInfiniteScroll() {
+        collectionView?.infiniteScrollIndicatorStyle = .whiteLarge
+        collectionView?.addInfiniteScroll { [weak self] (scrollView) -> Void in
+            firstly { () -> Promise<(Void, Int)> in
+                // Setup loading when performing infinite scroll
+                guard let lastCount = self?.dataSource?.results.count,
+                    let dataSource = self?.dataSource else { return Promise(error: Errors.setupInfiniteScrollFailed) }
+                if dataSource is ListCollectionVM {
+                    return dataSource.getResults(asNew: false, withTags: dataSource.tags).then { return ($0, lastCount) }
+                } else if dataSource is ListCollectionPoolVM {
+                    return dataSource.getPool(asNew: false, poolId: dataSource.poolId!).then { return ($0, lastCount) }
+                } else { return Promise(error: Errors.setupInfiniteScrollFailed) }
+            }.then { (_, lastCount) -> Void in
+                // Update collection view
+                guard let dataSource = self?.dataSource else { throw Errors.setupInfiniteScrollFailed }
+                var index = [IndexPath]()
+                for n in lastCount..<dataSource.results.count {
+                    index.append(IndexPath(item: n, section: 0))
+                }
+                scrollView.performBatchUpdates({ () -> Void in
+                    scrollView.insertItems(at: index)
+                }, completion: { (finished) -> Void in
+                    scrollView.finishInfiniteScroll()
+                })
+            }.catch { error in print(error) }
+        }
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    func getNewResult() {
+        dataSource?.getResults(asNew: true, withTags: dataSource?.tags).then { () -> Void in
+            self.collectionView?.reloadData()
+            self.refreshControl.endRefreshing()
+        }.catch { print($0) }
     }
     
     // Mark: - Segues
@@ -129,9 +136,10 @@ class ListCollectionVC: UICollectionViewController {
         if segue.identifier == showImageSegueID {
             let destinationVC = segue.destination as! ImageZoomVC
             let index = (sender as! IndexPath).row
-            let result = dataSource.results[index]
+            let result = dataSource?.results[index]
             destinationVC.imageResult = result
             DispatchQueue.global(qos: .background).async {
+                guard let result = result else { return }
                 for tag in result.metadata.tags_array {
                     _ = result.tagResult(from: tag).then { tagResult -> Void in
                         _ = TagCache.shared.setTag(tagResult)
@@ -141,73 +149,38 @@ class ListCollectionVC: UICollectionViewController {
         }
     }
     
+    // Mark: - Notification Observing
+    
+    func useE621ModeDidChange() {
+        dataSource?.getResults(asNew: true, withTags: dataSource?.tags).then {
+            self.collectionView?.reloadData()
+        }.catch { print($0) }
+    }
+    
     // MARK: - UICollectionViewDataSource
     
     override func numberOfSections(in collectionView: UICollectionView) -> Int { return 1 }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return dataSource.results.count }
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { return dataSource?.results.count ?? 0 }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         // Define cell
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellReuseID, for: indexPath) as! ListCollectionVCMainCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ListCollectionVCMainCell.storyboardID, for: indexPath) as! ListCollectionVCMainCell
+        // Guard if dataSource exists
+        guard let dataSource = dataSource else { return cell }
         // Safeguard if there's enough cell
         guard indexPath.row < dataSource.results.count else { return cell }
         // Setup gesture recognizer
         cell.setupImageViewGesture(receiver: self)
         
-        // Layout the cell
-        if let windowWidth = view.window?.bounds.size.width {
-            cell.setupCellLayout(windowWidth: windowWidth)
-        }
-        // Setting the cell
+        // Setting and Layout the cell
         let item = dataSource.results[indexPath.row]
         let itemVM = ListCollectionVCMainCellVM(imageResult: item)
+        cell.setupCellLayout(dataSource: itemVM, windowWidth: view.window?.bounds.width ?? view.bounds.width)
         cell.setCellContents(indexPath: indexPath, dataSource: itemVM)
         
         // Done
         return cell
-    }
-    
-    // Give section heading
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        // if it's header
-        if kind == UICollectionElementKindSectionHeader {
-            let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: mainHeaderID, for: indexPath) as! ListCollectionVCMainHeader
-            
-            header.setContent(title: listCategory ?? "")
-            return header
-        } else {
-            return UICollectionReusableView()
-        }
-    }
-    
-    // Mark: - Scroll View
-    
-    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
-        print("dragging")
-        if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
-            changeTabBar(hidden: true, animated: true)
-        } else {
-            changeTabBar(hidden: false, animated: true)
-        }
-    }
-    
-    func changeTabBar(hidden:Bool, animated: Bool){
-        let tabBar = self.tabBarController?.tabBar
-        if tabBar!.isHidden == hidden { return }
-        let frame = tabBar?.frame
-        let offset = (hidden ? (frame?.size.height)! : -(frame?.size.height)!)
-        let duration: TimeInterval = (animated ? 0.5 : 0.0)
-        tabBar?.isHidden = false
-        if frame != nil {
-            UIView.animate(withDuration: duration, animations: {
-                tabBar!.frame = tabBar!.frame.offsetBy(dx: 0, dy: offset)
-            }, completion: {
-                if $0 {
-                    tabBar?.isHidden = hidden
-                }
-            })
-        }
     }
 }
 
@@ -216,8 +189,8 @@ class ListCollectionVC: UICollectionViewController {
 extension ListCollectionVC: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         if viewController is ListCollectionVC {
-            navigationController.setNavigationBarHidden(shouldHideNavigationBar, animated: animated)
-            navigationController.hidesBarsOnSwipe = !shouldHideNavigationBar
+            navigationController.setNavigationBarHidden(false, animated: animated)
+            //navigationController.hidesBarsOnSwipe = !shouldHideNavigationBar
         } else {
             navigationController.setNavigationBarHidden(false, animated: animated)
             navigationController.hidesBarsOnSwipe = false
@@ -235,7 +208,7 @@ extension ListCollectionVC: UICollectionViewDelegateFlowLayout {
             return w
         }()
         
-        guard indexPath.row < dataSource.results.count else { return CGSize(width: width, height: 0) }
+        guard let dataSource = dataSource, indexPath.row < dataSource.results.count else { return CGSize(width: width, height: 0) }
         
         let itemMetadata = dataSource.results[indexPath.row].metadata
         let imageHeight = itemMetadata.height(ofSize: .sample) ?? 400

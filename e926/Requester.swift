@@ -16,50 +16,6 @@ class Requester {
     }
 }
 
-
-class ListRequester: Requester {
-    enum ListType { case post, user }
-    
-    static var list_post_url: String { return base_url + "/post/index.json" }
-    static var list_user_url: String { return base_url + "/user/index.json" }
-    
-    func downloadList(ofType listType: ListType, tags: [String]?, last_before_id: Int? = nil, page: Int?) -> Promise<ListResult> {
-        var params = [String]()
-        
-        if let last_before_id = last_before_id {
-            params.append("before_id=\(last_before_id)")
-        } else if let page = page {
-            params.append("page=\(page)")
-        }
-        if let tags = tags {
-            params.append("tags=\(tags.joined(separator: " ").addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)!)")
-        }
-        #if DEBUG
-            //params.append("limit=10")
-        #endif
-        
-        let url: String = {
-            switch listType {
-            case.post: return ListRequester.list_post_url + "?\(params.joined(separator: "&"))"
-            case.user: return ListRequester.list_user_url + "?\(params.joined(separator: "&"))"
-            }
-        }()
-        #if DEBUG
-            print(url)
-        #endif
-        
-        let network = Network.get(url: url)
-        let tags = Censor.bannedTagsPromise!
-        
-        return when(resolved: tags).then { _ -> Promise<Data> in
-            return network
-        }.then(on: .global(qos: .userInitiated)) { data -> Promise<ListResult> in
-            return ListParser.parse(data: data)
-        }
-    }
-    
-}
-
 class ImageRequester: Requester {
     static var image_url: String { return base_url + "/post/show" }
     
@@ -70,37 +26,22 @@ class ImageRequester: Requester {
         let url = getUrl(withId: id)
         return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ImageResult> in
             return ImageParser.parse(data: data)
-            }
+        }
     }
 }
 
-class UserRequester: Requester, UsingUserCache {
+class UserRequester: Requester {
     static let user_url = base_url + "/user/index"
     static let user_show_url = base_url + "/user/show"
     
     func getUser(WithId id: Int) -> Promise<UserResult> {
-        return userFromCache(id: id)
-            .recover { error -> Promise<UserResult> in
-                if case UserCache.CacheError.noUserInStore(_) = error {
-                    return self.downloadUser(withId: id)
-                } else {
-                    throw error
-                }
-        }
-    }
-    
-    func userFromCache(id: Int) -> Promise<UserResult> {
-        return userCache.getUser(withId: id)
-    }
-    
-    func downloadUser(withId id: Int) -> Promise<UserResult> {
         let url = UserRequester.user_show_url + "/\(id).json"
         return Network.get(url: url)
-            .then(on: .global(qos: .userInitiated)) { data -> Promise<UserResult> in
-                return UserParser.parse(data: data)
-            }.then(on: .global(qos: .userInitiated)) { result -> UserResult in
-                _ = self.userCache.setUser(result)
-                return result
+        .then(on: .global(qos: .userInitiated)) { data -> Promise<UserResult> in
+            return UserParser.parse(data: data)
+        }.then { result -> Promise<UserResult> in
+            Cache.user.setUser(result).catch { print($0) }
+            return Promise(value: result)
         }
     }
 }
@@ -109,7 +50,7 @@ class CommentRequester: Requester {
     static let list_url = base_url + "/comment"
     enum ReturnStatus: String { case hidden = "hidden", active = "active", any = "any" }
     
-    func getComments(for post_id: Int, page: Int?, status: ReturnStatus?) -> Promise<ListCommentResult> {
+    func getComments(for post_id: Int, page: Int?, status: ReturnStatus?) -> Promise<[CommentResult]> {
         
         var params = [String]()
         params.append("post_id=\(post_id)")
@@ -120,20 +61,20 @@ class CommentRequester: Requester {
             params.append("tags=\(status.rawValue)")
         }
         let url = CommentRequester.list_url + "/index.json?" + params.joined(separator: "&")
-        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<ListCommentResult> in
-            return ListCommentParser.parse(data: data)
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data in
+            return CommentParser.parse(data: data)
         }
     }
 }
 
-class TagResultRequester: Requester, UsingTagCache {
+class TagResultRequester: Requester {
     static let tag_url = base_url + "/tag"
     func getTag(withName name: String) -> Promise<TagResult> {
         let url = TagResultRequester.tag_url + "/index.json?" + "name=\(name)"
-        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data -> Promise<TagResult> in
+        return Network.get(url: url).then(on: .global(qos: .userInitiated)) { data in
             return TagParser.parse(data: data)
-            }.then(on: .global(qos: .userInitiated)) { tagResult -> TagResult in
-            _ = self.tagCache.setTag(tagResult)
+        }.then(on: .global(qos: .userInitiated)) { tagResult -> TagResult in
+            Cache.tag.setTag(tagResult).catch{ print($0) }
             return tagResult
         }
     }

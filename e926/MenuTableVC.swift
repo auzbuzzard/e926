@@ -18,7 +18,10 @@ class MenuTableVC: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.delegate = self
+        title = "Account"
+        if #available(iOS 11.0, *) {
+            navigationController?.navigationBar.prefersLargeTitles = true
+        }
         
         tableView.backgroundColor = Theme.colors().background
     }
@@ -110,16 +113,6 @@ class MenuTableVC: UITableViewController {
             default: tableView.deselectRow(at: indexPath, animated: true)
             }
         default: tableView.deselectRow(at: indexPath, animated: true)
-        }
-    }
-}
-
-extension MenuTableVC: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        if viewController == self {
-            navigationController.setNavigationBarHidden(true, animated: animated)
-        } else {
-            navigationController.setNavigationBarHidden(false, animated: animated)
         }
     }
 }

@@ -10,25 +10,43 @@ import Foundation
 import PromiseKit
 
 class ListCollectionVM: ListCollectionDataSource {
-    private var model = ListModel(ofType: .post)
     
-    var results: [ImageResult] { return model.result.results }
-    var tags: [String]? { get { return model.tags } set { model.tags = newValue } }
+    // MARK: - Internal Data
+    
+    private var result: ListResult
+    
+    init(result: ListResult) {
+        self.result = result
+    }
+    
+    // MARK: - Interface
+    
+    var results: [ImageResult] { return result.results }
+    var tags: [String]? { return result.tags }
     var poolId: Int?
     
-    func getResults(asNew: Bool = true, withTags tags: [String]? = nil, onComplete: @escaping () -> Void) {
-        model.getResult(reset: asNew, tags: tags, onComplete: onComplete)
+    func getResults(asNew reset: Bool = true, withTags tags: [String]? = nil) -> Promise<Void> {
+        if reset { result = ListResult() }
+        result.tags = tags
+        return ListRequester().downloadList(ofType: .post, tags: tags, page: result.currentPage + 1)
+        .then { listResult in
+            self.result.add(listResult)
+        }
     }
     
-    func getResults(asNew: Bool = true, withStringTags tag: String? = nil, onComplete: @escaping () -> Void) {
-        getResults(asNew: asNew, withTags: tags(from: tag), onComplete: onComplete)
+    func getResults(asNew reset: Bool = true, withStringTags tag: String? = nil) -> Promise<Void> {
+        return getResults(asNew: reset, withTags: tags(from: tag))
     }
-    func getPool(asNew: Bool, poolId: Int, onComplete: @escaping () -> Void) {
-        onComplete()
+    func getPool(asNew: Bool, poolId: Int) -> Promise<Void> {
+        return Promise(error: Errors.wrongDataSource)
     }
     
     func tags(from stringTag: String?) -> [String]? {
         return stringTag?.components(separatedBy: " ")
+    }
+    
+    enum Errors: Error {
+        case wrongDataSource
     }
 }
 
@@ -48,14 +66,15 @@ struct ListCollectionVCMainCellVM: ListCollectionVCMainCellDataSource {
     
     var imageType: ImageResult.Metadata.File_Ext { return imageResult.metadata.file_ext_enum ?? .jpg }
     var mainImageData: Promise<Data> {
-        return imageResult.imageData(forSize: .sample)
+        return imageResult.imageData(for: .sample)
     }
     var profileImageData: Promise<Data> {
-        return Promise<Data>(error: UserResult.UserResultError.noAvatarId(userId: 0))
+        return Promise<Data>(error: UserResult.Errors.noAvatarId(userId: 0))
     }
 }
 
 class ListCollectionPoolVM: ListCollectionDataSource {
+    
     var result: PoolResult!
     
     var results: [ImageResult] { return result?.metadata.posts ?? [ImageResult]() }
@@ -63,41 +82,39 @@ class ListCollectionPoolVM: ListCollectionDataSource {
     var poolId: Int? { return result?.id }
     var currentPage = 1
     
-    func getResults(asNew: Bool, withTags tags: [String]?, onComplete: @escaping () -> Void) {
-        onComplete()
+    func getResults(asNew: Bool, withTags tags: [String]?) -> Promise<Void> {
+        return Promise(error: Errors.wrongDataSource)
     }
     
-    func getPool(asNew: Bool, forImage id: Int, onComplete: @escaping () -> Void) {
-        print("VM: Getting Pool")
-        _ = PoolRequester().getPool(forImage: id).then { result -> Void in
+    func getPool(asNew: Bool, forImage id: Int) -> Promise<Void> {
+        return PoolRequester().getPool(forImage: id).then { result in
             self.result = result
-            onComplete()
         }
     }
-    func getPool(asNew: Bool, poolId: Int, onComplete: @escaping () -> Void) {
-        if asNew { self.result.results = [ImageResult](); self.currentPage = 1 }
-        _ = PoolRequester().getPool(withId: poolId, page: currentPage + 1).then { result -> Void in
+    func getPool(asNew reset: Bool, poolId: Int) -> Promise<Void> {
+        if reset { self.result.results = [ImageResult](); self.currentPage = 1 }
+        return PoolRequester().getPool(withId: poolId, page: currentPage + 1).then { result -> Void in
             self.result?.add(result)
             self.currentPage += 1
-            onComplete()
         }
     }
     
+    enum Errors: Error {
+        case wrongDataSource
+    }
     
 }
 
 class ImageDetailCommentVM {
     var post_id: Int
     init(post_id: Int) { self.post_id = post_id }
-    private var model = ListCommentResult()
-    var results: [CommentResult] { return model.results }
+    
+    lazy var results = [CommentResult]()
     private var lastPage: Int = 0
-    func getResults(page: Int?, onComplete: @escaping () -> Void) {
-        _ = CommentRequester().getComments(for: post_id, page: page ?? lastPage + 1, status: nil).then {
-            result -> Void in
-            self.model.add(result)
+    func getResults(page: Int?) -> Promise<Void> {
+        return CommentRequester().getComments(for: post_id, page: page ?? lastPage + 1, status: nil).then { result -> Void in
+            self.results.append(contentsOf: result)
             self.lastPage = page ?? (self.lastPage + 1)
-            onComplete()
         }
     }
 }

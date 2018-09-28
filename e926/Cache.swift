@@ -11,38 +11,13 @@ import PromiseKit
 import Carlos
 
 // Mark: Protocols
-// For External Class Conformance
-
-protocol UsingImageCache {
-    var imageCache: ImageCache { get }
-}
-extension UsingImageCache {
-    var imageCache: ImageCache { return ImageCache.shared }
-}
-protocol UsingUserCache {
-    var userCache: UserCache { get }
-}
-extension UsingUserCache {
-    var userCache: UserCache { return UserCache.shared }
-}
-protocol UsingImageResultCache {
-    var imageResultCache: ImageResultCache { get }
-}
-extension UsingImageResultCache {
-    var imageResultCache: ImageResultCache { return ImageResultCache.shared }
-}
-protocol UsingTagCache {
-    var tagCache: TagCache { get }
-}
-extension UsingTagCache {
-    var tagCache: TagCache { return TagCache.shared }
-}
 
 // For internal class conformance
 protocol CacheClass { }
 //extension CacheClass { }
 
 class Cache {
+    private init() { }
     static var image: ImageCache { return ImageCache.shared }
     static var imageResult: ImageResultCache { return ImageResultCache.shared }
     static var user: UserCache { return UserCache.shared }
@@ -61,13 +36,8 @@ class ImageCache: CacheClass {
     private lazy var images = NSCache<NSString, DataWrapper>()
     
     func getImageData(forId id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<Data> {
-        return Promise { fulfill, reject in
-            if let image = images.object(forKey: "\(id)_\(size.rawValue)" as NSString) {
-                fulfill(image.data)
-            } else {
-                reject(CacheError.noImageInStore(id: id))
-            }
-        }
+        guard let image = images.object(forKey: "\(id)_\(size.rawValue)" as NSString) else { return Promise(error: CacheError.noImageInStore(id: id)) }
+        return Promise(value: image.data)
     }
     
     func setImageData(_ imageData: Data, id: Int, size: ImageResult.Metadata.ImageSize) -> Promise<Void> {

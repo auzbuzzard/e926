@@ -37,18 +37,18 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         
         //findIfImageHasPool()
         poolVM = ListCollectionPoolVM()
-        poolVM.getPool(asNew: true, forImage: imageResult.id) {
-            print("got results")
+        poolVM.getPool(asNew: true, forImage: imageResult.id).then { () -> Void in
+            //print("got results")
             let i = IndexSet(integer: SectionType.pool.rawValue)
             self.tableView.reloadSections(i , with: UITableViewRowAnimation.automatic)
-        }
+        }.catch { print($0) }
         commentVM = ImageDetailCommentVM(post_id: imageResult.id)
     }
     
     func setupInfiniteScroll() {
         tableView.addInfiniteScroll { [weak self] tableView -> Void in
             let lastCount = (self?.commentVM.results.count)!
-            self?.commentVM.getResults(page: nil, onComplete: {
+            self?.commentVM.getResults(page: nil).then { () -> Void in
                 let currCount = (self?.commentVM.results.count)!
                 print("\(currCount), \(lastCount)")
                 tableView.setShouldShowInfiniteScrollHandler { _ -> Bool in
@@ -61,7 +61,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
                 tableView.finishInfiniteScroll(completion: { (tableView) in
                     tableView.insertRows(at: index, with: .automatic)
                 })
-            })
+            }.catch { print($0) }
         }
     }
     /*
@@ -159,7 +159,7 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
             print("Pool table clicked")
             if poolVM.result != nil {
                 print("opening pool")
-                open(withPool: poolVM)
+                open(with: poolVM)
             } else { print("fallthru"); fallthrough }
         default:
             tableView.deselectRow(at: indexPath, animated: true)
@@ -173,27 +173,33 @@ class ImageDetailVC: UITableViewController, SFSafariViewControllerDelegate {
         let url = URL(string: u)
         let svc = SFSafariViewController(url: url!, entersReaderIfAvailable: false)
         svc.delegate = self
+        if #available(iOS 10, *) {
+            svc.preferredBarTintColor = Theme.colors().background_layer1
+            svc.preferredControlTintColor = Theme.colors().text
+        }
         self.present(svc, animated: true, completion: nil)
     }
     
-    func open(withSearchTag tag: String) {
-        let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
-        listVC.dataSource = ListCollectionVM()
+    func open(with searchTag: String) {
+        SearchManager.main.appendSearch(SearchManager.SearchHistory(timeStamp: Date(), searchString: searchTag))
+        
+        let listVC = UIStoryboard(name: ListCollectionVC.storyboardName, bundle: nil).instantiateViewController(withIdentifier: ListCollectionVC.storyboardID) as! ListCollectionVC
+        listVC.dataSource = ListCollectionVM(result: ListResult())
         listVC.listCategory = "Results"
-        listVC.title = tag
+        listVC.title = searchTag
         listVC.isFirstListCollectionVC = false
         listVC.shouldHideNavigationBar = false
         navigationController?.pushViewController(listVC, animated: true)
-        listVC.dataSource.getResults(asNew: true, withTags: [tag], onComplete: {
+        listVC.dataSource?.getResults(asNew: true, withTags: [searchTag]).then {
             listVC.collectionView?.reloadData()
-        })
+        }.catch { print($0) }
     }
-    func open(withPool vm: ListCollectionPoolVM) {
+    func open(with poolVM: ListCollectionPoolVM) {
         print("poolVM: \(poolVM.results.count)")
-        let listVC = storyboard?.instantiateViewController(withIdentifier: "listCollectionVC") as! ListCollectionVC
+        let listVC = UIStoryboard(name: ListCollectionVC.storyboardName, bundle: nil).instantiateViewController(withIdentifier: ListCollectionVC.storyboardID) as! ListCollectionVC
         listVC.dataSource = poolVM
         listVC.listCategory = "Pool"
-        listVC.title = vm.result?.metadata.name
+        listVC.title = poolVM.result?.metadata.name
         listVC.isFirstListCollectionVC = false
         listVC.shouldHideNavigationBar = false
         navigationController?.pushViewController(listVC, animated: true)

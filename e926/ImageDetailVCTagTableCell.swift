@@ -15,7 +15,10 @@ class ImageDetailVCTagTableCell: UITableViewCell {
     @IBOutlet var collectionView: UICollectionView!
     
     func setupLayout() {
-        collectionView.backgroundColor = Theme.colors().background_layer1.withAlphaComponent(0.5)
+        collectionView.backgroundColor = UIColor.clear
+        
+        
+        
         collectionView.layer.cornerRadius = 5
         collectionView.layer.masksToBounds = true
     }

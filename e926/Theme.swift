@@ -27,6 +27,9 @@ enum Colors: Int {
     var label_questionable: UIColor { return UIColor(red: 228/255, green: 225/255, blue: 80/255, alpha: 1) }
     var label_explicit: UIColor { return UIColor(red: 228/255, green: 95/255, blue: 95/255, alpha: 1) }
     
+    var upv: UIColor { return UIColor(red: 62/255, green: 158/255, blue: 73/255, alpha: 1) }
+    var dnv: UIColor { return UIColor(red: 228/255, green: 95/255, blue: 95/255, alpha: 1) }
+    
     var text: UIColor { return UIColor.white }
     var link: UIColor { return UIColor(red: 180/255, green: 199/255, blue: 217/255, alpha: 1) }
     func tagColor(ofType type: TagResult.Metadata.TypeEnum) -> UIColor {
@@ -45,29 +48,34 @@ struct Theme {
         return .basic
     }
     
-    static func apply() {
-        let color = colors().background.withAlphaComponent(0.98)
-        let imageColor = UIImage(color: color)
-        // Status Bar
-        UIApplication.shared.statusBarStyle = .lightContent
-        UIApplication.shared.statusBarView?.backgroundColor = color
+    static func apply(_ theme: Colors) {
         // Tab Bar
-        UITabBar.appearance().backgroundImage = imageColor
             // Remove top gradient line
         UITabBar.appearance().layer.borderWidth = 0.0
         UITabBar.appearance().clipsToBounds = true
-        UITabBar.appearance().tintColor = colors().link
+        UITabBar.appearance().tintColor = theme.link
+        UITabBar.appearance().barTintColor = theme.background
         // Navigation Bar
-        UINavigationBar.appearance().tintColor = colors().link
-        UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName : Theme.colors().text]
-        UINavigationBar.appearance().setBackgroundImage(imageColor, for: .default)
-        UINavigationBar.appearance().shadowImage = UIImage()
+        UINavigationBar.appearance().barTintColor = theme.background_layer1
+        UINavigationBar.appearance().tintColor = theme.text
+        UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName : theme.text]
+        if #available(iOS 11, *) {
+            UINavigationBar.appearance().largeTitleTextAttributes = [NSForegroundColorAttributeName : theme.text]
+        }
         // Table View
-        UITableView.appearance().backgroundColor = colors().background
-        UITableViewCell.appearance().backgroundColor = .clear
+        UITableView.appearance().backgroundColor = theme.background
+        UITableViewCell.appearance().backgroundColor = theme.background
         // Collection View
-        UICollectionView.appearance().backgroundColor = colors().background
+        UICollectionView.appearance().backgroundColor = theme.background
+        // Tool Bar
+        UIToolbar.appearance().barTintColor = theme.background_layer1
+        UIToolbar.appearance().tintColor = theme.text
+        // UI Buttons
+        UILabel.appearance().textColor = theme.text
+        UITextField.appearance().tintColor = theme.link
+        UITextView.appearance().tintColor = theme.link
         
+        UISwitch.appearance().tintColor = theme.yellow_highlight
     }
 }
 
