@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
+   LastUpgradeVersion = "0930"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -13,11 +13,11 @@
             buildForProfiling = "YES"
             buildForArchiving = "YES">
             <BuildableReference
-               BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '171C9624E6B08373473E27D2DB0279AD'
-               BlueprintName = 'Pods-e926'
-               ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'Pods-e926.framework'>
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "94877A142A605A54538D63696CF33DD9"
+               BlueprintName = "Pods-e926"
+               ReferencedContainer = "container:Pods.xcodeproj"
+               BuildableName = "Pods-e926.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

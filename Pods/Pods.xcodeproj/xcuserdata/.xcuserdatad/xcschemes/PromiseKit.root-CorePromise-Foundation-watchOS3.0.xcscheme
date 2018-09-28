@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
+   LastUpgradeVersion = "0930"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -13,11 +13,11 @@
             buildForProfiling = "YES"
             buildForArchiving = "YES">
             <BuildableReference
-               BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'B20B49D70B36A2F8445CAA14BD1767C5'
-               BlueprintName = 'PromiseKit.common-Alamofire'
-               ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'PromiseKit.common-Alamofire.framework'>
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "B58D36DCBD22026FB9816FF7EE5F1DC5"
+               BlueprintName = "PromiseKit.root-CorePromise-Foundation-watchOS3.0"
+               ReferencedContainer = "container:Pods.xcodeproj"
+               BuildableName = "PromiseKit.root-CorePromise-Foundation-watchOS3.0.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

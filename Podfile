@@ -4,7 +4,7 @@ project 'e926.xcodeproj'
 # platform :ios, '9.0'
 
 swift_version = "3.0"
-pod "PromiseKit", "~> 4.0"
+pod "PromiseKit"
 #pod 'Alamofire', '~> 4.4'
 
 target 'e926' do
@@ -18,13 +18,13 @@ target 'e926' do
   pod 'Gifu'
   #pod 'SwiftyGif'
   #pod 'AImage'
-  pod 'Alamofire', '~> 4.4'
-  pod 'PromiseKit/Alamofire', '~> 4.0'
-  pod 'UIScrollView-InfiniteScroll', '~> 1.0.0'
+  pod 'Alamofire'
+  pod 'PromiseKit/Alamofire'
+  pod 'UIScrollView-InfiniteScroll'
   pod 'UICollectionViewLeftAlignedLayout'
   pod "Carlos"
-  pod 'Fuzi', '~> 1.0.0'
-  
+  pod 'Fuzi'
+    
   #pod "CLTokenInputView"
   #pod 'SCITokenSearchField', '~> 1.0'
   #pod 'KSTokenView', '~> 3.1'

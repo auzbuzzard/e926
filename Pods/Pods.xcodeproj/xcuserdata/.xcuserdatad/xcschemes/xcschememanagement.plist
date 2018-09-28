@@ -54,17 +54,17 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>PromiseKit.common-Alamofire.xcscheme</key>
+		<key>PromiseKit.default-Alamofire-CorePromise.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>PromiseKit.common-watchOS3.0.xcscheme</key>
+		<key>PromiseKit.root-CorePromise-Foundation-watchOS3.0.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>PromiseKit.common-watchOS3.1.xcscheme</key>
+		<key>PromiseKit.root-CorePromise-Foundation-watchOS3.1.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

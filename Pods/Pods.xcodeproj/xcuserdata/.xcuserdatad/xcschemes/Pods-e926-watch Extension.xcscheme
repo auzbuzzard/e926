@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
+   LastUpgradeVersion = "0930"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -13,11 +13,11 @@
             buildForProfiling = "YES"
             buildForArchiving = "YES">
             <BuildableReference
-               BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '1BF520788AD7E6C12A66D97B35AD281E'
-               BlueprintName = 'Pods-e926-watch Extension'
-               ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'Pods-e926-watch Extension.framework'>
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E0897D0ACE757057610423A6AC91432A"
+               BlueprintName = "Pods-e926-watch Extension"
+               ReferencedContainer = "container:Pods.xcodeproj"
+               BuildableName = "Pods-e926-watch Extension.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

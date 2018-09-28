@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0700"
+   LastUpgradeVersion = "0930"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -13,11 +13,11 @@
             buildForProfiling = "YES"
             buildForArchiving = "YES">
             <BuildableReference
-               BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '7855660257668DCEFE11594DBE027496'
-               BlueprintName = 'UICollectionViewLeftAlignedLayout'
-               ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'UICollectionViewLeftAlignedLayout.framework'>
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "027C4D93DC80239C7A8349E01388EB6C"
+               BlueprintName = "UICollectionViewLeftAlignedLayout"
+               ReferencedContainer = "container:Pods.xcodeproj"
+               BuildableName = "UICollectionViewLeftAlignedLayout.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
